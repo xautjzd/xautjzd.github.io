@@ -1,0 +1,32 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Git远程分支的一些操作 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="
+我是个爱折腾的人，昨天晚上突然看着自己的博客主题不爽，便立马将其从原先的Greyshade换到现在的Cleanpress。换完并构思一篇新博客之后，再次提交到GitHub上，得到提示此分支滞后于GitHub上，采用git pull又产生了太多冲突，冲突少手动解决还可，太多更改起来太麻烦，便萌生推掉远程分支重新提交的念头。可之前从未对远程分支做过相关的操作，只是偶尔删除远程库上的单个文件而已，又不得不求助Google了。碰到问题在解决过程中总是会学到很多，并且记忆深刻，现予以记录，方便自己，也回馈社会。
+删除之前先查看远程分支，在确定的情况下再作删除，以致不会删错。
+查看远程分支
+采用git branch -a可查看所有的分支(本地+远程),而git branch -r仅显示远程。如果打开颜色支持，还会看到远程分支的颜色与本地不同。"><meta property="og:image" content><meta property="og:title" content="Git远程分支的一些操作"><meta property="og:description" content="
+我是个爱折腾的人，昨天晚上突然看着自己的博客主题不爽，便立马将其从原先的Greyshade换到现在的Cleanpress。换完并构思一篇新博客之后，再次提交到GitHub上，得到提示此分支滞后于GitHub上，采用git pull又产生了太多冲突，冲突少手动解决还可，太多更改起来太麻烦，便萌生推掉远程分支重新提交的念头。可之前从未对远程分支做过相关的操作，只是偶尔删除远程库上的单个文件而已，又不得不求助Google了。碰到问题在解决过程中总是会学到很多，并且记忆深刻，现予以记录，方便自己，也回馈社会。
+删除之前先查看远程分支，在确定的情况下再作删除，以致不会删错。
+查看远程分支
+采用git branch -a可查看所有的分支(本地+远程),而git branch -r仅显示远程。如果打开颜色支持，还会看到远程分支的颜色与本地不同。"><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2014-04-01-some-operation-on-git-branch/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2014-04-01T00:00:00+00:00"><meta property="article:modified_time" content="2014-04-01T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Git远程分支的一些操作"><meta name=twitter:description content="
+我是个爱折腾的人，昨天晚上突然看着自己的博客主题不爽，便立马将其从原先的Greyshade换到现在的Cleanpress。换完并构思一篇新博客之后，再次提交到GitHub上，得到提示此分支滞后于GitHub上，采用git pull又产生了太多冲突，冲突少手动解决还可，太多更改起来太麻烦，便萌生推掉远程分支重新提交的念头。可之前从未对远程分支做过相关的操作，只是偶尔删除远程库上的单个文件而已，又不得不求助Google了。碰到问题在解决过程中总是会学到很多，并且记忆深刻，现予以记录，方便自己，也回馈社会。
+删除之前先查看远程分支，在确定的情况下再作删除，以致不会删错。
+查看远程分支
+采用git branch -a可查看所有的分支(本地+远程),而git branch -r仅显示远程。如果打开颜色支持，还会看到远程分支的颜色与本地不同。"><script src=http://xautjzd.github.io/js/feather.min.js></script>
+<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>Git远程分支的一些操作</h1><div class=meta>Posted on Apr 1, 2014</div></div><section class=body><p><img src=/images/20140401.jpg alt></p><p>我是个爱折腾的人，昨天晚上突然看着自己的博客主题不爽，便立马将其从原先的Greyshade换到现在的Cleanpress。换完并构思一篇新博客之后，再次提交到GitHub上，得到提示此分支滞后于GitHub上，采用<code>git pull</code>又产生了太多冲突，冲突少手动解决还可，太多更改起来太麻烦，便萌生推掉远程分支重新提交的念头。可之前从未对远程分支做过相关的操作，只是偶尔删除远程库上的单个文件而已，又不得不求助Google了。碰到问题在解决过程中总是会学到很多，并且记忆深刻，现予以记录，方便自己，也回馈社会。</p><p>删除之前先查看远程分支，在确定的情况下再作删除，以致不会删错。</p><h2 id=查看远程分支>查看远程分支</h2><p>采用<code>git branch -a</code>可查看所有的分支(本地+远程),而<code>git branch -r</code>仅显示远程。如果打开颜色支持，还会看到远程分支的颜色与本地不同。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>$git branch -a
+</span></span><span style=display:flex><span>* newtheme
+</span></span><span style=display:flex><span>  source
+</span></span><span style=display:flex><span>  remotes/origin/HEAD -&gt; origin/master
+</span></span><span style=display:flex><span>  remotes/origin/newtheme
+</span></span><span style=display:flex><span>  remotes/origin/source
+</span></span></code></pre></div><h2 id=删除远程分支>删除远程分支</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>$git push origin --delete &lt;branchname&gt;
+</span></span></code></pre></div><p>删除tag也是同样的操作：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>$git push origin --delete &lt;tagname&gt; 
+</span></span></code></pre></div><p>由于我删除的是远程库的默认分支master,所以在删除过程中产生了以下错误：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>remote: error: refusing to delete the current branch: refs/heads/master
+</span></span><span style=display:flex><span>To git@github.com:xautjzd/xautjzd.github.com.git
+</span></span><span style=display:flex><span> ! [remote rejected] master (deletion of the current branch prohibited)
+</span></span><span style=display:flex><span>	error: failed to push some refs to &#39;git@github.com:xautjzd/xautjzd.github.com.git&#39;
+</span></span></code></pre></div><p>这时只要进入该项目的settings，将default branch改为其他分支便可进行删除工作。</p><h2 id=重命名远程分支>重命名远程分支</h2><p>将本地分支推送到一个不存在的远程分支上便可新建远程分支，推送过后发现名称不对，便可通过下面的命令来修改名称：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>$git branch -m oldname newname
+</span></span></code></pre></div></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
+<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
+<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>

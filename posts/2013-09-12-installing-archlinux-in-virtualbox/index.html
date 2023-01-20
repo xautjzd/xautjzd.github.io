@@ -1,0 +1,127 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>VirtualBox安装ArchLinux系统 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
+##ArchLinux Install
+
+分区
+格式化分区
+挂载分区
+更改安装镜像
+安装基本系统
+生成fstab
+Chroot到新系统
+配置系统
+开启网络服务
+创建初始化ramdisk环境
+设置root密码
+安装配置bootloader
+卸载分区并重启系统
+安装图形用户界面
+
+详细步骤如下：
+###1. 分区
+虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：
+root#cfdisk
+
+进行分区，一般分三个即可。最后分区结果如下：
+dev/sda1 / 8G
+dev/sda2 /swap 1G(在空间最后)
+dev/sda3 /home 4G
+
+每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><meta property="og:image" content><meta property="og:title" content="VirtualBox安装ArchLinux系统"><meta property="og:description" content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
+##ArchLinux Install
+
+分区
+格式化分区
+挂载分区
+更改安装镜像
+安装基本系统
+生成fstab
+Chroot到新系统
+配置系统
+开启网络服务
+创建初始化ramdisk环境
+设置root密码
+安装配置bootloader
+卸载分区并重启系统
+安装图形用户界面
+
+详细步骤如下：
+###1. 分区
+虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：
+root#cfdisk
+
+进行分区，一般分三个即可。最后分区结果如下：
+dev/sda1 / 8G
+dev/sda2 /swap 1G(在空间最后)
+dev/sda3 /home 4G
+
+每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2013-09-12-installing-archlinux-in-virtualbox/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-09-12T00:00:00+00:00"><meta property="article:modified_time" content="2013-09-12T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="VirtualBox安装ArchLinux系统"><meta name=twitter:description content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
+##ArchLinux Install
+
+分区
+格式化分区
+挂载分区
+更改安装镜像
+安装基本系统
+生成fstab
+Chroot到新系统
+配置系统
+开启网络服务
+创建初始化ramdisk环境
+设置root密码
+安装配置bootloader
+卸载分区并重启系统
+安装图形用户界面
+
+详细步骤如下：
+###1. 分区
+虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：
+root#cfdisk
+
+进行分区，一般分三个即可。最后分区结果如下：
+dev/sda1 / 8G
+dev/sda2 /swap 1G(在空间最后)
+dev/sda3 /home 4G
+
+每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><script src=http://xautjzd.github.io/js/feather.min.js></script>
+<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>VirtualBox安装ArchLinux系统</h1><div class=meta>Posted on Sep 12, 2013</div></div><section class=body><p>都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：</p><p>##ArchLinux Install</p><ol><li>分区</li><li>格式化分区</li><li>挂载分区</li><li>更改安装镜像</li><li>安装基本系统</li><li>生成fstab</li><li>Chroot到新系统</li><li>配置系统</li><li>开启网络服务</li><li>创建初始化ramdisk环境</li><li>设置root密码</li><li>安装配置bootloader</li><li>卸载分区并重启系统</li><li>安装图形用户界面</li></ol><p>详细步骤如下：</p><p>###1. 分区</p><p>虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：</p><pre><code>root#cfdisk
+</code></pre><p>进行分区，一般分三个即可。最后分区结果如下：</p><pre><code>dev/sda1 / 8G
+dev/sda2 /swap 1G(在空间最后)
+dev/sda3 /home 4G
+</code></pre><p>每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。</p><p>###2. 格式化分区</p><p>执行如下命令格式化分区</p><pre><code>#mkfs.ext4 /dev/sda1
+#mkfs.ext4 /dev/sda3
+#mkswap /dev/sda2
+#swapon /dev/sda2  #enable swap partion
+</code></pre><p>###3. 挂载分区</p><pre><code>#mount /dev/sda1 /mnt #mount root partion
+#mkdir /mnt/home
+#mount /dev/sda3 /mnt/home  #mount home partion
+</code></pre><p>###4. 更改安装镜像</p><p>镜像列表优先级从上往下，所以为了软件更新的速度，最好将国内的mirror放到最上面。我添加的源及方法如下：</p><pre><code>#vi /etc/pacman.d/mirrorlist
+
+Server = http://mirrors.163.com/archlinux/$repo/os/$arch
+Server = http://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+Server = http://mirrors.sohu.com/archlinux/$repo/os/$arch
+Server = http://mirror.lzu.edu.cn/archlinux/$repo/os/$arch
+Server = http://ftp.tku.edu.tw/Linux/ArchLinux/$repo/os/$arch
+...
+</code></pre><p>###5. 安装基本系统</p><p>通过pacstrap脚本安装基本系统，方法如下：</p><pre><code>#pacstrap base base-devel
+</code></pre><p>###6. 生成fstab</p><p>通过下面的命令来生成fstab：</p><pre><code>#genfstab /mnt &gt;&gt; /mnt/etc/fstab
+</code></pre><p>###7. Chroot到新系统</p><p>通过以下命令chroot到新安装的系统:</p><pre><code>#arch-chroot /mnt
+</code></pre><p>使用chroot后，系统的目录结构将以指定的位置作为"/&ldquo;目录</p><p>###8. 配置系统</p><p>系统的配置主要有locale和时区的配置。</p><ul><li>Locale</li></ul><p>配置方法如下：</p><pre><code>#vi /etc/locale.gen
+#locale-gen
+</code></pre><ul><li>配置时区</li></ul><p>系统默认是utc时区，我们需要换到utc+8时区，方法如下：</p><pre><code>#ln s /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+</code></pre><p>###9. 开启网络服务</p><p>先通过ping命令查看网络是否正常，如果不能上网，则需要配置，方法有两种：1.dhcp 2.static ip。我用的是dhcp，所以只需要开启dhcp服务,方法如下：</p><pre><code>#dhcpcd interface_name
+</code></pre><p>其中interface_name可以通过ifconfig或者ip addr查询。默认在虚拟机中便可上网，所以无需配置。但是安装完成重启系统后便不能上网，原因是dhcp服务没启动。(这是我所碰到的情况)</p><p>###10. 创建初始化ramdisk环境</p><p>ramdisk是通过软件将一部分内存(RAM)来模拟一个硬盘，提高访问速度。当然这只是针对内存过剩的情况下才使用，一般完全没有必要。如果您觉得内存完全用不完，为了有效的利用，可以创建ramdisk，毕竟RAM的访问速度非常快，差不多是固态硬盘的30倍。创建ramdisk的方法如下：</p><pre><code>	#mkinitcpio -p linux
+</code></pre><p>通过<code>#vi /etc/mkinitcpio.conf</code>来查看相应的配置信息。</p><p>###11. 设置root密码</p><p>设置密码的命令都通用:</p><pre><code>#passwd
+</code></pre><p>然后输入符合要求的密码即可。当然平时操作尽量不要用root,所以为此可以新建一个用户。</p><p>###12. 安装配置bootloader</p><p>根据主板BIOS类型不同，安装和配置bootloader的方式也不同。
+大致有两种类型：</p><ol><li>传统的BIOS<ul><li>Syslinux</li><li>Grub</li></ul></li><li>UEFI BIOS<ul><li>EFISTUB</li><li>Gummiboot</li><li>Grub</li></ul></li></ol><p>我的主板是传统BIOS类型，采用Grub bootloader。二者的差别见图：</p><p><img src=http://pic.yupoo.com/xautjzd/D9TU14LM/medish.jpg alt></p><p>与传统BIOS相比，UEFI BIOS少了BIOS自检功能，这样节省了大量时间，从而加快平台的启动。</p><p>安装方法如下：</p><pre><code>#pacman -S grub-bios  #install grub bootloader
+#grub-install /dev/sda
+#grub-mkconfig -o /boot/grub/grub.cfg
+</code></pre><p>其中grub-install将grub images拷贝到/boot/grub。
+grub-mkconfig生成grub的配置，通过-o参数将配置输出到指定的配置文件，默认输出到标准输出。</p><p>###13. 卸载分区并重启系统</p><p>卸载分区前先通过<code>#exit</code>退出刚才新安装的系统，然后通过以下方法卸载分区:</p><pre><code>#umount /mnt/home
+#umount /mnt
+</code></pre><p>然后通过<code>#reboot</code>重启系统。</p><p>###14. 安装图形用户界面</p><p>先确定能否联网：#ping <a href=https://www.google.com>www.google.com</a>,如不能，则查看dhcp服务是否已经开启，可通过<code>dhcpcd interface_name</code>开启。在确保能上网的前提下通过：</p><pre><code>#pacman -S gnome xorg
+</code></pre><p>安装gnome图形用户界面。</p><p>经过以上步骤，基本的安装便可完成。我也是安装了好几遍之后才对其安装过程有了大致的了解，写此篇博客的目的主要是为了记录自己的安装过程供今后参考、锻炼自己的写作水平和分享给那些安装ArchLinux过程中碰到问题的朋友参考。</p><p>###参考资料</p><ol><li><p><a href=https://wiki.archlinux.org/index.php/Beginners%27_Guide>ArchLinux新手指南</a></p></li><li><p>Youtube ArchLinux安装视频</p></li></ol></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
+<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
+<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>

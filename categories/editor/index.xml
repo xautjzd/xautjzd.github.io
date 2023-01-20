@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Editor on Zhengdong.jzd 个人博客</title><link>http://xautjzd.github.io/categories/editor/</link><description>Recent content in Editor on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Thu, 16 Jan 2014 00:00:00 +0000</lastBuildDate><atom:link href="http://xautjzd.github.io/categories/editor/index.xml" rel="self" type="application/rss+xml"/><item><title>vim插件之surround.vim</title><link>http://xautjzd.github.io/posts/2014-01-16-vim-plugin-surround-dot-vim/</link><pubDate>Thu, 16 Jan 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-01-16-vim-plugin-surround-dot-vim/</guid><description>&lt;h3 id="surroundvim插件简介">Surround.vim插件简介&lt;/h3>
+&lt;p>[Surround.vim] &lt;a href="https://github.com/tpope/vim-surround">1&lt;/a> 是一款关于括号、引号和xml标签匹配的插件，可以成对的添加、修改和删除。当然也可以自定义匹配项。下面就常用的功能分别对标记的添加、修改和删除一一介绍。&lt;/p>
+&lt;h4 id="添加">添加&lt;/h4>
+&lt;p>如现有一文本&lt;code>Hello,wolrd&lt;/code>。光标处在文本中，然后输入ysiw&amp;quot;,文本变成：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>&amp;#34;Hello,world&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>yss&lt;/code>则将光标所在的当前行全部添加标签。如&lt;code>yss)&lt;/code>则将当前行用()包围。&lt;/p></description></item><item><title>Vim常用快捷键总结</title><link>http://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</link><pubDate>Wed, 18 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</guid><description>&lt;p>Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：&lt;/p>
+&lt;p>###Normal mode:&lt;/p>
+&lt;p>&lt;code>&amp;gt;&amp;gt;&lt;/code> indent current line&lt;/p>
+&lt;p>&lt;code>n&amp;gt;&amp;gt;&lt;/code> indent the next n line&lt;/p>
+&lt;p>&lt;code>.&lt;/code> repeat last command&lt;/p>
+&lt;p>&lt;code>m,n&amp;gt;&amp;gt;&lt;/code> indent from m to n line&lt;/p>
+&lt;p>&lt;code>==&lt;/code> autoindent current line&lt;/p>
+&lt;p>&lt;code>n==&lt;/code> autoindent the next n line&lt;/p>
+&lt;p>&lt;code>gg=G&lt;/code> autoindent the whole file&lt;/p></description></item><item><title>Bash到oh-my-zsh的转变</title><link>http://xautjzd.github.io/posts/2013-08-27-from-bash-to-oh-my-zsh/</link><pubDate>Tue, 27 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-27-from-bash-to-oh-my-zsh/</guid><description>从开始使用到现在一直使用的bash,虽然以前听过ksh,csh,sh等，但都不曾用过，今年开始zsh便不断地出入在眼前，但没真正见人用过，也不知道效果咋样，所以也没做尝试。
+另一个原因是各大linux默认都是bash,说明其功能不错，而且也处于懒的原因，就没折腾。但最近在使用tmux的过程中发现bash的提示符只显示-bash4.2$字样，并没有显示成user@hostname directory，在加上西安rubyist的熟人皓哥强烈推荐，这就坚定了我舍弃bash转到zsh的决心，二话不说，立马上GitHub上找到oh-my-zsh。就照着readme开始尝试，结果出现了错误，Google找到答案，是zsh没有安装才导致，所以就yum install zsh安装了zsh,随后在通过
+curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh
+安装了oh-my-zsh。不过此时系统默认还是bash,所以还得更改系统默认的shell，方法如下：
+###1. 修改/etc/shells文件
+先通过$which zsh查看zsh的位置，我zsh位于/usr/bin/zsh。然后再查看/etc/shells中是否含有zsh:
+$&amp;lt; /etc/shells grep zsh
+如果结果中没有/usr/bin/zsh，则需要手动将/usr/bin/zsh添加到/etc/shells文件中。
+###2. 更改默认的shell
+通过$chsh -s /usr/bin/zsh更改系统默认shell，退出系统，重新登陆便会发现系统默认的shell已经变为zsh，同时也可以更改zsh默认的主题，在~/.zshrc中更改ZSH_THEME属性即可，其被选的值在oh-my-zsh theme中任选一个即可。
+经过以上两步，oh-my-zsh便安装完成。但是写博客时发现rake new_post[&amp;quot;xxx&amp;quot;]时出现zsh: no matches found: new_post错误，Google找到答案，只需改为rake 'new_post[&amp;quot;xxx&amp;quot;]'即可，原因是zsh会将一些特殊符号当作查找文件的通配符等，根源解决方法是：取消zsh的通配（Glob），即在~/.zshrc中加入alias rake=&amp;quot;noglob rake&amp;quot;。
+参考：oh-my-zsh官网</description></item><item><title>vim-airline插件patched font配置成功</title><link>http://xautjzd.github.io/posts/2013-08-26-airline-patched-font-config/</link><pubDate>Mon, 26 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-26-airline-patched-font-config/</guid><description>前段时间装好了airline插件，但是没呈现应有的效果，原因是没有安装字体。根据官网的提示需要安装powerline的字体，我便照着powerline官网的配置方法来，但是还是没有成功。其原因是我安装了patched fonts，但是没有将terminal的font设置为patched fonts中的一种，所以statusbar会有乱码。下面对安装patched fonts做一个小结。
+安装patched fonts方式请参考:powerline字体配置，尽管文档很详细，但是还是重复一下：
+1.Download patched fonts
+$mkdir ~/.fonts新建一个font文件夹，然后$cd ~/.fonts进入.fonts文件夹。$git clone git@github.com:Lokaltog/powerline-fonts.git将powerline的patched fonts拷贝到~/.fonts目录下，目录结构如下图：
+2.Install the patched fonts to your System
+运行$fc-cache -vf ~/.fonts安装patched fonts到系统中
+3.Set Terminal fonts
+设置Terminal字体非常重要，我初次配置时，安装patched fonts，但是由于没有set terminal font,所以statusbar显示乱码。设置方法如下：
+Edit——Profiles——Default(Edit)——General——Font，选择~/.fonts/powerline下的某一种即可(可选范围一定要在刚才下载的patched fonts中选一种，否则乱码。)，当然也可以采取powerline font installing中的另一种方式，不过我没做尝试，有兴趣的朋友try it。配置截图如下：
+最后可以在~/.vimrc中更改airline的theme。更改方式如下：
+let g:airline_theme=&amp;quot;molokai&amp;quot;</description></item><item><title>vim文件的折叠与展开方式</title><link>http://xautjzd.github.io/posts/2013-08-25-vim-folding-and-unfolding/</link><pubDate>Sun, 25 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-25-vim-folding-and-unfolding/</guid><description>最近一直在用Vim学习Ruby,但是一直有个问题困扰：
+那就是文件无法折叠，但是我记得以前看过Vim的视频，里面见别人用到了折叠与展开。文件比较小时，此功能便无用，但一旦文件量大时，折叠与展开便显得尤为重要了。
+折叠的方式有以下几种：
+manual indent syntax marker expr diff ###1. Manual method
+vim默认的折叠方式是此种方式，不需要设置即可。要启用其他方式还得采用:set foldmethod=xxx或者:set fdm=xxx来设置。
+使用方法：
+v或者V进入visual mode,然后选中要折叠的文字，按zf便可折叠，折叠后按za或者zO便展开。
+同时也可以通过zfnj的方式将接下来的n行折叠。类似也有zfnk等;zR则打开所有的折叠。总结下来就是：
+zf =&amp;gt; create a fold za =&amp;gt; unfold zf#j =&amp;gt; fold down # lines zf#k =&amp;gt; fold up #lines zR =&amp;gt; unfold all ###2. Indent method
+缩进方式主要是根据代码缩进的方式来折叠/展开代码。要使用缩进方式，则需要做配置，:set foldmethod=indent或者在~/.vimrc中配置：set foldmethod=indent。
+其快捷键如下： zM =&amp;gt; fold all zR =&amp;gt; unfold all za =&amp;gt; fold/unfold
+###3. Syntax method
+采用syntax方式，则只需如下配置即可：
+:set fdm=syntax 按键方式与上述相似
+###4. Marker method</description></item><item><title>Vim学习资源</title><link>http://xautjzd.github.io/posts/2013-08-18-vim-learning-resource/</link><pubDate>Sun, 18 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-18-vim-learning-resource/</guid><description>&lt;h3 id="实用的快捷方式">实用的快捷方式&lt;/h3>
+&lt;ul>
+&lt;li>gf 快速跳转到定义&lt;/li>
+&lt;li>&lt;code>&amp;lt;C + 6&amp;gt;&lt;/code> 返回到上次编辑的文档&lt;/li>
+&lt;li>% 括号匹配{}&lt;a href="">&lt;/a>&lt;/li>
+&lt;li>&lt;code>#/*,g#/g*&lt;/code> 向前/向后搜索光标所在的词&lt;/li>
+&lt;li>gi 跳转到上次编辑的位置&lt;/li>
+&lt;li>gi 显示光标所在字符的编码&lt;/li>
+&lt;li>gH 开始选择行模式&lt;/li>
+&lt;li>vi&amp;quot; 选中&amp;quot;之间的文本(不包括&amp;quot;)&lt;/li>
+&lt;li>vi{ 选中{之间的文本（不包括{）&lt;/li>
+&lt;li>ci( 改变之间的文本&lt;/li>
+&lt;li>di[ 删除[之间的文本(不包括[)&lt;/li>
+&lt;li>da[ 删除[之间的文本(包括[),ca、va类似&lt;/li>
+&lt;li>C 修改至行尾&lt;/li>
+&lt;li>D 删除至行尾&lt;/li>
+&lt;/ul></description></item><item><title>安装Powerline过程中的收获</title><link>http://xautjzd.github.io/posts/2013-08-16-powerline-vs-airline/</link><pubDate>Fri, 16 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-16-powerline-vs-airline/</guid><description>Powerline插件已经多次耳闻目见，但是一直没做尝试，今天再次看到便忍不住试了下，结果还没成功。可能是由于字体的原因吧，在找答案的过程中邂逅了airline,据说比powerline加载更快，而且还无需安装字体。所以便果断地换为airline。只需在vimrc中加入bundle bling/vim-airline即可。当然前提是在~/.vimrc中已有如下配置：
+set laststatus=2 &amp;#34;Always show the status line set noshowmode set t_Co=256 配置好后效果如下图所示： 配置好后，在bash中显示没问题，但是在tmux中显示就有问题了，先前配置的效果无法显示。网上也找了好久答案，才得以解决，方法如下：
+1.$vim ~/.tmux.conf
+在~/.tmux.conf文件中添加如下代码：
+set -g default-terminal &amp;quot;screen-256color&amp;quot; 2.$vim ~/.bashrc
+在~/.bashrc中添加如下代码：
+alias tmux=&amp;quot;tmux -2&amp;quot; tmux -2是强制tmux的终端支持256种颜色。
+配置好后，显示没问题，但是在写博客的过程中发现vim突然不能输入中文了，不知为何。最后在~/.vimrc添加： set guifont=* 就顺利解决，不过原因待深究，要学的东西太多。</description></item><item><title>Vim的代码自动补齐插件——UltiSnips</title><link>http://xautjzd.github.io/posts/2013-08-03-vim-ultisnips/</link><pubDate>Sat, 03 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-03-vim-ultisnips/</guid><description>&lt;p>暑假时间充足，便又开始学习自己喜欢的Ruby。而学Ruby的最佳环境是Mac,其次是Linux,最次是Windows。Mac买不起，只能在Linux上折腾了，一台台式机装的Fedora17，自己的本是xp系统，装了不少微软的一套东西，毕竟教研室的项目都是在.net环境下进行的，不敢轻易换系统，所以便在本上装了个VirtualBox虚拟机，虚拟了一个Ubuntu。上面也配好了Ruby环境，毕竟本方便，带到哪里都可以学，但平时的Linux编程都是在台式机下，毕竟性能比虚拟机好。&lt;/p>
+&lt;p>而学习Ruby一般都是在Vim/Emacs/SublimeText 2下，RubyMine貌似很适合开发Ruby，由于是商业产品，没钱购买也就舍弃了，毅然决然的选择了Vim.都说高手使用的是Vim，想必必有可取之处。但是Vim的学习路线比较陡峭，开始是一段痛苦期，经过一段时间的摧残后，甜蜜的时光便来临了，各种强大而高效的插件让你目瞪口呆，顿时感觉其他IDE都蒻爆了。幸好我以前对Vim的基本操作便有了了解，所以再次学习起来便不那么痛苦，甚至不想回到Windows环境，不想再用其他的Editor。我现在用的插件并且给我印象深刻的大致有这么一些：Vundle,Ctrlp/command-T,UltiSnips/Snipmate,YouCompleteMe/SuperTab,NerdTree,Tagbar,FuzzyFinder,vim-rails，Markdown等。&lt;/p></description></item><item><title>Vim下的的插件管理神器——Vundle</title><link>http://xautjzd.github.io/posts/2013-07-27-vim-vundle-install-and-config/</link><pubDate>Sat, 27 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-27-vim-vundle-install-and-config/</guid><description>&lt;p>断断续续用Vim也不少时间了，但是从来没有进行过复杂的Vim配置，每每需要插件都是网上寻求安装方式。但是当插件多了管理也便变得繁琐，最后终于让我结识了插件管理神器——Vundle，用过的人都说好用，所以我便也尝试了，网上也有一部分人采用pathogen来进行插件管理，但是据说没有Vundle好用，也便没有尝试，下面对我使用Vundle做一个总结。&lt;/p>
+&lt;p>首先Vundle采用git插件的git repo以及vim-scripts维护的GitHub repo, 自动安装, 更新和卸载插件. 把这些繁杂的工作变得简单, 甚至, 成为一种享受.&lt;/p>
+&lt;p>##安装
+&lt;a href="https://github.com/gmarik/vundle">Vundle地址&lt;/a>,上面安装及配置步骤已经很详细，我在此再赘述下：&lt;/p>
+&lt;p>1.拷贝Vundle
+$ git clone &lt;a href="https://github.com/gmarik/vundle.git">https://github.com/gmarik/vundle.git&lt;/a> ~/.vim/bundle/vundle&lt;/p>
+&lt;p>上面步骤将vundle拷贝到本地的～/.vim/bundle/vundle目录下&lt;/p>
+&lt;p>2.Vundle配置&lt;/p>
+&lt;p>以下是我的配置文件：&lt;/p></description></item></channel></rss>

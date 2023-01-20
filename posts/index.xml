@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Zhengdong.jzd 个人博客</title><link>http://xautjzd.github.io/posts/</link><description>Recent content in Posts on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Thu, 19 Jan 2023 17:22:37 +0800</lastBuildDate><atom:link href="http://xautjzd.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>MacOS 环境批量安装软件</title><link>http://xautjzd.github.io/posts/use-brewfile-to-automation/</link><pubDate>Thu, 19 Jan 2023 17:22:37 +0800</pubDate><guid>http://xautjzd.github.io/posts/use-brewfile-to-automation/</guid><description>最近工作使用的电脑新换到 MacBook Pro M1 13寸，平时工作使用的各种工具 &amp;amp; 软件都需要重新安装 &amp;amp; 配置，耗时耗力而且没有太多成就感，所以一直在思索如何将其自动化掉，避免每次换电脑都要做重复的劳动。自己平时安装各种软件比较依赖 HomeBrew，印象中它有提供 Brewfile 可以批量安装软件，只是自己一直没有使用起来。刚好趁这次机会拿来练练手，一来总结经验以备下次复用，二来分享出来希望可以帮助到他人。下面分享下我是如何使用 Brewfile 批量安装工作必备软件的。
+1. 前提 使用 Brewfile 进行批量安装前，需要安装：
+git HomeBrew 另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，请保证 AppleID 已登录。
+2. 列出所需软件清单，形成 Brewfile 在批量安装前，列出自己平时工作所需的软件，在任意目录下创建名为 Brewfile 的文件，文件内容及格式可以参考我目前使用的 Brewfile 来声明:
+# taps tap &amp;#34;homebrew/bundle&amp;#34; tap &amp;#34;homebrew/cask&amp;#34; tap &amp;#34;homebrew/core&amp;#34; # packages brew &amp;#39;vim&amp;#39; brew &amp;#39;git&amp;#39; brew &amp;#39;zsh&amp;#39; brew &amp;#39;tmux&amp;#39; brew &amp;#39;ripgrep&amp;#39; brew &amp;#39;bat&amp;#39; brew &amp;#39;helix&amp;#39; brew &amp;#39;jq&amp;#39; brew &amp;#39;mas&amp;#39; # tools cask &amp;#39;emacs&amp;#39; cask &amp;#39;google-chrome&amp;#39; cask &amp;#39;notion&amp;#39; cask &amp;#39;alfred&amp;#39; cask &amp;#39;warp&amp;#39; cask &amp;#39;intellij-idea-ce&amp;#39; cask &amp;#39;sequel-pro&amp;#39; cask &amp;#39;clashx&amp;#39; cask &amp;#39;tunnelblick&amp;#39; # language # cask &amp;#39;java&amp;#39; brew &amp;#39;go&amp;#39; brew &amp;#39;cmake&amp;#39; brew &amp;#39;maven&amp;#39; brew &amp;#39;yarn&amp;#39; # install apps from apple store: 1.</description></item><item><title>域名是如何解析的？</title><link>http://xautjzd.github.io/posts/2022-08-18-how-dns-works/</link><pubDate>Thu, 18 Aug 2022 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2022-08-18-how-dns-works/</guid><description>&lt;h2 id="基本概念">基本概念&lt;/h2>
+&lt;p>我们生活在互联网时代，每天的工作生活几乎都在与互联网打交道，比如使用 Google 查找工作学习所需资料，使用 Youtube、抖音、网易云音乐等进行娱乐活动，通过 Twitter、微博、微信等获取新闻资讯及社交，使用京东、天猫、拼多多等购物，使用微信支付、支付宝支付进行付款等，这些都离不开网络。那么作为构成网络基础设施核心之一的域名(Domain)你知道是如何工作的吗？下面我们简单展开介绍下。&lt;/p>
+&lt;p>所有的信息都存储在服务器上，可通过 IP 地址访问获取，但通常 IP 地址难以记住，于是乎产生了域名概念。起初网络仅有少数服务器构成，域名到 IP 的映射信息可存储在单个文件(eg: /etc/hosts)，随着网络的蓬勃发展，单文件难以容纳所有的域名IP 映射关系，同时映射关系变更时，难以及时同步至各服务器，于是 &lt;a href="https://en.wikipedia.org/wiki/Domain_Name_System">DNS(Domain Name System) 协议&lt;/a>诞生，映射关系通过 DNS 服务器集中存储，用户根据所需向 DNS 服务器查询。那么 DNS 服务器是如何来存储域名映射关系的呢？这个映射关系是谁来负责写入的呢？下面来揭晓。&lt;/p></description></item><item><title>Emacs 常用基本操作</title><link>http://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</link><pubDate>Thu, 04 Aug 2022 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</guid><description>&lt;p>Emacs 作为 Programmer 熟知的两大 Editor 之一流行了很多年了，据说学习曲线陡峭，一直处于劝退状态。但作为喜欢折腾各种工具的自己来说，内心一直有跃跃欲试的想法，终于最近两个月得闲，开始研究学习上了。通过学习&lt;a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html">官网Tutorials&lt;/a> 熟悉其基本操作 &amp;amp; 配置，同时 Google 了解 Emacs 使用频次最高的一些插件，在使用过程中不断优化配置，打造成自己趁手的工具。目前，我主要有三种使用场景: 1. 文本编辑 2. 代码阅读 3. 写业余代码。以下是我在学习过程中整理的常用基本操作，分享出来一方面是当作学习笔记输出，以便后续遗忘时快速查找，另一方面也希望能带给他人一些帮助。&lt;/p>
+&lt;p>目前的常用操作有：&lt;/p>
+&lt;ul>
+&lt;li>单文件操作&lt;/li>
+&lt;li>光标移动&lt;/li>
+&lt;li>复制(copy) &amp;amp; 粘贴(paste)&lt;/li>
+&lt;li>插入(insert) &amp;amp; 删除(delete)&lt;/li>
+&lt;li>撤销(undo) &amp;amp; 重做(redo)&lt;/li>
+&lt;li>窗口操作&lt;/li>
+&lt;li>阅读代码常用操作&lt;/li>
+&lt;li>查看帮助文档&lt;/li>
+&lt;/ul>
+&lt;p>在使用 Emacs 时，有几个关键概念:&lt;/p>
+&lt;ul>
+&lt;li>Buffer&lt;/li>
+&lt;li>Window&lt;/li>
+&lt;li>Frame&lt;/li>
+&lt;li>Mode&lt;/li>
+&lt;/ul>
+&lt;p>请自行查阅文档了解。&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>注：&lt;/strong>&lt;code>C-h&lt;/code> 表示按住 Ctrl 键的同时按 h 键；&lt;code>M-x&lt;/code> 表示按住 Alt/Meta 键的同时按 x 键; &lt;code>S-p f&lt;/code> 表示按住 Windows 键，再依次按 p f 键。&lt;/p>
+&lt;/blockquote></description></item><item><title>MySQL 数据库优化</title><link>http://xautjzd.github.io/posts/2022-01-06-mysql-optimizing/</link><pubDate>Thu, 06 Jan 2022 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2022-01-06-mysql-optimizing/</guid><description>MySQL 数据库优化可从以下方面着手：
+SQL 语句优化 索引优化 锁优化 缓存优化 InnoDB 存储引擎优化 1. SQL 语句优化 检查 select 的 where 条件是否走索引，可用 explain 查看。 最小化全表扫描次数。 定期使用 ANALYZE TABLE 以保持表的统计信息是最新的。 更多，请参考: https://dev.mysql.com/doc/refman/8.0/en/select-optimization.html
+2. 索引优化 参考: https://dev.mysql.com/doc/refman/8.0/en/optimization-indexes.html
+3. 锁优化 参考: https://dev.mysql.com/doc/refman/5.7/en/locking-issues.html
+4. 缓存优化 参考: https://dev.mysql.com/doc/refman/5.7/en/buffering-caching.html
+5. InnoDB 存储引擎优化 5.1 InnoDB 存储磁盘 I/O 优化 5.1.1 参数 innodb_buffer_pool_size innodb_buffer_pool_size 一般调为系统内存的 50%~75%。
+5.1.2 参数 innodb_flush_method InnoDB 默认为 fsync，但在一些 GNU/Linux 或 Unix 发行版下，fsync 刷新缓存文件至磁盘非常慢，可将 innodb_flush_method 调整为 O_DSYNC。
+5.1.3 参数 innodb-fsync-threshold InnoDB 默认为 0，可调整 innodb 缓存阈值，避免单次大文件缓存刷盘。</description></item><item><title>2021 专业技能学习计划</title><link>http://xautjzd.github.io/posts/2021-04-11-learning-plan/</link><pubDate>Sun, 11 Apr 2021 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2021-04-11-learning-plan/</guid><description>&lt;p>时常觉得自己看过的东西不少，但却没有很好地沉淀，主要有两方面弊端：1. 自我怀疑 花了不少时间学习了解，长时间不用，缺少实战经验，最终慢慢遗忘，最后会疑惑自己的时间花的到底值不值？为何要浪费时间在没有任何产出上？2. 没有形成知识面 最近两年很少系统地去学习知识，大部分时间花费在了碎片式学习上，东边一榔头，西边一棒槌，都是分散的知识点，很少总结回顾，沉淀成文字/视频等，导致后面用到时，重复浪费时间在资料查询搜集上，不能很好地缩短自己重拾知识时间，也未能很好地帮助他人。为此，这里特梳理下自己 2021 年的学习计划，形成知识索引，方面后续知识快速定位，也希望能给予他人一点点帮助。&lt;/p>
+&lt;ul>
+&lt;li>操作系统: 重点是Linux 进程管理 &amp;amp; 调度、进程间通信、内存管理、I/O 模型&lt;/li>
+&lt;li>网络: TCP/IP 协议、HTTP 协议、DNS 协议、容器网络&lt;/li>
+&lt;li>中间件: Redis, RabbitMQ/Kafka/RocketMQ, Nginx, Zookeeper/Etcd, ElasticSearch, MySQL&lt;/li>
+&lt;li>设计原则 &amp;amp; 设计模式: SOLID, 24 种设计模式&lt;/li>
+&lt;li>系统架构: Client/Server, MVC, Layer, Broker 等&lt;/li>
+&lt;li>语言: Java/Go/Rust&lt;/li>
+&lt;li>工具: 效率提升类, 问题定位分析类, 知识变现类&lt;/li>
+&lt;li>其他: Google Analysis, 百度统计、SEO 相关&lt;/li>
+&lt;/ul></description></item><item><title>什么是文件系统？</title><link>http://xautjzd.github.io/posts/2020-09-08-what-is-file-system/</link><pubDate>Tue, 08 Sep 2020 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2020-09-08-what-is-file-system/</guid><description>文件系统是什么？ 文件系统组成 如何写一个简单的文件系统 文件系统是什么？ 软件 记录文件元信息(文件大小，所属用户，包含块等) 文件系统组成 inode inode 记录着文件的元信息，包含以下部分:
+文件大小 组件文件的块(block) 属主(owner) 访问权限 访问时间 创建时间 修改时间 inode table 为了管理 inode 信息，需要有个数据数据结构存储 inode 信息, 称之为 inode table, 会占一部分磁盘空间，若 inode 大小为 256 bytes, 一个 4k 大小的 block 可存储 16 个 inodes。
+allocation list 为了管理 block 是否已分配，需要有个数据结构存储，通常可以用位图(bitmap) 算法进行存储, 用 1bit 表示该 block 是否已使用，一个 4k 大小的 block 可存储 32k 个 block 使用情况。
+superblock superblock 用于存储文件系统元信息，包括 inodes 数量、文件系统中数据块(data block)数量、inode table 起始块位置、用于标识文件系统类型的魔数(magic number)等。操作系统挂载文件系统时，会首先读取 superblock 信息。</description></item><item><title>Java jar 是如何执行的?</title><link>http://xautjzd.github.io/posts/2020-09-01-how-java-jar-works/</link><pubDate>Tue, 01 Sep 2020 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2020-09-01-how-java-jar-works/</guid><description>&lt;p>Java 作为一门古老又流行的编程语言，想必大家或多或少都听过，甚至使用过，也有一部分人甚至在生产环境部署过 java 应用。可你了解过 java 程序是如何加载运行的吗？如果你的答案是 &lt;code>yes&lt;/code>, 那么建议不用浪费时间花费在已知的知识点了。&lt;/p>
+&lt;p>下面主要针对 java 可执行 jar(还有有库类型的jar 包，eg: rt.jar) 分析 jar 的加载运行过程，主要包含以下三部分展开:&lt;/p>
+&lt;ul>
+&lt;li>Java jar 生成&lt;/li>
+&lt;li>Java jar 内容&lt;/li>
+&lt;li>Java jar 加载 &amp;amp; 运行&lt;/li>
+&lt;/ul></description></item><item><title>IP 归属地查询</title><link>http://xautjzd.github.io/posts/2019-10-21-ip-location/</link><pubDate>Mon, 21 Oct 2019 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2019-10-21-ip-location/</guid><description>&lt;p>这里分享下几个不错的 ip 地址库:&lt;/p>
+&lt;h2 id="1-httpsipcnhttpsipcn">1. &lt;a href="https://ip.cn">https://ip.cn&lt;/a>&lt;/h2>
+&lt;h3 id="查询指定-ip">查询指定 IP&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn?ip=202.200.112.2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="查询本机-ip">查询本机 IP&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;strong>优势&lt;/strong>: 国内服务，速度较快, 且免费&lt;/p>
+&lt;p>&lt;strong>劣势&lt;/strong>: 信息量太少, 没有经纬度信息&lt;/p></description></item><item><title>Go 二进制应用注入 version 信息</title><link>http://xautjzd.github.io/posts/2019-10-20-go-app-version/</link><pubDate>Sun, 20 Oct 2019 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2019-10-20-go-app-version/</guid><description>&lt;p>当线上服务出现问题时，在排查问题前，我们需要确定线上服务部署版本、对应源码分支、最近一次提交记录、编译/打包时间、语言版本等，这些信息可写入配置文件，应用启动时读取。若采用 docker 部署时，也可将这些信息作为 LABEL 或应用镜像的 tag 中，方式多种多样，今天要介绍的是 go 应用下的另一个可选方式: 二进制编译时注入。&lt;/p></description></item><item><title>Ubuntu14.04上搭建ShadowSocks服务</title><link>http://xautjzd.github.io/posts/2015-06-01-build-shadowsocks-on-ubuntu/</link><pubDate>Mon, 01 Jun 2015 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2015-06-01-build-shadowsocks-on-ubuntu/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20150601.jpg" alt="">&lt;/p>
+&lt;h2 id="1-vps选择">1. VPS选择&lt;/h2>
+&lt;p>之前一直使用GoAgent作为破墙工具，不过后来有一阵用不成，即使更新到最新版，也未能如愿，后来忙于写论文，便用微软的&lt;a href="http://www.bing.com/">Bing&lt;/a>临时代替Google。用了一阵Bing,发现其实也挺好用，无论是UI还是搜索内容，都相当不错。只是偶尔想呼吸墙外空气，却未能如愿，始终给人不快的感觉。所以便有意选择付费服务。一直听说ShadowSocks搭建代理特别稳定，便开始留意VPS。可选的VPS很多，比较流行的当属Linode和Digital Ocean,不过Linode服务实在是太贵了，且最低配都感觉有点大材小用，没必要这么奢侈。便着重关注了下DO。可选的VPS有：&lt;/p></description></item><item><title>Ubuntu安装TexStudio</title><link>http://xautjzd.github.io/posts/2015-04-13-install-texstudio-on-ubuntu/</link><pubDate>Mon, 13 Apr 2015 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2015-04-13-install-texstudio-on-ubuntu/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20150601.png" alt="">&lt;/p>
+&lt;p>自从去年简历采用LaTex制作后,便逐渐对它有了好感.不过当时用的是Windows环境,直接采用Windows下的套装CTex进行简历的编辑与PDF的生成,编辑器采用的Texworks,且简历的模板还是网上宕下来并小作修改.虽然成功地生成简历,不过源码里面的不少细节还是一知半解.后来换到Ubuntu环境,又成功安装Linux下的LaTex编译环境&lt;a href="http://tug.org/texlive/">Texlive&lt;/a>,不过Texlive提供的只是编译环境而已,需要自己找寻称手的编辑器采用tex语法编辑好文档后并保存成&lt;code>.tex&lt;/code>格式文件,然后采用texlive的编译幻镜进行编译.由于自己是Vim党,所以从一开始便试图采用Vim进行tex文档编辑,试了好几个Vim下的LaTex插件,都未能称心.我的需求大致如下:&lt;/p></description></item><item><title>将博客从Octopress迁移到Jekyll</title><link>http://xautjzd.github.io/posts/2015-04-02-migrate-my-blog-to-jekyll/</link><pubDate>Thu, 02 Apr 2015 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2015-04-02-migrate-my-blog-to-jekyll/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20150402.jpg" alt="">&lt;/p>
+&lt;p>使用Octopress已将近两年,主题换了两三个,也能达到随时随地写博客的基本需求,只是总感觉少了点什么,让人不太自在.最近我想我找到原因了,那便是不够简洁,不够稳定,操作不够方便,同时太过臃肿.当换到新环境后,可能会由于新环境所装Ruby版本或rake版本与clone下来的环境不匹配,出现一些令人意想不到的问题.其臃肿的程度更不必细说,从Octopress作者Brandom Mathis一席话中便能知晓:&lt;/p>
+&lt;blockquote>
+&lt;p>Octopress is released as a single product, but it is a collection of plugins and configurations which are hard to disentangle. if you want to change or remove anything you are leaving the &amp;ldquo;golden path&amp;rdquo; and updates will be painful, if not impossible — short of copy and paste. Even I can not remove things from Octopress.&lt;/p>
+&lt;/blockquote></description></item><item><title>为什么而活？</title><link>http://xautjzd.github.io/posts/2014-12-11-why-we-live-in-this-world/</link><pubDate>Thu, 11 Dec 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-12-11-why-we-live-in-this-world/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20141211.jpg" alt="">&lt;/p>
+&lt;p>这些天经常为毕设及论文的事发愁，也因此变得浮躁不安起来，失了方寸，失了往日的沉着心态。整个人犹如悬在空中，飘飘然，毫无状态可言，如行尸走肉般活着。而每到夜深，躺在床上，头脑却越发清晰，不自觉地开始思考人生。心中时不时有一个声音在问自己：&lt;strong>为什么活着&lt;/strong>？&lt;/p>
+&lt;p>如果在上小学以前，意义可能在于吃各种零食和玩各种新奇玩具；小学阶段，则希望身边有一堆玩伴，下课之余疯狂玩耍；初中阶段，则追求着时髦的穿着与发型及情窦初开的懵懂爱情；高中阶段，则处于挣扎彷徨之中，希望早日脱离被各种公式、概念与单词淹没的苦海，期待早日迎来老师口中描述的神圣而神秘的大学的那种自由生活。初入大学后，确实发现原来生活可以如此自由，不想上课就在宿舍闷头睡大觉，可以睡觉睡到自然醒而不用每天天不亮就起来背英语单词和文言文，不再有做不完的作业考不完的试，不再有班主任猥琐的监视，不再有想玩而不得的情景&amp;hellip;&lt;/p></description></item><item><title>自由软件与开源软件</title><link>http://xautjzd.github.io/posts/2014-11-20-difference-between-free-software-and-open-source-software/</link><pubDate>Thu, 20 Nov 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-11-20-difference-between-free-software-and-open-source-software/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20141120.jpg" alt="">
+图为电影《The Shawshank Redemption》的海报&lt;/p>
+&lt;p>昨晚与张老师还有几位Linux小组成员一起去西邮参加了一个开源者行的活动，演讲嘉宾有GitCafe和Thoughtworks的人员。其实这次去只是想感受感受开源的气氛，一直听说西邮的开源气氛不错，未能亲身感受，所以趁还在西安，赶紧体会体会。这次最大的收获当属对开源文化的重新认识，也重新理解了free software与open source software的异同。&lt;/p>
+&lt;p>首先，free software的最初版本由Richard Stallman起草，并通过Free Software Foundation发布，其初衷是确保最终用户能够自由使用、学习、分享和修改软件。要理解free software的概念，得先理解其中&amp;quot;free&amp;quot;里的含义，这里的&amp;quot;free&amp;quot;并不是&amp;quot;free of charge&amp;quot;中的含义，而是&amp;quot;free speech&amp;quot;中&amp;quot;free&amp;quot;表示的意思。&lt;/p>
+&lt;p>通常所说的free software包含以下四种自由：&lt;/p></description></item><item><title>自我解剖</title><link>http://xautjzd.github.io/posts/2014-06-22-introspection/</link><pubDate>Sun, 22 Jun 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-06-22-introspection/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140622.jpg" alt="">&lt;/p>
+&lt;p>文字的力量着实强大，但对我这个不善言语的人来说，使用起来略困难，难以透过文字准确阐释心中所思所想及所憧憬的未来生活。所以在写之前，便仔细筛选了上面这张图片，大概反应了我对于未来几十年后垂垂老矣的自己所憧憬的生活吧,因为垂钓在我童年生活中占据了不可估量的分量，至今仍难以忘怀，也是我生命中难得主动喜欢的一项兴趣爱好了。突然想到了海子的《面朝大海，春乱花开》：&lt;/p>
+&lt;blockquote>
+&lt;p>从明天起，做一个幸福的人&lt;br>
+喂马、劈柴，周游世界&lt;br>
+从明天起，关心粮食和蔬菜&lt;br>
+我有一所房子，面朝大海，春暖花开&lt;br>
+从明天起，和每一个亲人通信&lt;br>
+告诉他们我的幸福&lt;br>
+那幸福的闪电告诉我的&lt;br>
+我将告诉每一个人&lt;br>
+给每一条河每一座山取一个温暖的名字&lt;br>
+陌生人，我也为你祝福&lt;br>
+愿你有一个灿烂的前程&lt;br>
+愿你有情人终成眷属&lt;br>
+愿你在尘世获得幸福&lt;br>
+我只愿面朝大海，春暖花开&lt;/p>
+&lt;/blockquote></description></item><item><title>有关Markdown的两款工具介绍</title><link>http://xautjzd.github.io/posts/2014-05-24-introduction-of-two-tools-about-markdown/</link><pubDate>Sat, 24 May 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-05-24-introduction-of-two-tools-about-markdown/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140524.jpg" alt="">&lt;/p>
+&lt;p>自从接触markdown这款简洁到不能再简洁的语法以来，我已经深深地喜欢上它，并在各种场合尝试使用它，比如说现在的博客、Evernote笔记、演示文档等。而今又发现一款新工具，采用markdown语法写邮件，现在几乎任何码字场合都能见到markdown的身影。&lt;/p>
+&lt;p>我一直将自己归为工具控一类，作为一名程序员，编码水平三流，码字水平不入流，但确是重度工具控。每次都会为发现有趣华丽的工具而兴奋，不把玩一番便不快。言归正传，markdown真有那么好么？让人迷恋的地方在哪？&lt;/p>
+&lt;p>当你向朋友推荐时，可能这是经常会被问到的问题，而且会问：word/wps已经很强大，为什么还要选择markdown?难道它比word更厉害?&amp;hellip;&lt;/p>
+&lt;p>下面我谈谈自己对markdown的认识及我为何选择markdown的原因。&lt;/p></description></item><item><title>Unix C的文件指针与文件描述符</title><link>http://xautjzd.github.io/posts/2014-05-21-file-pointer-and-file-descriptor-about-c/</link><pubDate>Wed, 21 May 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-05-21-file-pointer-and-file-descriptor-about-c/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140521.jpg" alt="">&lt;/p>
+&lt;p>AISC C中通常用文件指针FILE *进行文件的操作，如fopen, fclose, fread, fwrite, fscanf, fprintf等函数，都是通过文件指针进行文件的一系列操作；而类Unix系统则大多用文件描述符(file descriptor)进行文件的操作，如open, close, read, write等函数，文件描述符是一个整数，是文件描述符表(file descriptor table)中的索引(文件描述符表其实是维护进程打开的文件)。当进程打开或者创建一个文件，内核便会在此进程对应的文件描述符表中分配一个位置，然后便可通过文件描述符操作文件。&lt;/p></description></item><item><title>Ruby环境的搭建</title><link>http://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</link><pubDate>Sun, 18 May 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140518.jpg" alt="">&lt;/p>
+&lt;h2 id="ruby简介">Ruby简介&lt;/h2>
+&lt;p>第一次听到Ruby这个名词，可能会比较陌生，进而产生畏惧，毕竟在中国这片区域普及率还不是很高，但在世界范围内还是有不错的影响力，如果有所质疑，可以参考&lt;a href="http://www.tiobe.com/index.php/content/paperinfo/tpci/index.html">TIOBE&lt;/a>上Ruby的排名情况，进几年一直在前10左右徘徊。到目前为止，大家可能只了解到Ruby是一门编程语言，具体还未做了解，那这里引用&lt;a href="https://www.ruby-lang.org/en/">Ruby官网&lt;/a>的解释，供大家参考：&lt;/p>
+&lt;blockquote>
+&lt;p>Ruby is a dynamic, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.&lt;/p>
+&lt;/blockquote>
+&lt;p>用再多的语言描述都略显苍白，只有身临其中把玩一番才能有所体会，而且这种感触才最直观，最有说服力。这里，贴出一个网址，便可在浏览器中体验Ruby之美：&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;a href="http://tryruby.org/levels/1/challenges/0">http://tryruby.org/levels/1/challenges/0&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>请感受它的魅力所在吧。&lt;/p></description></item><item><title>有关实习的一些感受</title><link>http://xautjzd.github.io/posts/2014-05-05-some-feelings-about-intern-experience/</link><pubDate>Mon, 05 May 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-05-05-some-feelings-about-intern-experience/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140505.jpg" alt="">&lt;/p>
+&lt;p>前几天看了一篇文章，现在依然清晰的记得其中大意：&lt;/p>
+&lt;blockquote>
+&lt;p>人一生其实很短暂，只有30000天左右可供挥霍，所以请认真地对待每一天，抓紧时间做自己想做的事，不要给今后留有遗憾。&lt;/p>
+&lt;/blockquote>
+&lt;p>细细思索一番，我的人生已过1/3，而其中的大部分时间却没有主动选择自己想过的生活，没有走自己想走的路，顿时心生悲哀，失落之情不禁涌上心头。二十五载的不断尝试、不断摸索，终于找准了自己人生的方向，已是万幸，接下来便是坚定不移的走下去了。也许随着年龄的增长，眼界心界不断改变，方向也会随之变化，这我无法左右，未来的事谁能说的准。唯一能做的就是坚定不移的走当前已确立的路，同时记录自己人生的历程，以此慰藉当前的心，同时也算是给未来的自己留一扇观察当前自己的窗。&lt;/p>
+&lt;p>一月之余不写博客了，感觉无从写起。生活太过平淡，太过安逸，以致没有什么可值得念叨值得回味的故事，唯一记忆较深的当属实习之事了。自从12年上半年接触Ruby以来，一直断断续续的学习，时而放下，时而拾起。就在上上周(4.25号左右)，无意在RubyChina上看到一则西安Ruby&amp;amp;Rails实习生招聘的信息，而且对实习生的技能要求我也符合，便给他们回邮件并附上自己简历，过了不到一天便给我回复让我去聊聊。听到“聊聊”这词，以为只是搞技术的人之间相互交流，不需要再带纸质简历什么的。结果刚到之后，公司前台人员直接来一句：“你带了简历么？”，我顿时伤了，心想电子简历都给你们发了，不一样么，还带什么纸质简历，经过这次算是长知识了。由于是小公司，老板是搞技术的，所以直接和老板聊的。聊完之后便让填个人基本信息，在填的过程中发现来了Rubyists圈子的一位朋友也来应聘，而且也是Rails,我俩的不同就是我是实习，他是正式。只想说西安Rubyists圈子很小，我了解认识的Thoughtworks大概占了70%以上，剩下的就是当作业余爱好来学习的，比如我。&lt;/p></description></item><item><title>Git远程分支的一些操作</title><link>http://xautjzd.github.io/posts/2014-04-01-some-operation-on-git-branch/</link><pubDate>Tue, 01 Apr 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-04-01-some-operation-on-git-branch/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140401.jpg" alt="">&lt;/p>
+&lt;p>我是个爱折腾的人，昨天晚上突然看着自己的博客主题不爽，便立马将其从原先的Greyshade换到现在的Cleanpress。换完并构思一篇新博客之后，再次提交到GitHub上，得到提示此分支滞后于GitHub上，采用&lt;code>git pull&lt;/code>又产生了太多冲突，冲突少手动解决还可，太多更改起来太麻烦，便萌生推掉远程分支重新提交的念头。可之前从未对远程分支做过相关的操作，只是偶尔删除远程库上的单个文件而已，又不得不求助Google了。碰到问题在解决过程中总是会学到很多，并且记忆深刻，现予以记录，方便自己，也回馈社会。&lt;/p>
+&lt;p>删除之前先查看远程分支，在确定的情况下再作删除，以致不会删错。&lt;/p>
+&lt;h2 id="查看远程分支">查看远程分支&lt;/h2>
+&lt;p>采用&lt;code>git branch -a&lt;/code>可查看所有的分支(本地+远程),而&lt;code>git branch -r&lt;/code>仅显示远程。如果打开颜色支持，还会看到远程分支的颜色与本地不同。&lt;/p></description></item><item><title>随时随地用Octopress写博客</title><link>http://xautjzd.github.io/posts/2014-04-01-clone-your-cotopress-to-different-places/</link><pubDate>Tue, 01 Apr 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-04-01-clone-your-cotopress-to-different-places/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140401octopress.jpg" alt="">&lt;/p>
+&lt;p>&lt;a href="http://octopress.org/">Octopress&lt;/a>所依赖的环境是Ruby和Git,所以要使用它写博客，必须先确保目标机器上已经安装Ruby和Git。有时候可能需要在新的环境中创作，那么得进行以下的一些操作了。在讲操作前先简要介绍下Octopress如何工作。&lt;/p>
+&lt;h2 id="octopress是怎么工作的">Octopress是怎么工作的?&lt;/h2>
+&lt;p>Octopress默认有两个分支，即master和source。source分支主要存储用于生成博客的源文件，而master分支则主要包含生成后的博客。master分支存储在_deploy文件夹中，之所以以下划线命名，是因为在执行&lt;code>git push origin source&lt;/code>时，下划线开头的文件夹会被忽略掉。&lt;/p>
+&lt;p>当然，也可以创建自己的分支，但master分支一般主要用于存储生成后的博客，而博客源文件则可以自己新建分支存储。我目前在原有的基础上新建了newtheme分支，用于更改主题后的博客源码存储，以前的源码存储在source分支。&lt;/p>
+&lt;h2 id="创建本地octopress库">创建本地Octopress库&lt;/h2>
+&lt;p>在新环境中写作时，需要进行以下几个步骤：&lt;/p></description></item><item><title>有关安卓刷机的一些感受</title><link>http://xautjzd.github.io/posts/2014-03-30-experience-on-android-device-ruu/</link><pubDate>Sun, 30 Mar 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-03-30-experience-on-android-device-ruu/</guid><description>&lt;p>![](img /images/20140330.jpg)
+生命的乐趣在于体验各种新奇，每次尝试都会从中收获兴奋和快乐，同时也会有小小的成就感。但伴随这些快乐的往往是挫折，所以偷偷乐的同时也要正确看待这些不愉快的成分，其实他们就是生活的调味品，在充斥欢乐的时候来点不和谐的东西往往让人记忆深刻，生活需要刺激。&lt;/p>
+&lt;p>平时一直都处于神游迷离的状态，突然脑中会闪过一丝新奇想法。这不前几天玩三国杀玩到吐的时候，突然闪过刷机的念头，于是在晚上将近12点的时刻，开始了刷机之旅。网上有关各种机型的刷机教程早已铺天盖地，随处可见，也有刷机过程时出现的各种问题。我也将加入这一行列，成为其中一员。&lt;/p></description></item><item><title>C语言中的Segment fault问题</title><link>http://xautjzd.github.io/posts/2014-03-15-segment-fault-core-dumped-of-c/</link><pubDate>Sat, 15 Mar 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-03-15-segment-fault-core-dumped-of-c/</guid><description>&lt;p>![](img /images/20140315.jpg)&lt;/p>
+&lt;h2 id="什么是segment-fault">什么是Segment fault?&lt;/h2>
+&lt;blockquote>
+&lt;p>a segmentation fault (often shortened to segfault) or access violation is a fault raised by hardware with memory protection, notifying an operating system (OS) about a memory access violation; on x86 computers this is a form of general protection fault.&lt;/p>
+&lt;/blockquote>
+&lt;p>以上为&lt;a href="http://en.wikipedia.org/wiki/Segmentation_fault">Wikipedia&lt;/a>对段错误的解释。用通俗易懂的话来说就是访问越界，访问了不存在或者受操作系统保护的内存，通常都是由于数组越界或者指针引起。&lt;/p>
+&lt;h2 id="产生段错误的原因">产生段错误的原因&lt;/h2>
+&lt;ol>
+&lt;li>dereferencing NULL&lt;/li>
+&lt;li>dereferencing an uninitialized pointer&lt;/li>
+&lt;li>deferencing a pointer that has been freed/out of scope&lt;/li>
+&lt;li>writing off the end of an array&lt;/li>
+&lt;li>recursive function that uses all of the stack space&lt;/li>
+&lt;/ol></description></item><item><title>2014西安归途随笔</title><link>http://xautjzd.github.io/posts/2014-02-13-back-to-xian-2014/</link><pubDate>Thu, 13 Feb 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-02-13-back-to-xian-2014/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/back_to_xi'an20140213.jpg" alt="">&lt;/p>
+&lt;p>从1月20号到现在已有20多天了，说长不长，说短不短。回家的这段日子里很惬意，每天睡觉睡到自然醒，吃就更不用说了，无论在哪都不及家里吃的放心舒心，至于住么，家里自然比学校宿舍舒服多了。唯一美中不足的就是缺乏学习的氛围，不管多闲，都没心思整理开题报告，学习便更不用说了。一开始将其归结于家里没网，不过仔细琢磨下还是学习的气氛不够，导致自己变得懒惰。幸好在家呆的时间不是很长，不然真的要懒得无以复加。&lt;/p>
+&lt;p>本来回去之前便已将回程票买好了，买的2.16的，从武昌走。原计划是提前去武汉玩两天再走，毕竟武汉哥们好几个，随意蹭个吃住不成问题。哪知导师开始催(其实也谈不上催，就QQ上发了一个他专署的?而已，顿时感觉情况不妙，赶紧问问教研室的同学，没想到同级的都去了好几个，而且老师前几天给他们说了句：研究生应该过完初十就来的，这。。。不敢久留，立马抢了张12号的票)，便匆匆踏上了回西安的旅途。&lt;/p></description></item><item><title>vim插件之surround.vim</title><link>http://xautjzd.github.io/posts/2014-01-16-vim-plugin-surround-dot-vim/</link><pubDate>Thu, 16 Jan 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-01-16-vim-plugin-surround-dot-vim/</guid><description>&lt;h3 id="surroundvim插件简介">Surround.vim插件简介&lt;/h3>
+&lt;p>[Surround.vim] &lt;a href="https://github.com/tpope/vim-surround">1&lt;/a> 是一款关于括号、引号和xml标签匹配的插件，可以成对的添加、修改和删除。当然也可以自定义匹配项。下面就常用的功能分别对标记的添加、修改和删除一一介绍。&lt;/p>
+&lt;h4 id="添加">添加&lt;/h4>
+&lt;p>如现有一文本&lt;code>Hello,wolrd&lt;/code>。光标处在文本中，然后输入ysiw&amp;quot;,文本变成：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>&amp;#34;Hello,world&amp;#34;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>yss&lt;/code>则将光标所在的当前行全部添加标签。如&lt;code>yss)&lt;/code>则将当前行用()包围。&lt;/p></description></item><item><title>回首2013，展望2014</title><link>http://xautjzd.github.io/posts/2014-01-02-new-year-plan/</link><pubDate>Thu, 02 Jan 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-01-02-new-year-plan/</guid><description>&lt;p>回首过去这一年，无论从技术还是思维上，都有很大的提升，但要我数萝卜下窖似的列举出来，我还真的列不出。只清楚地记得以下几件大事：&lt;/p>
+&lt;ol>
+&lt;li>将博客从CSDN迁移到Octopress上。之所以迁移到Octopress上，是因为Octopress基于Jekyll，而Jekyll采用Ruby语言实现，恰巧我又迷上了Ruby。另一个原因是Octopress采用Markdown语法实现，排版更方便，简单的几个符号便能搞定,而且更美观。自从用了Markdown语法排版后，腰不酸了，腿不疼了。剩余的时间则可投入写作，何乐而不为呢?最大的好处是易迁移，只不过现在暂时还没有切身的体会，想想罢了，毕竟托管到GitHub上对于目前阶段已经够用，不必花钱买VPS，但不排除以后有钱了弄个VPS折腾下。那时候迁移也方便，所有的博客都是通过Jekyll引擎将markdown格式的文本转换为静态的Html文档，简单的拷贝下便可以了，而且还可以很方便的进行备份。其实与他人协作共同管理博客也是轻而易举的事了，只不过目前没这必要。&lt;/li>
+&lt;/ol></description></item><item><title>Tmux常用操作总结</title><link>http://xautjzd.github.io/posts/2013-12-04-sumary-about-tmux-operation/</link><pubDate>Wed, 04 Dec 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-12-04-sumary-about-tmux-operation/</guid><description>&lt;p>以前也写过一篇关于&lt;a href="http://xautjzd.github.io/blog/2013/08/08/tmux-use-and-configuration/">tmux的文章&lt;/a>,大概对tmux从简介、安装到操作已有简单的介绍，但由于是刚使用tmux时所写，总感觉操作部分写的不是很好，不够全面，所以便出现了此篇，算是填补前一篇的不足吧。&lt;/p>
+&lt;p>前边的操作前缀是Ctrl+b组合键，这两个键相隔甚远，操作起来太别扭，后来便在&lt;code>~/.tmux.conf&lt;/code>配置文件中更改成&lt;code>Ctrl+a&lt;/code>前缀了。具体配置见GitHub上&lt;a href="https://github.com/xautjzd/dotvim">我的tmux配置&lt;/a>。&lt;/p>
+&lt;h3 id="tmux常用操作">&lt;strong>Tmux常用操作&lt;/strong>&lt;/h3>
+&lt;p>####1. 新建Session&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>$tmux new -s sessionname
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>####2. 杀死指定Session&lt;/p></description></item><item><title>拆机过程中的一些收获</title><link>http://xautjzd.github.io/posts/2013-11-23-experience-share-about-computer-disassembly/</link><pubDate>Sat, 23 Nov 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-11-23-experience-share-about-computer-disassembly/</guid><description>&lt;p>昨天吃完午饭后来到教研室，突然师妹说有个远程(其实只是充分利用教研室的旧机器，在上面发布一些教研室的web项目，还有做为版本控制器的服务器)机器现在不能远程了，尝试关机不得所以强关，然后重启便无法启动，而她的数据在上面。所以我便开始了肢解之路。&lt;/p>
+&lt;p>由于几乎没有拆台式机的经验，所以拆机过程花费时间比较长，尤其是机箱外盖的拆卸。毕竟是旧机器，没有什么拆机教程可供参考，所以只能摸索着前进了，最后还是使用了点暴力手段才卸下的。拆开后，首先看了下是不是由于接口松动导致无法开机(其实连我自己都不相信是接口松动导致，因为强关不可能导致接口松动吧，可能是为了自我安慰才想到是接口松动的缘故)，查看了一番，便很快排除这个原因。突然想强关的后果很可能就是导致硬盘坏掉，但是起码也应该进入BIOS吧。便猜想是不是电源坏掉导致的原因，老师刚好这时候也出来了，看到我在拆着机，便问我什么情况，我便跟老师一五一十地把情况汇报了一番。然后老师便去隔壁(其实是老师所在部门的办公室)找了一台不能用的机器，我拿过来之后卸下电源重新换上去，当然其中还有不少接线的问题还摸索了一阵,最后才发现电源存在的作用：&lt;/p></description></item><item><title>放慢脚步回首过去一个月</title><link>http://xautjzd.github.io/posts/2013-11-21-some-ideas/</link><pubDate>Thu, 21 Nov 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-11-21-some-ideas/</guid><description>&lt;p>自上篇文章到现在差不多快一个月了，也因各种琐碎的事情没有闲下来构思一篇博文，顿时有一丝的罪恶感。吃完晚饭洗完澡坐在电脑前突然有种茫然的感觉，上了会儿高端大气的知乎浏览了几个帖子，本想着改下代码，结果发现也打不起精神，便趁此机会来码字来寻求心灵片刻的安宁吧。&lt;/p>
+&lt;p>首先，说说最近的劳动吧，虽然没啥成果。最近教研室事不多，刚好师姐有个同学需要找人帮忙改个项目，便答应帮忙(当然是有酬劳的，不然也不会闲到改.net的代码，虽然目前还没有谈具体的数字)。其实也不在乎都多少，答应干此活也只是为了积累经验而已，方便日后找工作，同时也算是练手。拿到代码后，我顿时有种欲哭无泪的感觉，代码逻辑及结构之混乱超乎我想象，可以总结为以下几点：&lt;/p></description></item><item><title>Welcome to Jekyll!</title><link>http://xautjzd.github.io/posts/2013-11-10-welcome-to-jekyll/</link><pubDate>Sun, 10 Nov 2013 10:18:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-11-10-welcome-to-jekyll/</guid><description>You&amp;rsquo;ll find this post in your _posts directory - edit this post and re-build (or run with the -w switch) to see your changes! To add new posts, simply add a file in the _posts directory that follows the convention: YYYY-MM-DD-name-of-post.ext.
+Jekyll also offers powerful support for code snippets:
+def print_hi(name) puts &amp;#34;Hi, #{name}&amp;#34; end print_hi(&amp;#39;Tom&amp;#39;) #=&amp;gt; prints &amp;#39;Hi, Tom&amp;#39; to STDOUT. Check out the Jekyll docs for more info on how to get the most out of Jekyll.</description></item><item><title>Vim寄存器</title><link>http://xautjzd.github.io/posts/2013-10-27-vim-registers/</link><pubDate>Sun, 27 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-27-vim-registers/</guid><description>&lt;p>谈Vim寄存器前先对昨天做个总结吧。Rails Girls昨天在西安的ThoughtWorks成功举办，目的是帮女性程序员了解Ruby &amp;amp; Rails，报名参加的学员大概有30多人，教练大致有10来个，由于活动是ThoughtWorks和西安的Rubyists一起合作举办，所以我作为西安Rubyists的一员报名当了教练(由于教练奇缺，而我们Rubyist成员大多都去北京参加RubyConf了，所以我作为Rubyists里面的菜鸟报名当教练了，去了发现除我外，其他教练都是TW员工,顿时汗颜)。&lt;/p></description></item><item><title>Hadoop集群</title><link>http://xautjzd.github.io/posts/2013-10-22-hadoop-cluster-1/</link><pubDate>Tue, 22 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-22-hadoop-cluster-1/</guid><description>&lt;p>最近开始研究起Hadoop,《Hadoop in Action》大概看了3章，然后开始着手搭建环境。&lt;/p>
+&lt;p>由于设备的受限，让老师给分了两台虚拟机（4G内存，20G硬盘，CentOS6.4），在上面开始搭建Hadoop集群，其中一台作为master,另一台作为slave。环境的搭建大概花了一天多的时间，主要有JDK的配置和SSH的配置，这两项已经是轻车熟路，所以很快便配置好。但是Hadoop才刚接触，所以配置起来速度慢点，没有一个绝对的参考资料，网上资料虽颇丰，但甄别对与错却需要一定时间，并且还要弄懂配置参数的意义。前后大致花了有半天时间。配置好后启动服务时却出错，google搜索了好久，也试过很多方法，但一直没解决。&lt;/p></description></item><item><title>Putty SSH中文乱码</title><link>http://xautjzd.github.io/posts/2013-10-18-ssh-messy-code/</link><pubDate>Fri, 18 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-18-ssh-messy-code/</guid><description>由于Fedora安装在教研室的台式机上，小组的活动在科协，每次去又免不了使用Linux环境，所以Putty便派上用场了。Putty作为Windows下的SSH工具，确实很方便，解决了很多不必要的麻烦，但是发现在使用的时候，中文显示乱码。求救Google的时候到了，网上一搜，真的是一大堆，随便查看了一篇博客，照着试了一下便解决。方法如下：
+windows-&amp;gt;Appearance-&amp;gt;Translation,在其中将字体改为UTF-8便没问题。
+问题确实能解决，但是发现不能保存设置，每次打开Putty时都需要重新设置，这点有待改进,不知道是我安装的putty版本过低还是其他的缘故。在分享中成长，在成长中分享，大胆的分享吧，Don&amp;rsquo;t be shy!</description></item><item><title>一些感想</title><link>http://xautjzd.github.io/posts/2013-10-15-some-feelings/</link><pubDate>Tue, 15 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-15-some-feelings/</guid><description>&lt;p>如果要评价自己的话，那么我会将自己归为乐于分享的一类，不管是技术还是工具，亦或代码。平时也都关注一些科技新闻和博客，每当发现不错的信息时，都会想着第一时间将其分享给身边的朋友。&lt;/p>
+&lt;p>分享过的工具中记忆比较深的当属Git，GitHub，Evernote和Vim了，系统方面则有Linux，编程方面则有Ruby。虽然可能最终用的人不是很多，但起码他们脑海中已经有了这个词，我觉得这也就够了，毕竟大部分人还是守旧派，不愿接触新鲜事物。但自己这颗乐于分享的心却从未动摇过，只要有好东西，绝对第一时间分享。但总会有那么一些人会对我的举措有误解，认为我是一个喜欢炫耀的人，推荐给大家一些他们闻所未闻的新鲜事物是为了证明我的牛，我只能一笑置之，也不想多做辩解。因为解释过多，可能又会有人说“解释是为了更好的掩饰”，所以沉默是最好的回应。&lt;/p></description></item><item><title>Linux硬链接与软链接</title><link>http://xautjzd.github.io/posts/2013-10-10-linux-hard-link-vs-soft-link/</link><pubDate>Thu, 10 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-10-linux-hard-link-vs-soft-link/</guid><description>&lt;p>链接的概念其实不仅限在Linux中，在类Unix和Windows中也存在，只是网上资料大多都讨论的是类Unix的链接。下面主要对所了解的类Unix下的链接谈谈自己的认识。&lt;/p>
+&lt;p>###链接存在的目的&lt;/p>
+&lt;p>链接的出现主要是为了解决系统中文件的共享，同时有其他附加的好处：隐藏真实文件路径、增加权限安全及节省存储。简单的举例说明：&lt;/p>
+&lt;p>Linux中有7种run level(0-6),其中0代表关机，1代表单用户模式(用于系统维护，禁止远程登陆),2代表多用户状态(不支持NFS)，3代表完全的多用户模式，4系统保留(未使用),5代表X11模式(GUI模式)，6则代表重启。&lt;/p>
+&lt;p>这7种模式分别对应/etc/rc.d/rcN.d目录(N指0-6之间的数字)，存储的是每种启动模式下要启动的程序，但实际的程序其实存储在/etc/rc.d/init.d目录中，/etc/rc.d/rcN.d中都是链接而已，链接到/etc/rc.d/init.d目录中对应的程序(这样做的目的是为了管理上的方便，试想一下，如果有多个runlevel包含同一个程序，需要对这个程序的启动脚本进行修改时，只需更改/etc/rc.d/init.d中的实际文件，而不需要改动/etc/rc.d/rcN.d)。&lt;/p>
+&lt;p>###链接的分类&lt;/p>
+&lt;p>链接分为两种：硬链接(hard link)与阮链接(soft link)。谈链接就不得不谈inode，所以先简单地介绍下inode。&lt;/p></description></item><item><title>Linux下锐捷客户端上网</title><link>http://xautjzd.github.io/posts/2013-10-09-surf-internet-under-linux-about-ruijie/</link><pubDate>Wed, 09 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-09-surf-internet-under-linux-about-ruijie/</guid><description>自己虽然一直用的校园网，但是由于教研室这块位置比较特殊，不需要使用锐捷客户端认证，但其他地方一般都需要。所以今早有个朋友在笔记本上安装了Ubuntu，但是无法通过锐捷web方式认证，下载的锐捷Linux版客户端安装后也无法上网，所以这方面我也不熟悉，只能求助Google了。由于众多高校的网络都是使用锐捷的这一套，所以大同小异，这方面的资料也不少，Google搜索很快便找到了解决方法，用华科的一个客户端即可，下载地址：http://code.google.com/p/mentohust/
+下载后，切换到下载的目录，然后运行sudo dpkg -i 'your deb packagename'即可，安装过程中，一步一步按照其步骤输入相应信息即可。安装完成后，会将配置的信息存储在/etc/mentohust.conf文件中，也可进行修改。在安装的过程中，如果采用DHCP方式，在选择时应该注意，选择1或者2，千万别选择3，否则上不了网。各选项的含义是：
+-d DHCP方式：0（不使用） 1（二次认证）2（认证后）3（认证前）
+关于mentohust的详细参数解释，请参考官网wiki</description></item><item><title>Fedora下使用sudo</title><link>http://xautjzd.github.io/posts/2013-10-08-use-sudo-in-fedora/</link><pubDate>Tue, 08 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-08-use-sudo-in-fedora/</guid><description>Linux下日常操作使用一般用户权限即可，但是往往有一些操作需要用到root权限，如服务的启动、软件的安装等，直接转到root下进行操作可不是一个好习惯，比较稳妥的方式就是使用sudo进行操作。首先检查系统是否已经安装sudo,接下来需要在/etc/sudoers文件下进行配置相应的权限。
+在root ALL=(ALL) ALL这行下面添加username ALL=(ALL) NOPASSWD:ALL即可。其中username为要使用sudo的用户，并且每次使用sudo时不需要输入root密码。</description></item><item><title>梦想</title><link>http://xautjzd.github.io/posts/2013-10-01-whats-my-dream/</link><pubDate>Tue, 01 Oct 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-10-01-whats-my-dream/</guid><description>&lt;p>你要搞清楚自己人生的剧本——不是你父母的续集，不是你子女的前传，更不是你朋友的外篇，对待生命你不妨大胆冒险一点，因为好歹你要失去它。如果这世界上真有奇迹，那只是努力的另一个名字，生命中最难的阶段不是没有人懂你，而是你不懂你自己。——尼采&lt;/p>
+&lt;p>当读到这段话时，我陷入了沉思，不禁想：人生短短几十年，生命的1/3差不多已悄然而逝，在这1/3的年华中自己收获了什么，失去了什么。我想得到的可能就是人们眼中所谓的专业知识，比一般人士更了解计算机而已，同时可能收获的是思考问题和解决问题的能力。而失去的确是童年该有的肆无忌惮的玩耍，天马行空的想法，取而代之的是那铜墙铁壁似的教室的囚禁，被教导做个父母、老师眼中的乖孩子，死记硬背那些该死的口诀表和公式。&lt;/p></description></item><item><title>Dead Code</title><link>http://xautjzd.github.io/posts/2013-09-29-dead-code/</link><pubDate>Sun, 29 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-29-dead-code/</guid><description>今天在网上看到腾讯的一个实习生招聘题，里面提到了dead code，便上wikipedia查了下，解释如下：
+在计算机编程中，dead code是指那些被执行但执行结果在其他地方没有用到的代码。dead code的执行耗费cpu时间但是结果无用。
+dead code的执行结果没用也就罢了，但它还可能同时导致异常或影响某些全局状态，所以移除这些dead code可能会改变程序的输出，并且排除那些意想不到的bugs。
+参考文档：
+http://en.wikipedia.org/wiki/Dead_code</description></item><item><title>ASP.NET MVC Json()处理大数据异常解决方法</title><link>http://xautjzd.github.io/posts/2013-09-26-json-serializer-maxjsonlength-exception/</link><pubDate>Thu, 26 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-26-json-serializer-maxjsonlength-exception/</guid><description>&lt;p>近几天一直忙于windows下的项目，rails的学习暂时搁置了，所以也有好几天没有用fedora了，博客大致也有一周没有更新。此博客本想只记录一些Linux平台下的相关操作，但这两天碰到的问题很棘手，虽最终得以解决，但不忍就此翻篇，想将解决之法记录下来，以避免今后再次碰到此类问题又得重头再寻求解决方案，同时也分享出来，避免其他人碰到此问题时多走弯路。所以便予以记录。下面切入正题：&lt;/p>
+&lt;p>先对项目做个简单介绍：&lt;/p></description></item><item><title>计算机启动过程</title><link>http://xautjzd.github.io/posts/2013-09-26-boot-process/</link><pubDate>Thu, 26 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-26-boot-process/</guid><description>计算机启动过程的详细介绍请参考阮一峰老师的两篇博文：
+http://www.ruanyifeng.com/blog/2013/02/booting.html http://www.ruanyifeng.com/blog/2013/08/linux_boot_process.html 写的非常通俗易懂，真的很佩服阮老师的文笔，有时候自己写的博客自己都有点目不忍视，更何况别人呢。要达到这样的水平真的还有好长的路要走。加油吧</description></item><item><title>Ruby语言独特点</title><link>http://xautjzd.github.io/posts/2013-09-19-ruby-syntax-special-point/</link><pubDate>Thu, 19 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-19-ruby-syntax-special-point/</guid><description>&lt;p>有时候真佩服别人的博文可以写的那么长，而且很有料，读起来也非常顺畅，而自己每次却不太善于总结，可能是平时积累的片段还不够，不足以总结，亦或是自己缺少这么一个总结性的思维，导致如今为止也没有产出一篇广为阅读的文章。不过即使如此，也没有打消我持续写博客的念头，不管好坏，不管是否有读者，我将会一如既往的写下去。正如哥哥的《我》:我就是我，是颜色不一样的烟火。每个人都有他存在的价值，无论高低贵贱，无论贫穷富贵，都有其独一无二不可替代的特性。所以无论自己的博文是否能带给大家一丝感触、一点帮助，我都会坚持，因为这也是对我自己学习的一个总结，同时也想尽力贡献一份自己的力量来帮助他人，但我想更多的还是能帮助自己，以便为未来某一天突然需要回味从前的知识提供便捷。我想这便是写博客的初衷。下面进入正题吧：&lt;/p></description></item><item><title>Vim常用快捷键总结</title><link>http://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</link><pubDate>Wed, 18 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</guid><description>&lt;p>Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：&lt;/p>
+&lt;p>###Normal mode:&lt;/p>
+&lt;p>&lt;code>&amp;gt;&amp;gt;&lt;/code> indent current line&lt;/p>
+&lt;p>&lt;code>n&amp;gt;&amp;gt;&lt;/code> indent the next n line&lt;/p>
+&lt;p>&lt;code>.&lt;/code> repeat last command&lt;/p>
+&lt;p>&lt;code>m,n&amp;gt;&amp;gt;&lt;/code> indent from m to n line&lt;/p>
+&lt;p>&lt;code>==&lt;/code> autoindent current line&lt;/p>
+&lt;p>&lt;code>n==&lt;/code> autoindent the next n line&lt;/p>
+&lt;p>&lt;code>gg=G&lt;/code> autoindent the whole file&lt;/p></description></item><item><title>instance_eval vs class_eval</title><link>http://xautjzd.github.io/posts/2013-09-17-instance-eval-vs-class-eval/</link><pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-17-instance-eval-vs-class-eval/</guid><description>&lt;p>Ruby中类其实也是Class的实例。而且instance_eval必须由实例来调用，class_eval必须由类来调用。具体参考下面的实例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">A&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> A
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a&lt;span style="color:#f92672">.&lt;/span>instance_eval &lt;span style="color:#66d9ef">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self &lt;span style="color:#75715e">#=&amp;gt;a&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">test&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts &lt;span style="color:#e6db74">&amp;#34;this is a singleton method of instance a&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;this is a singleton method of instance a&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b &lt;span style="color:#f92672">=&lt;/span> A&lt;span style="color:#f92672">.&lt;/span>new
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;NoMethodError&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>搭建Git服务器</title><link>http://xautjzd.github.io/posts/2013-09-17-build-git-remote-repository/</link><pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-17-build-git-remote-repository/</guid><description>&lt;p>从开始用Git到现在也已经有一年时间了，但一直都在本地开发，用于管理本地的代码，没有进行多人协作开发，所以也没有必要搭建一个Git服务器。&lt;/p>
+&lt;p>但就在昨晚，我在教研室给大家介绍Git工具时，感觉大家对这个工具貌似没有太大的热情，猜其原因，可能是因为大家对这个工具过于陌生，而我又讲的太过细节，所以他们可能听得有点烦。但是只有试过之后才能感觉其方便之处，我也希望教研室的同学都能掌握它，所以便决定在教研室搭建一个Git服务器，供大家使用，也思索着今后的项目都用git来进行管理。毕竟现在教研室只有我一人使用git,其他同学都用svn,甚至不用(其实用svn的同学不超过3个)，开发项目也难以统一，而我个人在使用过git后又不想转向svn，同时也非常希望身边的同学也能去使用git这么一个优秀工具，所以只能忽悠他们转向git了。不过经昨晚一役，证明了我忽悠人的本领完全不到家，看来今后得好好练练了。前奏有点过于冗长，下面进入正题吧。&lt;/p></description></item><item><title>更新Octopress</title><link>http://xautjzd.github.io/posts/2013-09-17-update-my-blog/</link><pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-17-update-my-blog/</guid><description>现在已记不清接触Octopress多长时间了，只依稀记得当时配置Octopress配了好久，然后依然失败，后又忙于其他的事情，所以搭建工作便搁置一旁，七月中旬时间比较充足，所以又开始再次折腾，后来终于搭建成功，所以7.18便发表了第一篇博客。后来一个月之后又开始了我的换肤工作，一切都好，唯一的缺陷是Gravatar的图像没有显示出来，所以便向theme的作者发问，后来也忘了这茬事。就这样又过了一月，直到今天，突然发现我的unread消息里面有几条关于我的message，便打开浏览，才发现作者给的回复，说图像没显示是个bug，现已修复。具体见：
+https://github.com/shashankmehta/greyshade/issues/42
+我便立马更新了我的Octopress。更新方法如下：
+# Get the latest Octopress git pull octopress master # Keep gems updated bundle install # update the template's source rake update_source 具体参考：
+http://octopress.org/docs/updating/
+参考时请务必注意：如果您的octopress主题不是octopress默认主题,请不要执行rake update_style，否则会被还原成默认主题。
+本博客采用的主题为：
+https://github.com/shashankmehta/greyshade</description></item><item><title>VirtualBox安装ArchLinux系统</title><link>http://xautjzd.github.io/posts/2013-09-12-installing-archlinux-in-virtualbox/</link><pubDate>Thu, 12 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-12-installing-archlinux-in-virtualbox/</guid><description>&lt;p>都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&amp;rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：&lt;/p>
+&lt;p>##ArchLinux Install&lt;/p>
+&lt;ol>
+&lt;li>分区&lt;/li>
+&lt;li>格式化分区&lt;/li>
+&lt;li>挂载分区&lt;/li>
+&lt;li>更改安装镜像&lt;/li>
+&lt;li>安装基本系统&lt;/li>
+&lt;li>生成fstab&lt;/li>
+&lt;li>Chroot到新系统&lt;/li>
+&lt;li>配置系统&lt;/li>
+&lt;li>开启网络服务&lt;/li>
+&lt;li>创建初始化ramdisk环境&lt;/li>
+&lt;li>设置root密码&lt;/li>
+&lt;li>安装配置bootloader&lt;/li>
+&lt;li>卸载分区并重启系统&lt;/li>
+&lt;li>安装图形用户界面&lt;/li>
+&lt;/ol>
+&lt;p>详细步骤如下：&lt;/p>
+&lt;p>###1. 分区&lt;/p>
+&lt;p>虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：&lt;/p>
+&lt;pre>&lt;code>root#cfdisk
+&lt;/code>&lt;/pre>
+&lt;p>进行分区，一般分三个即可。最后分区结果如下：&lt;/p>
+&lt;pre>&lt;code>dev/sda1 / 8G
+dev/sda2 /swap 1G(在空间最后)
+dev/sda3 /home 4G
+&lt;/code>&lt;/pre>
+&lt;p>每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。&lt;/p></description></item><item><title>Cookies vs Sessions</title><link>http://xautjzd.github.io/posts/2013-09-09-cookies-vs-sessions/</link><pubDate>Mon, 09 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-09-cookies-vs-sessions/</guid><description>&lt;p>Http是无状态的协议，客户端给服务器发送请求，服务端响应客户端的请求，会话结束。这样两次会话间不便没有任何关联。但有时候需要在会话间进行信息共享，如：购物车，保存用户名与密码等。为此，cookie与session便诞生了,它们的存在就是为了弥补http协议无状态的缺陷。&lt;/p>
+&lt;p>cookie与session最大的不同是：cookie保存在用户的浏览器中，而session则保留在服务端。正是这种不同决定了它们的不用使用场合。&lt;/p>
+&lt;h2 id="cookie">##Cookie&lt;/h2>
+&lt;p>cookie机制是通过扩展http协议来实现的。服务器通过在HTTP的响应头中加上一行特殊的指示以提示浏览器按照指示生成相应的cookie。其实纯粹的客户端脚本如JavaScript或者VBScript也可以生成cookie。而cookie的使用是由浏览器按照一定的原则在后台自动发送给服务器端。&lt;/p>
+&lt;p>cookie主要内容包括：Name,Content,Path,Domain,Expires(过期时间)等。Domain与Path一起构成cookie的作用范围。&lt;/p>
+&lt;p>若不设置Expires,则默认的cookie生命周期为浏览器会话期间，一旦浏览器关闭，cookie则会被清理掉，这种生命周期为浏览器会话期的cookie被成为会话cookie。会话cookie存储在内存中而不是在硬盘上。&lt;/p>
+&lt;p>若设置了Expires,浏览器则会把生成的cookie保存在硬盘上，即使浏览器关闭后再打开，cookie依然有效，直至超过设置的expires。&lt;/p>
+&lt;p>另外，session大小有限制，一旦浏览器禁用cookie，则采用cookie的购物网站便不能进行购物，所以这时候得用session了。&lt;/p></description></item><item><title>查看网站所用Web服务器类型</title><link>http://xautjzd.github.io/posts/2013-09-04-lookup-webserver/</link><pubDate>Wed, 04 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-04-lookup-webserver/</guid><description>学习Rails的Layout过程中，其中有提到curl，所以便简单的看了下curl的功能。虽说以前学习Shell的过程中也看到过curl,不过没怎么用过，只知道和wget功能类似，只是wget是将请求的web资源下载到本地，而curl则是在shell中显示，至于有什么其他功能也便不清楚。但是今天发现curl其实还可以用来查看website所用的web服务器类型，通过curl -I url-you-want-to-lookup命令查看即可。以下是我查看ruby-china的一个截图： 从中可以发现ruby-china采用的是nginx服务器。至于curl其他的功能慢慢再发掘吧。</description></item><item><title>账号注册通过邮箱激活</title><link>http://xautjzd.github.io/posts/2013-09-03-activate-user-via-email/</link><pubDate>Tue, 03 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-03-activate-user-via-email/</guid><description>邮箱激活目的 防止用户注册时所填写的信息为虚假信息
+邮箱激活的原理 用户注册时，根据用户名、Email及注册时间(精确到ms)等信息通过特定的算法(如:MD5、SHA，最好不可逆)生成相应的信息摘要(也称消息摘要)作为注册的激活码，保存到数据库当中，并且将其作为url的参数，将带有激活码的url链接发送到用户注册的Email中。
+只有当用户进入邮箱中并点击该链接后，通过url中的激活码找出数据库中匹配的用户，并将此账号设为“已激活”的状态。
+注：此过程没有考虑激活码过期问题，同时信息摘要也可以通过随机数来表示，不一定非要通过用户名等信息生成
+Rails代码参考：
+http://stackoverflow.com/questions/12805523/activate-user-via-email-in-rails</description></item><item><title>Bash到oh-my-zsh的转变</title><link>http://xautjzd.github.io/posts/2013-08-27-from-bash-to-oh-my-zsh/</link><pubDate>Tue, 27 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-27-from-bash-to-oh-my-zsh/</guid><description>从开始使用到现在一直使用的bash,虽然以前听过ksh,csh,sh等，但都不曾用过，今年开始zsh便不断地出入在眼前，但没真正见人用过，也不知道效果咋样，所以也没做尝试。
+另一个原因是各大linux默认都是bash,说明其功能不错，而且也处于懒的原因，就没折腾。但最近在使用tmux的过程中发现bash的提示符只显示-bash4.2$字样，并没有显示成user@hostname directory，在加上西安rubyist的熟人皓哥强烈推荐，这就坚定了我舍弃bash转到zsh的决心，二话不说，立马上GitHub上找到oh-my-zsh。就照着readme开始尝试，结果出现了错误，Google找到答案，是zsh没有安装才导致，所以就yum install zsh安装了zsh,随后在通过
+curl -L https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh | sh
+安装了oh-my-zsh。不过此时系统默认还是bash,所以还得更改系统默认的shell，方法如下：
+###1. 修改/etc/shells文件
+先通过$which zsh查看zsh的位置，我zsh位于/usr/bin/zsh。然后再查看/etc/shells中是否含有zsh:
+$&amp;lt; /etc/shells grep zsh
+如果结果中没有/usr/bin/zsh，则需要手动将/usr/bin/zsh添加到/etc/shells文件中。
+###2. 更改默认的shell
+通过$chsh -s /usr/bin/zsh更改系统默认shell，退出系统，重新登陆便会发现系统默认的shell已经变为zsh，同时也可以更改zsh默认的主题，在~/.zshrc中更改ZSH_THEME属性即可，其被选的值在oh-my-zsh theme中任选一个即可。
+经过以上两步，oh-my-zsh便安装完成。但是写博客时发现rake new_post[&amp;quot;xxx&amp;quot;]时出现zsh: no matches found: new_post错误，Google找到答案，只需改为rake 'new_post[&amp;quot;xxx&amp;quot;]'即可，原因是zsh会将一些特殊符号当作查找文件的通配符等，根源解决方法是：取消zsh的通配（Glob），即在~/.zshrc中加入alias rake=&amp;quot;noglob rake&amp;quot;。
+参考：oh-my-zsh官网</description></item><item><title>vim-airline插件patched font配置成功</title><link>http://xautjzd.github.io/posts/2013-08-26-airline-patched-font-config/</link><pubDate>Mon, 26 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-26-airline-patched-font-config/</guid><description>前段时间装好了airline插件，但是没呈现应有的效果，原因是没有安装字体。根据官网的提示需要安装powerline的字体，我便照着powerline官网的配置方法来，但是还是没有成功。其原因是我安装了patched fonts，但是没有将terminal的font设置为patched fonts中的一种，所以statusbar会有乱码。下面对安装patched fonts做一个小结。
+安装patched fonts方式请参考:powerline字体配置，尽管文档很详细，但是还是重复一下：
+1.Download patched fonts
+$mkdir ~/.fonts新建一个font文件夹，然后$cd ~/.fonts进入.fonts文件夹。$git clone git@github.com:Lokaltog/powerline-fonts.git将powerline的patched fonts拷贝到~/.fonts目录下，目录结构如下图：
+2.Install the patched fonts to your System
+运行$fc-cache -vf ~/.fonts安装patched fonts到系统中
+3.Set Terminal fonts
+设置Terminal字体非常重要，我初次配置时，安装patched fonts，但是由于没有set terminal font,所以statusbar显示乱码。设置方法如下：
+Edit——Profiles——Default(Edit)——General——Font，选择~/.fonts/powerline下的某一种即可(可选范围一定要在刚才下载的patched fonts中选一种，否则乱码。)，当然也可以采取powerline font installing中的另一种方式，不过我没做尝试，有兴趣的朋友try it。配置截图如下：
+最后可以在~/.vimrc中更改airline的theme。更改方式如下：
+let g:airline_theme=&amp;quot;molokai&amp;quot;</description></item><item><title>vim文件的折叠与展开方式</title><link>http://xautjzd.github.io/posts/2013-08-25-vim-folding-and-unfolding/</link><pubDate>Sun, 25 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-25-vim-folding-and-unfolding/</guid><description>最近一直在用Vim学习Ruby,但是一直有个问题困扰：
+那就是文件无法折叠，但是我记得以前看过Vim的视频，里面见别人用到了折叠与展开。文件比较小时，此功能便无用，但一旦文件量大时，折叠与展开便显得尤为重要了。
+折叠的方式有以下几种：
+manual indent syntax marker expr diff ###1. Manual method
+vim默认的折叠方式是此种方式，不需要设置即可。要启用其他方式还得采用:set foldmethod=xxx或者:set fdm=xxx来设置。
+使用方法：
+v或者V进入visual mode,然后选中要折叠的文字，按zf便可折叠，折叠后按za或者zO便展开。
+同时也可以通过zfnj的方式将接下来的n行折叠。类似也有zfnk等;zR则打开所有的折叠。总结下来就是：
+zf =&amp;gt; create a fold za =&amp;gt; unfold zf#j =&amp;gt; fold down # lines zf#k =&amp;gt; fold up #lines zR =&amp;gt; unfold all ###2. Indent method
+缩进方式主要是根据代码缩进的方式来折叠/展开代码。要使用缩进方式，则需要做配置，:set foldmethod=indent或者在~/.vimrc中配置：set foldmethod=indent。
+其快捷键如下： zM =&amp;gt; fold all zR =&amp;gt; unfold all za =&amp;gt; fold/unfold
+###3. Syntax method
+采用syntax方式，则只需如下配置即可：
+:set fdm=syntax 按键方式与上述相似
+###4. Marker method</description></item><item><title>Linux活动发起</title><link>http://xautjzd.github.io/posts/2013-08-20-linux-activity-sponsoring/</link><pubDate>Tue, 20 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-20-linux-activity-sponsoring/</guid><description>独乐乐不如众乐乐，独自一人埋头苦学不如一群兴趣相投之人的一起交流。记得以前大一大二时，希望能有一个领路人领着自己学习，帮自己找准学习的方向，毕竟当时太年轻，太多东西不了解，所以不知道软件这行业该学习什么，哪些东西比较有兴趣，一切源于自己接触的太少，身边也没有可交流之人。再加上学校大一大二和大三大四分隔新旧两校区，交流就更少。
+正是因为自己的这些经历，然后再加上近来参加西安的rubyist party，促使了我组建Linux小组并且定期举办活动的冲动。一个人的埋头苦学，所见所闻永远局限在某个狭小的空间，只有走出去，与他们交流才能拓宽自己的知识面，提升自己的认知度，也算是多了一些朋友，多了一些交流。正所谓话不投机半句多，与自己志不同道不和的人交流真是有点对牛弹琴的感觉。所以要交流得找兴趣相投志同道合之人。
+打算成立的小组规模大致10人左右，无需太多，也不希望有滥竽充数的现象。所以希望小组成员能满足以下条件：
+对软件感兴趣 熟悉Linux(基本操作一般没问题) Vim | Emacs 具备以下更佳：
+Git Ruby/Python/Lisp/Scala/Prolog 个人博客 初期打算:
+每周一次Party（主要技术交流） 有兴趣的学习请联系我，联系方式：
+新郎微薄：xautjzd 其他联系方式见我的About</description></item><item><title>Ruby中symbol与string的区别</title><link>http://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</link><pubDate>Sun, 18 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</guid><description>记得当初学习Ruby基本语法时，还为Symbol与String的异同纠结了好久，后来经过一段时间的摸索，大致有了了解，但让我给他人解释，这点我还是办不到。但是今天看到了一篇博文,让我彻底明白他们的区别。
+symbol定义 Symbol其实就是string加上前缀：。
+二者异同点 其实Symbol与String本质相同，是string 的两种不同呈现方式。由于受SmallTalk影响，Ruby一切皆对象。所以每次给string赋值，name=&amp;quot;xautjzd&amp;quot;其实都是在内存中创建一个新对象。每次创建的对象的object_id都不相同。
+而symbol则不同，symbol创建一次即可。以后所有的操作都是指向先前创建的对象。所以object_id相同。
+不同点大致有三：
+symbol为常量，值不能改变。 多次使用同一个symbol,object_id相同，而多次使用string,每个对象有不同的object_id。 String的方法,eg:#upcase,#split不能用于Symbol。 参考网址 http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html(http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html)</description></item><item><title>Vim学习资源</title><link>http://xautjzd.github.io/posts/2013-08-18-vim-learning-resource/</link><pubDate>Sun, 18 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-18-vim-learning-resource/</guid><description>&lt;h3 id="实用的快捷方式">实用的快捷方式&lt;/h3>
+&lt;ul>
+&lt;li>gf 快速跳转到定义&lt;/li>
+&lt;li>&lt;code>&amp;lt;C + 6&amp;gt;&lt;/code> 返回到上次编辑的文档&lt;/li>
+&lt;li>% 括号匹配{}&lt;a href="">&lt;/a>&lt;/li>
+&lt;li>&lt;code>#/*,g#/g*&lt;/code> 向前/向后搜索光标所在的词&lt;/li>
+&lt;li>gi 跳转到上次编辑的位置&lt;/li>
+&lt;li>gi 显示光标所在字符的编码&lt;/li>
+&lt;li>gH 开始选择行模式&lt;/li>
+&lt;li>vi&amp;quot; 选中&amp;quot;之间的文本(不包括&amp;quot;)&lt;/li>
+&lt;li>vi{ 选中{之间的文本（不包括{）&lt;/li>
+&lt;li>ci( 改变之间的文本&lt;/li>
+&lt;li>di[ 删除[之间的文本(不包括[)&lt;/li>
+&lt;li>da[ 删除[之间的文本(包括[),ca、va类似&lt;/li>
+&lt;li>C 修改至行尾&lt;/li>
+&lt;li>D 删除至行尾&lt;/li>
+&lt;/ul></description></item><item><title>更换Octopress主题</title><link>http://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</link><pubDate>Sat, 17 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</guid><description>Octopress博客搭建已经有一阵了，但一直采用的默认的主题，没时间更换。今天特意抽时间来更换下，先上Octopress官网了解了下更换Theme的原理，然后上Octopress所在的源码托管平台GitHub，在其Wiki上找到了第三方Themes,便从前到后大致将各种themes都预览了一遍，最后选择了Greyshade主题,安装方法官网写的已经非常详细，这里再啰嗦一遍：
+###Install
+$ cd octopress #octopress directory $ git clone git@github.com:shashankmehta/greyshade.git .themes/greyshade $ echo &amp;#34;\$greyshade: color;&amp;#34; &amp;gt;&amp;gt; sass/custom/_colors.scss //Substitue &amp;#39;color&amp;#39; with your highlight color $ rake &amp;#34;install[greyshade]&amp;#34; $ rake generate 至此，安装过程便已完成。
+左侧的显示效果主要配置在_config.yml文件中。
+###pages显示
+Octopress默认只有Homepage和Archives两个导航菜单，不满足要求，我便又添加了&amp;quot;编程&amp;quot;、“Linux”、“所思所想”和“关于我”这几个。“关于我”的页面为静态页面，在source/blog/aboutme/下，其他的几个需要将相关的文章显示在相应的导航菜单下，便需做如下配置：
+--- layout: category_index title: Thinking category: Thinking --- 这样后，只要new_post并且category为Thinking的页面都会集中在所思所想对应的页面显示。</description></item><item><title>Linux下截图工具shutter的安装与配置</title><link>http://xautjzd.github.io/posts/2013-08-16-install-and-config-shutter/</link><pubDate>Fri, 16 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-16-install-and-config-shutter/</guid><description>我一直使用的是Fedora17，自带的截图工具实在不敢恭维，但也就这样断断续续的用着，不过也用的不多。但今天突然鬼使神差的搜了下其他的截图工具，Google搜了下，发现好多提到shutter，既然这么多文章都提到，说明肯定着实不赖，便尝试了下。安装及配置如下：
+###1.安装 安装过程很简单，执行下面命令即可： #yum install shutter ###2.配置 QQ截图快捷键&amp;lt;ctrl&amp;gt;+&amp;lt;alt&amp;gt;+A用习惯了，所以也对shutter继续保留这个快捷键。具体配置方法如下： 在System Tools&amp;gt;System Settings&amp;gt;Keyboard&amp;gt;Shortcuts&amp;gt;Custom Shortcuts中添加了三个快捷键：
+截图整个屏幕（shutter -f）
+截图当前活动窗口(shutter -a)
+截图选定区域(shutter -s)
+具体配置及对应的快捷键设置参考下图：</description></item><item><title>安装Powerline过程中的收获</title><link>http://xautjzd.github.io/posts/2013-08-16-powerline-vs-airline/</link><pubDate>Fri, 16 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-16-powerline-vs-airline/</guid><description>Powerline插件已经多次耳闻目见，但是一直没做尝试，今天再次看到便忍不住试了下，结果还没成功。可能是由于字体的原因吧，在找答案的过程中邂逅了airline,据说比powerline加载更快，而且还无需安装字体。所以便果断地换为airline。只需在vimrc中加入bundle bling/vim-airline即可。当然前提是在~/.vimrc中已有如下配置：
+set laststatus=2 &amp;#34;Always show the status line set noshowmode set t_Co=256 配置好后效果如下图所示： 配置好后，在bash中显示没问题，但是在tmux中显示就有问题了，先前配置的效果无法显示。网上也找了好久答案，才得以解决，方法如下：
+1.$vim ~/.tmux.conf
+在~/.tmux.conf文件中添加如下代码：
+set -g default-terminal &amp;quot;screen-256color&amp;quot; 2.$vim ~/.bashrc
+在~/.bashrc中添加如下代码：
+alias tmux=&amp;quot;tmux -2&amp;quot; tmux -2是强制tmux的终端支持256种颜色。
+配置好后，显示没问题，但是在写博客的过程中发现vim突然不能输入中文了，不知为何。最后在~/.vimrc添加： set guifont=* 就顺利解决，不过原因待深究，要学的东西太多。</description></item><item><title>户县之行</title><link>http://xautjzd.github.io/posts/2013-08-11-travel-to-hu-xian/</link><pubDate>Sun, 11 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-11-travel-to-hu-xian/</guid><description>&lt;p>前天应阿亮之邀，去了趟少春家，现将所见所闻予以记录，聊以慰藉。&lt;/p>
+&lt;p>我们三（阿亮，少春和我）于前天下午将近六点出发去户县甘河镇的少春家，大致七点半左右到。到家时，天刚暗下来。从这一刻开始到今天下午，差不多有两天的时间体验了下陕西乡村的风土人情，而体验的最佳方式则是通过味觉和视觉。&lt;/p>
+&lt;p>首先，从味觉方面说，大致品尝了他家的臊子面，煎饼和yuyu（只知其音，不知其写法,也念he&amp;rsquo;r)。以前只是听陕西的同学说过他们的习俗：早晚稀饭，中午吃面，而且稀饭比较稀，上面几乎看不到米粒，碗底才有。经此一见，果不其然。不过他们煮稀饭的米和我家乡不同，第一次见识到糯米也可用于煮稀饭，以前我只知：糯米用于蒸糯米饭、做汤圆和糍粑。中午吃的是臊子面，而臊子面的核心在于臊子。阿姨做的臊子挺不错，味道很好，唯一不足的是醋放的有点多，略酸，不过不太影响总体的感觉，至少比食堂阿姨做的强好几倍。盛面的家伙很给力，直接上脸盆。碗也给力，平时在食堂吃一碗足已，但这两天都是至少吃一碗。少春则更给力，今天中午直接吃了四碗。昨晚吃的是煎饼，和我家乡的饼有点像，只是做法不同，厚薄不同，但是不得不说味道比我家乡的那个饼味道略好，这得益于我喜欢吃薄饼，而我家乡的那饼则略显厚。&lt;/p></description></item><item><title>终端分屏工具tmux的安装与常用操作</title><link>http://xautjzd.github.io/posts/2013-08-08-tmux-use-and-configuration/</link><pubDate>Thu, 08 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-08-tmux-use-and-configuration/</guid><description>&lt;p>##1. tmux简介&lt;/p>
+&lt;p>tmux是terminal multiplexer的简称，是一款终端分屏的工具，可以在同一屏幕中划分出多个独立的shell环境，这样便于对比，唯一的缺陷是窗口比较小而已。一个server可以有多个session,一个session可以有多个windows,一个windows可以有多个pane.具体见&lt;a href="http://tmux.sourceforge.net/">官网&lt;/a>介绍。&lt;/p>
+&lt;p>##2. 安装&lt;/p>
+&lt;p>采用相应系统的包管理器即可安装。我装的是fedora,现以fedora为例：&lt;/p>
+&lt;pre>&lt;code>#yum install tmux
+&lt;/code>&lt;/pre>
+&lt;p>包不到1M大小，很快便安装完成。&lt;/p></description></item><item><title>Vim的代码自动补齐插件——UltiSnips</title><link>http://xautjzd.github.io/posts/2013-08-03-vim-ultisnips/</link><pubDate>Sat, 03 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-03-vim-ultisnips/</guid><description>&lt;p>暑假时间充足，便又开始学习自己喜欢的Ruby。而学Ruby的最佳环境是Mac,其次是Linux,最次是Windows。Mac买不起，只能在Linux上折腾了，一台台式机装的Fedora17，自己的本是xp系统，装了不少微软的一套东西，毕竟教研室的项目都是在.net环境下进行的，不敢轻易换系统，所以便在本上装了个VirtualBox虚拟机，虚拟了一个Ubuntu。上面也配好了Ruby环境，毕竟本方便，带到哪里都可以学，但平时的Linux编程都是在台式机下，毕竟性能比虚拟机好。&lt;/p>
+&lt;p>而学习Ruby一般都是在Vim/Emacs/SublimeText 2下，RubyMine貌似很适合开发Ruby，由于是商业产品，没钱购买也就舍弃了，毅然决然的选择了Vim.都说高手使用的是Vim，想必必有可取之处。但是Vim的学习路线比较陡峭，开始是一段痛苦期，经过一段时间的摧残后，甜蜜的时光便来临了，各种强大而高效的插件让你目瞪口呆，顿时感觉其他IDE都蒻爆了。幸好我以前对Vim的基本操作便有了了解，所以再次学习起来便不那么痛苦，甚至不想回到Windows环境，不想再用其他的Editor。我现在用的插件并且给我印象深刻的大致有这么一些：Vundle,Ctrlp/command-T,UltiSnips/Snipmate,YouCompleteMe/SuperTab,NerdTree,Tagbar,FuzzyFinder,vim-rails，Markdown等。&lt;/p></description></item><item><title>Octopress添加disqus评论到侧边栏</title><link>http://xautjzd.github.io/posts/2013-07-30-add-comments-to-sidebar/</link><pubDate>Tue, 30 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-30-add-comments-to-sidebar/</guid><description>##新建comments.html文件
+添加评论到侧边栏与添加关于、文章分类和友情链接相似，需要在source/_includes/custom/asides/目录下添加comments.html模块，名字根据自己的喜好可以换成其他的，如xxx.html，然后在comments.html里添加如下内容：
+&amp;lt;section id=&amp;#34;comment_sidebar&amp;#34;&amp;gt; &amp;lt;h1&amp;gt;近期评论&amp;lt;/h1&amp;gt; &amp;lt;script type=&amp;#34;text/javascript&amp;#34; src=&amp;#34;http://zhengdongjiang.disqus.com/recent_comments_widget.js?num_items=5&amp;amp;hide_avatars=0&amp;amp;avatar_size=32&amp;amp;excerpt_length=20&amp;#34;&amp;gt;&amp;lt;/script&amp;gt;&amp;lt;a href=&amp;#34;http://disqus.com/&amp;#34;&amp;gt;Powered by Disqus&amp;lt;/a&amp;gt; &amp;lt;/section&amp;gt; 其中zhengdongjiang为我disqus对应此网站的shortname，这就不要照搬了，换成你对应的名字即可。
+##修改_config.yml文件
+default_asides: [custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html] # Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below # and add an array with the asides you want to use. blog_index_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html] post_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]</description></item><item><title>创建我的第一个rails程序</title><link>http://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</link><pubDate>Tue, 30 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</guid><description>&lt;p>##开启Mysql服务&lt;/p>
+&lt;p>我的一个rails程序是采用mysql数据库，不是默认的sqlite3.所以前提是已经安装了mysql。由于Mysql安装了好久，但是很少使用。所以服务没有启动，近来可能会频繁使用，便设置为开机自动启动了。设置方法为:&lt;code>#systemctl enable mysqld.service&lt;/code>或者&lt;code>service mysqld start&lt;/code>。&lt;/p>
+&lt;p>##安装mysql驱动&lt;/p>
+&lt;p>rails应用中使用msyql,需要Mysql对应的ruby驱动：msyql2。安装方式：&lt;/p>
+&lt;pre>&lt;code>$gem install mysql2
+&lt;/code>&lt;/pre>
+&lt;p>安装完成后可通过&lt;code>$rails console&lt;/code>进行测试。测试方法为：&lt;/p>
+&lt;pre>&lt;code>&amp;gt;require 'mysql2'
+&amp;gt;client=Mysql2::Client.new(:host =&amp;gt; &amp;quot;localhost&amp;quot;, :username=&amp;gt;&amp;quot;root&amp;quot;, :password=&amp;gt;&amp;quot;your_password&amp;quot;, :database=&amp;gt;&amp;quot;your_db&amp;quot;)
+=&amp;gt; #&amp;lt;Mysql2::Client:0xa058aac&amp;gt;
+&amp;gt; client.query(&amp;quot;select version()&amp;quot;)
+=&amp;gt; #&amp;lt;Mysql2::Result:0xa05233c&amp;gt;
+&lt;/code>&lt;/pre>
+&lt;p>这样表示已经连接成功。&lt;/p>
+&lt;p>到此为止，前期工作已经完成，后面就开始动手了。&lt;/p></description></item><item><title>Fedora17下搭建Ruby和Rails环境</title><link>http://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</link><pubDate>Mon, 29 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</guid><description>&lt;p>不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用&lt;a href="https://rvm.io/">RVM&lt;/a>进行管理。&lt;/p>
+&lt;p>##1.安装RVM&lt;/p>
+&lt;pre>&lt;code>#curl -L https://get.rvm.io | bash -s stable
+&lt;/code>&lt;/pre>
+&lt;p>一会儿之后rvm便安装完成,安装位置为/usr/local/rvm目录下，网上很多教程都是使用一般用户权限管理，但是我也尝试过采用一般用户权限安装，但是始终不会安装在~/usrname/.rvm目录下，还是提示安装在/usr/local/rvm下，但是没有写的权限。可能是fedora系统的原因吧，没有深究。使用：&lt;/p>
+&lt;pre>&lt;code>#source /usr/local/rvm/scripts/rvm
+&lt;/code>&lt;/pre>
+&lt;p>使rvm配置生效。然后采用：&lt;/p>
+&lt;pre>&lt;code>#rvm -v
+&lt;/code>&lt;/pre>
+&lt;p>查看rvm的版本。同时也可以通过&lt;code>rvm info&lt;/code>查看rvm相关信息。&lt;/p></description></item><item><title>Ocpress添加友情链接</title><link>http://xautjzd.github.io/posts/2013-07-27-octopress-add-frend-sites/</link><pubDate>Sat, 27 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-27-octopress-add-frend-sites/</guid><description>与在侧边栏添加Aboutme、Categories、Tagcloud等功能类似，在source/_include\custom\asides目录下添加一个frendsites.html文件，模仿about等写法，添加友情链接，如下所示：
+&amp;lt;section&amp;gt; &amp;lt;h1&amp;gt;友情链接&amp;lt;/h1&amp;gt; &amp;lt;ul&amp;gt; &amp;lt;li&amp;gt;&amp;lt;a href=&amp;#34;url_to_add&amp;#34;&amp;gt;友情链接的显示Id&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt; ... &amp;lt;/ul&amp;gt; &amp;lt;/section&amp;gt; 然后在_config.yml文件中相应的位置添加，如在default_asides中的数组添加custom/asides/friendsites.html，当然也可以在blog_index等其他数组中添加。</description></item><item><title>Ruby元编程之Proc对象</title><link>http://xautjzd.github.io/posts/2013-07-27-metaprogram-proc/</link><pubDate>Sat, 27 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-27-metaprogram-proc/</guid><description>&lt;h2 id="proc">Proc&lt;/h2>
+&lt;p>Proc对象其实就是将代码块(block)转换成对象的块。方式有大致几种：&lt;/p>
+&lt;p>1.Proc对象&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span> inc &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">Proc&lt;/span>&lt;span style="color:#f92672">.&lt;/span>new{ &lt;span style="color:#f92672">|&lt;/span>x&lt;span style="color:#f92672">|&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> inc&lt;span style="color:#f92672">.&lt;/span>call(&lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#75715e">#=&amp;gt;4&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>2.lambda方法&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span> inc &lt;span style="color:#f92672">=&lt;/span> lambda{ &lt;span style="color:#f92672">|&lt;/span>x&lt;span style="color:#f92672">|&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> inc&lt;span style="color:#f92672">.&lt;/span>call(&lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#75715e">#=&amp;gt;4&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Vim下的的插件管理神器——Vundle</title><link>http://xautjzd.github.io/posts/2013-07-27-vim-vundle-install-and-config/</link><pubDate>Sat, 27 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-27-vim-vundle-install-and-config/</guid><description>&lt;p>断断续续用Vim也不少时间了，但是从来没有进行过复杂的Vim配置，每每需要插件都是网上寻求安装方式。但是当插件多了管理也便变得繁琐，最后终于让我结识了插件管理神器——Vundle，用过的人都说好用，所以我便也尝试了，网上也有一部分人采用pathogen来进行插件管理，但是据说没有Vundle好用，也便没有尝试，下面对我使用Vundle做一个总结。&lt;/p>
+&lt;p>首先Vundle采用git插件的git repo以及vim-scripts维护的GitHub repo, 自动安装, 更新和卸载插件. 把这些繁杂的工作变得简单, 甚至, 成为一种享受.&lt;/p>
+&lt;p>##安装
+&lt;a href="https://github.com/gmarik/vundle">Vundle地址&lt;/a>,上面安装及配置步骤已经很详细，我在此再赘述下：&lt;/p>
+&lt;p>1.拷贝Vundle
+$ git clone &lt;a href="https://github.com/gmarik/vundle.git">https://github.com/gmarik/vundle.git&lt;/a> ~/.vim/bundle/vundle&lt;/p>
+&lt;p>上面步骤将vundle拷贝到本地的～/.vim/bundle/vundle目录下&lt;/p>
+&lt;p>2.Vundle配置&lt;/p>
+&lt;p>以下是我的配置文件：&lt;/p></description></item><item><title>Git的相关操作</title><link>http://xautjzd.github.io/posts/2013-07-22-git-roll-back/</link><pubDate>Mon, 22 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-22-git-roll-back/</guid><description>&lt;p>##查看Git远程库地址
+建立了远程库后，许久没操作，突然忘了其对应的具体远程库的url。可通过以下命令来查看：&lt;/p>
+&lt;pre>&lt;code>$git remote -v
+&lt;/code>&lt;/pre>
+&lt;p>-v选项是&amp;ndash;verbose的简写，最后结果为：&lt;/p>
+&lt;pre>&lt;code>origin git@github.com:xautjzd/RubyExample.git (fetch)
+origin git@github.com:xautjzd/RubyExample.git (push)
+&lt;/code>&lt;/pre>
+&lt;p>要查看详细信息，则可以通过如下命令查看：&lt;/p>
+&lt;pre>&lt;code>$git remote show remote-name
+&lt;/code>&lt;/pre>
+&lt;p>##添加远程库地址
+$git remote add reponame url&lt;/p>
+&lt;p>##远程库的重命名
+$git remote rename oldname newname&lt;/p></description></item><item><title>Ruby基础之Array,String and Hash</title><link>http://xautjzd.github.io/posts/2013-07-21-array/</link><pubDate>Sun, 21 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-21-array/</guid><description>&lt;p>##Array&lt;/p>
+&lt;p>数组通常都是同种元素的集合，元素可以为单个的变量，如数值或者字符串，但是也可以为数组和Hash等复杂对象。&lt;/p>
+&lt;p>###数组表示矩阵&lt;/p>
+&lt;p>其实数组可以用来表示矩阵，矩阵可以被看作数组的数组，也就是每个数组元素都是数组。三行三列的矩阵可以表示为：&lt;/p>
+&lt;pre>&lt;code>a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+&lt;/code>&lt;/pre>
+&lt;p>“5”的位置则是：
+a[1][1]&lt;/p>
+&lt;p>###数组初始化陷阱&lt;/p>
+&lt;p>初始化数组时，若要使用数组对象或Hash对象作为初始值的元素时必须非常小心，否则便会陷入陷阱当中，如下所示：&lt;/p>
+&lt;pre>&lt;code>a = Array.new(3, [0, 0, 0])
+&lt;/code>&lt;/pre></description></item><item><title>Ruby基础</title><link>http://xautjzd.github.io/posts/2013-07-19-ruby-variable/</link><pubDate>Fri, 19 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-19-ruby-variable/</guid><description>&lt;p>##变量分类&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>局部变量&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>一般以小写字母或下划线开头，当多个单词组成一个变量时，单词间用_分隔。局部变量一般用在代码快里面&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>全局变量&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>全局变量在整个ruby程序中都可以访问，无论他们在哪被定义。全局变量以$开头。eg:&lt;/p>
+&lt;p>$global_variable = 10&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>实例变量&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>实例变量的范围则是类的实例，属于某个类的实例所有，实例间相互独立。实例变量以@开头。eg:&lt;/p>
+&lt;p>@instance_variable = 10&lt;/p></description></item><item><title>Octopress 修改导航栏(Navigator)</title><link>http://xautjzd.github.io/posts/2013-07-18-add-navigator/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-18-add-navigator/</guid><description>搭建好的Octopress导航栏默认只有Blog和Archives，远远不能满足要求，于是便想着在导航栏上添加几个菜单。方法如下：
+$rake new_page[About] 默认会在source目录中生成about/index.markdown文件，不过感觉这样影响视觉，便想着将生成的页面和其他页面放在一起，便可进行如下操作：
+$rake new_page[/blog/About] 这样便在source/blog目录中生成页面，方面管理。生成的页面目前还不能显示，还需编辑source/_includes/custom/navigation.html文件：
+$vim source/_includes/custom/navigation.html 在其中加入 关于我
+编辑完成后进行rake generate生成静态的html文件，然后rake preview便可以通过localhost:4000在本地预览。</description></item><item><title>Octopress目录结构</title><link>http://xautjzd.github.io/posts/2013-07-18-structure-of-octopress/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-18-structure-of-octopress/</guid><description>###Octopress博客目录结构
+octopress博客的source目录结构大致如下:
+source/ ├── _attachments ├── _includes │ ├── asides │ ├── custom │ │ └── asides │ └── post ├── _layouts ├── _nav_menu_items ├── _pages ├── _posts ├── blog │ └── archives ├── font ├── images │ ├── 2012 │ │ ├── 01 │ │ ├── 02 │ ├── 2013 │ │ └── 01 │ ├── fancybox │ └── social ├── javascripts │ ├── asides │ └── libs ├── jsccp └── stylesheets ├── bootstrap └── syntax 当使用rake generate时，source的_post目录中的markdown文件会被编译成html文件，并拷贝到public目录下，public目录结构与source目录结构一致，里面的内容为最终的静态页面。一般都是先rake generate生成静态页面，然后通过rake preview进行本地预览，如果显示正常，则rake deploy部署到github上。如果特别熟练，也可以直接生成静态页面并部署，不需要本地预览。可以采用rake gen_deploy一步进行。</description></item><item><title>Octopress配置Disqus插件</title><link>http://xautjzd.github.io/posts/2013-07-18-congfig-disqus-plugin/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-18-congfig-disqus-plugin/</guid><description>###添加Disqus插件 看到不少人博客上都有Comments功能，便也想给自己的博客添加上。经过搜寻一番，发现大多用的都是Disqus，而且octopress其实内置了其功能，只是默认没有设置.编辑博客主目录下的config.yml文件即可： $vim _config.yml
+找到： #Disqus comments disqus_short_name: disqus_show_comment_count: false
+填上自己注册的disqus账号的short name，并将false改成true即可。
+注：Disqus一定要和yourname.github.com关联</description></item><item><title>我的第一篇博客</title><link>http://xautjzd.github.io/posts/2013-07-18-my-first-blog/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-18-my-first-blog/</guid><description>几个月前看过Ruby基本语法，也无意中接触了Octopress，便想在GitHub pages上采用Octopress搭建一个属于自己的博客，照着官网提示开始动手实施，不过最后以失败告终。后又忙于其他工作，此事便搁浅。直至最近得空，便又开始着手此事。搭建博客工作再一次展开。 详细搭建过程官方文档写的相当详细，这里不再赘述，请参考： 官网
+下面只说我搭建过程中遇到的难题： 我每次都是运行rake deploy时出现问题，也就是博客无法push到github的repository中。 每次都是![rejected] master-&amp;gt;master (no-fast-forward) 最后网上找了不少资料，然后自己也细细思考了一番，最后终得以解决。方法如下： 转到deploy目录下，执行$git pull，然后再执行git push origin master即可。</description></item><item><title>配置文章分类插件</title><link>http://xautjzd.github.io/posts/2013-07-18-config-category-plugin/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-18-config-category-plugin/</guid><description>Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：
+###1. 添加category_list插件
+代码如下：
+module Jekyll class CategoryListTag &amp;lt; Liquid::Tag def render(context) html = &amp;#34;&amp;#34; categories = context.registers[:site].categories.keys categories.sort.each do |category| posts_in_category = context.registers[:site].categories[category].size category_dir = context.registers[:site].config[&amp;#39;category_dir&amp;#39;] category_url = File.join(category_dir, category.gsub(/_|\P{Word}/, &amp;#39;-&amp;#39;).gsub(/-{2,}/, &amp;#39;-&amp;#39;).downcase) html &amp;lt;&amp;lt; &amp;#34;&amp;lt;li class=&amp;#39;category&amp;#39;&amp;gt;&amp;lt;a href=&amp;#39;/#{category_url}/&amp;#39;&amp;gt;#{category} (#{posts_in_category})&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;\n&amp;#34; end html end end end Liquid::Template.register_tag(&amp;#39;category_list&amp;#39;, Jekyll::CategoryListTag) 将以上代码保存到plugins/category_list_tag.rb中。
+这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside
+2. 添加category到aside中 在source/_include/custom/asides中新建category_list.html文件，并且将以下代码复制到其中：
+&amp;lt;section&amp;gt; &amp;lt;h1&amp;gt;Categories&amp;lt;/h1&amp;gt; &amp;lt;ul id=&amp;#34;categories&amp;#34;&amp;gt; {\% category_list %} &amp;lt;/ul&amp;gt; &amp;lt;/section&amp;gt; 其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。
+3. 配置侧边栏 在_config.yml中配置侧边栏，修改其中的default_asides项：
+default_asides: [custom/asides/category_list.html, ...]</description></item></channel></rss>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>emacs on Zhengdong.jzd 个人博客</title><link>http://xautjzd.github.io/tags/emacs/</link><description>Recent content in emacs on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Thu, 04 Aug 2022 00:00:00 +0000</lastBuildDate><atom:link href="http://xautjzd.github.io/tags/emacs/index.xml" rel="self" type="application/rss+xml"/><item><title>Emacs 常用基本操作</title><link>http://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</link><pubDate>Thu, 04 Aug 2022 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</guid><description>&lt;p>Emacs 作为 Programmer 熟知的两大 Editor 之一流行了很多年了，据说学习曲线陡峭，一直处于劝退状态。但作为喜欢折腾各种工具的自己来说，内心一直有跃跃欲试的想法，终于最近两个月得闲，开始研究学习上了。通过学习&lt;a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html">官网Tutorials&lt;/a> 熟悉其基本操作 &amp;amp; 配置，同时 Google 了解 Emacs 使用频次最高的一些插件，在使用过程中不断优化配置，打造成自己趁手的工具。目前，我主要有三种使用场景: 1. 文本编辑 2. 代码阅读 3. 写业余代码。以下是我在学习过程中整理的常用基本操作，分享出来一方面是当作学习笔记输出，以便后续遗忘时快速查找，另一方面也希望能带给他人一些帮助。&lt;/p>
+&lt;p>目前的常用操作有：&lt;/p>
+&lt;ul>
+&lt;li>单文件操作&lt;/li>
+&lt;li>光标移动&lt;/li>
+&lt;li>复制(copy) &amp;amp; 粘贴(paste)&lt;/li>
+&lt;li>插入(insert) &amp;amp; 删除(delete)&lt;/li>
+&lt;li>撤销(undo) &amp;amp; 重做(redo)&lt;/li>
+&lt;li>窗口操作&lt;/li>
+&lt;li>阅读代码常用操作&lt;/li>
+&lt;li>查看帮助文档&lt;/li>
+&lt;/ul>
+&lt;p>在使用 Emacs 时，有几个关键概念:&lt;/p>
+&lt;ul>
+&lt;li>Buffer&lt;/li>
+&lt;li>Window&lt;/li>
+&lt;li>Frame&lt;/li>
+&lt;li>Mode&lt;/li>
+&lt;/ul>
+&lt;p>请自行查阅文档了解。&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>注：&lt;/strong>&lt;code>C-h&lt;/code> 表示按住 Ctrl 键的同时按 h 键；&lt;code>M-x&lt;/code> 表示按住 Alt/Meta 键的同时按 x 键; &lt;code>S-p f&lt;/code> 表示按住 Windows 键，再依次按 p f 键。&lt;/p>
+&lt;/blockquote></description></item></channel></rss>

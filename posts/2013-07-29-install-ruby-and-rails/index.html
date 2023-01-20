@@ -1,0 +1,66 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Fedora17下搭建Ruby和Rails环境 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用RVM进行管理。
+##1.安装RVM
+#curl -L https://get.rvm.io | bash -s stable
+
+一会儿之后rvm便安装完成,安装位置为/usr/local/rvm目录下，网上很多教程都是使用一般用户权限管理，但是我也尝试过采用一般用户权限安装，但是始终不会安装在~/usrname/.rvm目录下，还是提示安装在/usr/local/rvm下，但是没有写的权限。可能是fedora系统的原因吧，没有深究。使用：
+#source /usr/local/rvm/scripts/rvm
+
+使rvm配置生效。然后采用：
+#rvm -v
+
+查看rvm的版本。同时也可以通过rvm info查看rvm相关信息。"><meta property="og:image" content><meta property="og:title" content="Fedora17下搭建Ruby和Rails环境"><meta property="og:description" content="不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用RVM进行管理。
+##1.安装RVM
+#curl -L https://get.rvm.io | bash -s stable
+
+一会儿之后rvm便安装完成,安装位置为/usr/local/rvm目录下，网上很多教程都是使用一般用户权限管理，但是我也尝试过采用一般用户权限安装，但是始终不会安装在~/usrname/.rvm目录下，还是提示安装在/usr/local/rvm下，但是没有写的权限。可能是fedora系统的原因吧，没有深究。使用：
+#source /usr/local/rvm/scripts/rvm
+
+使rvm配置生效。然后采用：
+#rvm -v
+
+查看rvm的版本。同时也可以通过rvm info查看rvm相关信息。"><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-07-29T00:00:00+00:00"><meta property="article:modified_time" content="2013-07-29T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Fedora17下搭建Ruby和Rails环境"><meta name=twitter:description content="不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用RVM进行管理。
+##1.安装RVM
+#curl -L https://get.rvm.io | bash -s stable
+
+一会儿之后rvm便安装完成,安装位置为/usr/local/rvm目录下，网上很多教程都是使用一般用户权限管理，但是我也尝试过采用一般用户权限安装，但是始终不会安装在~/usrname/.rvm目录下，还是提示安装在/usr/local/rvm下，但是没有写的权限。可能是fedora系统的原因吧，没有深究。使用：
+#source /usr/local/rvm/scripts/rvm
+
+使rvm配置生效。然后采用：
+#rvm -v
+
+查看rvm的版本。同时也可以通过rvm info查看rvm相关信息。"><script src=http://xautjzd.github.io/js/feather.min.js></script>
+<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>Fedora17下搭建Ruby和Rails环境</h1><div class=meta>Posted on Jul 29, 2013</div></div><section class=body><p>不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用<a href=https://rvm.io/>RVM</a>进行管理。</p><p>##1.安装RVM</p><pre><code>#curl -L https://get.rvm.io | bash -s stable
+</code></pre><p>一会儿之后rvm便安装完成,安装位置为/usr/local/rvm目录下，网上很多教程都是使用一般用户权限管理，但是我也尝试过采用一般用户权限安装，但是始终不会安装在~/usrname/.rvm目录下，还是提示安装在/usr/local/rvm下，但是没有写的权限。可能是fedora系统的原因吧，没有深究。使用：</p><pre><code>#source /usr/local/rvm/scripts/rvm
+</code></pre><p>使rvm配置生效。然后采用：</p><pre><code>#rvm -v
+</code></pre><p>查看rvm的版本。同时也可以通过<code>rvm info</code>查看rvm相关信息。</p><p>##2.安装Ruby环境</p><p>使用<code>rvm install 1.9.3</code>会默认选择<code>http://ruby-lang.org</code>网站下载ruby源码然后进行编译，这样太慢。幸好淘宝提供了<a href=http://ruby.taobao.org/mirrors/ruby/>ruby的下载源</a>，我此次便采用的是先在淘宝的ruby源下载我想要的ruby版本1.9.3-p448，下载完成后，将其放到/usr/local/rvm/archives/目录下，然后再执行<code>rvm install 1.9.3-p448</code>，它便能识别已有的ruby源码包，进行解压和编译一系列过程。大致几分钟便可完成。</p><p>下面是我采用一般用户权限安装ruby出错。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ruby data-lang=ruby><span style=display:flex><span>	<span style=color:#960050;background-color:#1e0010>$</span> rvm install <span style=color:#ae81ff>1</span><span style=color:#f92672>.</span><span style=color:#ae81ff>9</span><span style=color:#f92672>.</span><span style=color:#ae81ff>3</span><span style=color:#f92672>-</span>p448
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>Searching</span> <span style=color:#66d9ef>for</span> binary rubies, this might take some time<span style=color:#f92672>.</span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>No</span> binary rubies available <span style=color:#66d9ef>for</span>: fedora<span style=color:#f92672>/</span><span style=color:#ae81ff>17</span><span style=color:#f92672>/</span>i386<span style=color:#f92672>/</span>ruby<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#f92672>.</span><span style=color:#ae81ff>9</span><span style=color:#f92672>.</span><span style=color:#ae81ff>3</span><span style=color:#f92672>-</span>p448<span style=color:#f92672>.</span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>Continuing</span> with compilation<span style=color:#f92672>.</span> <span style=color:#66d9ef>Please</span> read <span style=color:#e6db74>&#39;rvm help mount&#39;</span> to get more information on binary rubies<span style=color:#f92672>.</span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>Installing</span> requirements <span style=color:#66d9ef>for</span> fedora, might require sudo password<span style=color:#f92672>.</span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>Requirements</span> installation successful<span style=color:#f92672>.</span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>Installing</span> <span style=color:#66d9ef>Ruby</span> from source <span style=color:#e6db74>to</span>: <span style=color:#e6db74>/usr/</span>local<span style=color:#f92672>/</span>rvm<span style=color:#f92672>/</span>rubies<span style=color:#f92672>/</span>ruby<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#f92672>.</span><span style=color:#ae81ff>9</span><span style=color:#f92672>.</span><span style=color:#ae81ff>3</span><span style=color:#f92672>-</span>p448, this may take a <span style=color:#66d9ef>while</span> depending on your cpu(s)<span style=color:#f92672>...</span>
+</span></span><span style=display:flex><span>	ruby<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span><span style=color:#f92672>.</span><span style=color:#ae81ff>9</span><span style=color:#f92672>.</span><span style=color:#ae81ff>3</span><span style=color:#f92672>-</span>p448 <span style=color:#f92672>-</span> <span style=color:#75715e>#downloading ruby-1.9.3-p448, this may take a while depending on your connection...</span>
+</span></span><span style=display:flex><span>	<span style=color:#66d9ef>Archive</span> checksum did <span style=color:#f92672>not</span> match, downloading again<span style=color:#f92672>.</span>
+</span></span><span style=display:flex><span>	<span style=color:#e6db74>rm</span>: cannot remove <span style=color:#e6db74>`ruby-1.9.3-p448.tar.bz2&#39;: Permission denied
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	curl: Can&#39;t open &#39;ruby-1.9.3-p448.tar.bz2&#39;!
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	curl: try &#39;curl --help&#39; or &#39;curl --manual&#39; for more information
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	There was an error(23), please check /usr/local/rvm/log//*.log. Next we&#39;ll try to fetch via http.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	Trying ftp:// URL instead.
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	curl: Can&#39;t open &#39;ruby-1.9.3-p448.tar.bz2&#39;!
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	curl: try &#39;curl --help&#39; or &#39;curl --manual&#39; for more information
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	There was an error(23), please check /usr/local/rvm/log//*.log
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>	There has been an error fetching the ruby interpreter. Halting the installation.
+</span></span></span></code></pre></div><p>##3.设置Ruby版本</p><p>通常系统都会安装多个Ruby版本，可通过<code>rvm list</code>查看系统已安装的ruby版本。但需要指定某一版本为系统默认版本。</p><pre><code>#rvm use 1.9.3 --default
+</code></pre><p>我使用的版本为1.9.3，所以指定为默认版本。</p><p>安装Ruby的过程中会自动安装gem，通过下列方法查看其版本</p><pre><code>#ruby -v
+#gem -v
+</code></pre><p>同时替换gem的下载源为淘宝源：</p><pre><code>#gem source -r https://rubygems.org
+#gem source -a http://ruby.taobao.org
+</code></pre><p>##4.安装Rails环境</p><p>采用：</p><pre><code>#gem install bundler rails
+</code></pre><p>安装bundle和rails。</p><p>安装完成后进行测试：</p><pre><code>#rails -v
+#bundle -v
+</code></pre></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
+<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
+<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>

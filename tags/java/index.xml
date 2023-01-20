@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Java on Zhengdong.jzd 个人博客</title><link>http://xautjzd.github.io/tags/java/</link><description>Recent content in Java on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 01 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="http://xautjzd.github.io/tags/java/index.xml" rel="self" type="application/rss+xml"/><item><title>Java jar 是如何执行的?</title><link>http://xautjzd.github.io/posts/2020-09-01-how-java-jar-works/</link><pubDate>Tue, 01 Sep 2020 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2020-09-01-how-java-jar-works/</guid><description>&lt;p>Java 作为一门古老又流行的编程语言，想必大家或多或少都听过，甚至使用过，也有一部分人甚至在生产环境部署过 java 应用。可你了解过 java 程序是如何加载运行的吗？如果你的答案是 &lt;code>yes&lt;/code>, 那么建议不用浪费时间花费在已知的知识点了。&lt;/p>
+&lt;p>下面主要针对 java 可执行 jar(还有有库类型的jar 包，eg: rt.jar) 分析 jar 的加载运行过程，主要包含以下三部分展开:&lt;/p>
+&lt;ul>
+&lt;li>Java jar 生成&lt;/li>
+&lt;li>Java jar 内容&lt;/li>
+&lt;li>Java jar 加载 &amp;amp; 运行&lt;/li>
+&lt;/ul></description></item></channel></rss>

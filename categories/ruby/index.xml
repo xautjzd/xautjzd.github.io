@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ruby on Zhengdong.jzd 个人博客</title><link>http://xautjzd.github.io/categories/ruby/</link><description>Recent content in Ruby on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 18 May 2014 00:00:00 +0000</lastBuildDate><atom:link href="http://xautjzd.github.io/categories/ruby/index.xml" rel="self" type="application/rss+xml"/><item><title>Ruby环境的搭建</title><link>http://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</link><pubDate>Sun, 18 May 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140518.jpg" alt="">&lt;/p>
+&lt;h2 id="ruby简介">Ruby简介&lt;/h2>
+&lt;p>第一次听到Ruby这个名词，可能会比较陌生，进而产生畏惧，毕竟在中国这片区域普及率还不是很高，但在世界范围内还是有不错的影响力，如果有所质疑，可以参考&lt;a href="http://www.tiobe.com/index.php/content/paperinfo/tpci/index.html">TIOBE&lt;/a>上Ruby的排名情况，进几年一直在前10左右徘徊。到目前为止，大家可能只了解到Ruby是一门编程语言，具体还未做了解，那这里引用&lt;a href="https://www.ruby-lang.org/en/">Ruby官网&lt;/a>的解释，供大家参考：&lt;/p>
+&lt;blockquote>
+&lt;p>Ruby is a dynamic, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.&lt;/p>
+&lt;/blockquote>
+&lt;p>用再多的语言描述都略显苍白，只有身临其中把玩一番才能有所体会，而且这种感触才最直观，最有说服力。这里，贴出一个网址，便可在浏览器中体验Ruby之美：&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;a href="http://tryruby.org/levels/1/challenges/0">http://tryruby.org/levels/1/challenges/0&lt;/a>&lt;/p>
+&lt;/blockquote>
+&lt;p>请感受它的魅力所在吧。&lt;/p></description></item><item><title>Ruby语言独特点</title><link>http://xautjzd.github.io/posts/2013-09-19-ruby-syntax-special-point/</link><pubDate>Thu, 19 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-19-ruby-syntax-special-point/</guid><description>&lt;p>有时候真佩服别人的博文可以写的那么长，而且很有料，读起来也非常顺畅，而自己每次却不太善于总结，可能是平时积累的片段还不够，不足以总结，亦或是自己缺少这么一个总结性的思维，导致如今为止也没有产出一篇广为阅读的文章。不过即使如此，也没有打消我持续写博客的念头，不管好坏，不管是否有读者，我将会一如既往的写下去。正如哥哥的《我》:我就是我，是颜色不一样的烟火。每个人都有他存在的价值，无论高低贵贱，无论贫穷富贵，都有其独一无二不可替代的特性。所以无论自己的博文是否能带给大家一丝感触、一点帮助，我都会坚持，因为这也是对我自己学习的一个总结，同时也想尽力贡献一份自己的力量来帮助他人，但我想更多的还是能帮助自己，以便为未来某一天突然需要回味从前的知识提供便捷。我想这便是写博客的初衷。下面进入正题吧：&lt;/p></description></item><item><title>instance_eval vs class_eval</title><link>http://xautjzd.github.io/posts/2013-09-17-instance-eval-vs-class-eval/</link><pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-17-instance-eval-vs-class-eval/</guid><description>&lt;p>Ruby中类其实也是Class的实例。而且instance_eval必须由实例来调用，class_eval必须由类来调用。具体参考下面的实例：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">A&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> A
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a&lt;span style="color:#f92672">.&lt;/span>instance_eval &lt;span style="color:#66d9ef">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self &lt;span style="color:#75715e">#=&amp;gt;a&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">test&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts &lt;span style="color:#e6db74">&amp;#34;this is a singleton method of instance a&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;this is a singleton method of instance a&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b &lt;span style="color:#f92672">=&lt;/span> A&lt;span style="color:#f92672">.&lt;/span>new
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;NoMethodError&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Ruby中symbol与string的区别</title><link>http://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</link><pubDate>Sun, 18 Aug 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</guid><description>记得当初学习Ruby基本语法时，还为Symbol与String的异同纠结了好久，后来经过一段时间的摸索，大致有了了解，但让我给他人解释，这点我还是办不到。但是今天看到了一篇博文,让我彻底明白他们的区别。
+symbol定义 Symbol其实就是string加上前缀：。
+二者异同点 其实Symbol与String本质相同，是string 的两种不同呈现方式。由于受SmallTalk影响，Ruby一切皆对象。所以每次给string赋值，name=&amp;quot;xautjzd&amp;quot;其实都是在内存中创建一个新对象。每次创建的对象的object_id都不相同。
+而symbol则不同，symbol创建一次即可。以后所有的操作都是指向先前创建的对象。所以object_id相同。
+不同点大致有三：
+symbol为常量，值不能改变。 多次使用同一个symbol,object_id相同，而多次使用string,每个对象有不同的object_id。 String的方法,eg:#upcase,#split不能用于Symbol。 参考网址 http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html(http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html)</description></item><item><title>Fedora17下搭建Ruby和Rails环境</title><link>http://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</link><pubDate>Mon, 29 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</guid><description>&lt;p>不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用&lt;a href="https://rvm.io/">RVM&lt;/a>进行管理。&lt;/p>
+&lt;p>##1.安装RVM&lt;/p>
+&lt;pre>&lt;code>#curl -L https://get.rvm.io | bash -s stable
+&lt;/code>&lt;/pre>
+&lt;p>一会儿之后rvm便安装完成,安装位置为/usr/local/rvm目录下，网上很多教程都是使用一般用户权限管理，但是我也尝试过采用一般用户权限安装，但是始终不会安装在~/usrname/.rvm目录下，还是提示安装在/usr/local/rvm下，但是没有写的权限。可能是fedora系统的原因吧，没有深究。使用：&lt;/p>
+&lt;pre>&lt;code>#source /usr/local/rvm/scripts/rvm
+&lt;/code>&lt;/pre>
+&lt;p>使rvm配置生效。然后采用：&lt;/p>
+&lt;pre>&lt;code>#rvm -v
+&lt;/code>&lt;/pre>
+&lt;p>查看rvm的版本。同时也可以通过&lt;code>rvm info&lt;/code>查看rvm相关信息。&lt;/p></description></item><item><title>Ruby元编程之Proc对象</title><link>http://xautjzd.github.io/posts/2013-07-27-metaprogram-proc/</link><pubDate>Sat, 27 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-27-metaprogram-proc/</guid><description>&lt;h2 id="proc">Proc&lt;/h2>
+&lt;p>Proc对象其实就是将代码块(block)转换成对象的块。方式有大致几种：&lt;/p>
+&lt;p>1.Proc对象&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span> inc &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">Proc&lt;/span>&lt;span style="color:#f92672">.&lt;/span>new{ &lt;span style="color:#f92672">|&lt;/span>x&lt;span style="color:#f92672">|&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> inc&lt;span style="color:#f92672">.&lt;/span>call(&lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#75715e">#=&amp;gt;4&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>2.lambda方法&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span> inc &lt;span style="color:#f92672">=&lt;/span> lambda{ &lt;span style="color:#f92672">|&lt;/span>x&lt;span style="color:#f92672">|&lt;/span> x &lt;span style="color:#f92672">+&lt;/span> &lt;span style="color:#ae81ff">1&lt;/span> }
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> inc&lt;span style="color:#f92672">.&lt;/span>call(&lt;span style="color:#ae81ff">3&lt;/span>) &lt;span style="color:#75715e">#=&amp;gt;4&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Ruby基础之Array,String and Hash</title><link>http://xautjzd.github.io/posts/2013-07-21-array/</link><pubDate>Sun, 21 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-21-array/</guid><description>&lt;p>##Array&lt;/p>
+&lt;p>数组通常都是同种元素的集合，元素可以为单个的变量，如数值或者字符串，但是也可以为数组和Hash等复杂对象。&lt;/p>
+&lt;p>###数组表示矩阵&lt;/p>
+&lt;p>其实数组可以用来表示矩阵，矩阵可以被看作数组的数组，也就是每个数组元素都是数组。三行三列的矩阵可以表示为：&lt;/p>
+&lt;pre>&lt;code>a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+&lt;/code>&lt;/pre>
+&lt;p>“5”的位置则是：
+a[1][1]&lt;/p>
+&lt;p>###数组初始化陷阱&lt;/p>
+&lt;p>初始化数组时，若要使用数组对象或Hash对象作为初始值的元素时必须非常小心，否则便会陷入陷阱当中，如下所示：&lt;/p>
+&lt;pre>&lt;code>a = Array.new(3, [0, 0, 0])
+&lt;/code>&lt;/pre></description></item><item><title>Ruby基础</title><link>http://xautjzd.github.io/posts/2013-07-19-ruby-variable/</link><pubDate>Fri, 19 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-19-ruby-variable/</guid><description>&lt;p>##变量分类&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>局部变量&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>一般以小写字母或下划线开头，当多个单词组成一个变量时，单词间用_分隔。局部变量一般用在代码快里面&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>全局变量&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>全局变量在整个ruby程序中都可以访问，无论他们在哪被定义。全局变量以$开头。eg:&lt;/p>
+&lt;p>$global_variable = 10&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>实例变量&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>实例变量的范围则是类的实例，属于某个类的实例所有，实例间相互独立。实例变量以@开头。eg:&lt;/p>
+&lt;p>@instance_variable = 10&lt;/p></description></item></channel></rss>

@@ -1,0 +1,43 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Vim常用快捷键总结 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：
+###Normal mode:
+>> indent current line
+n>> indent the next n line
+. repeat last command
+m,n>> indent from m to n line
+== autoindent current line
+n== autoindent the next n line
+gg=G autoindent the whole file"><meta property="og:image" content><meta property="og:title" content="Vim常用快捷键总结"><meta property="og:description" content="Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：
+###Normal mode:
+>> indent current line
+n>> indent the next n line
+. repeat last command
+m,n>> indent from m to n line
+== autoindent current line
+n== autoindent the next n line
+gg=G autoindent the whole file"><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-09-18T00:00:00+00:00"><meta property="article:modified_time" content="2013-09-18T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Vim常用快捷键总结"><meta name=twitter:description content="Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：
+###Normal mode:
+>> indent current line
+n>> indent the next n line
+. repeat last command
+m,n>> indent from m to n line
+== autoindent current line
+n== autoindent the next n line
+gg=G autoindent the whole file"><script src=http://xautjzd.github.io/js/feather.min.js></script>
+<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>Vim常用快捷键总结</h1><div class=meta>Posted on Sep 18, 2013</div></div><section class=body><p>Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：</p><p>###Normal mode:</p><p><code>>></code> indent current line</p><p><code>n>></code> indent the next n line</p><p><code>.</code> repeat last command</p><p><code>m,n>></code> indent from m to n line</p><p><code>==</code> autoindent current line</p><p><code>n==</code> autoindent the next n line</p><p><code>gg=G</code> autoindent the whole file</p><p><code>=i{</code> reindents &lsquo;inner block&rsquo;(inside the braces)</p><p><code>=a{</code> reindents &ldquo;around block&rdquo;(including the braces)</p><p><code>=2a{</code> reindents 2 blocks(this block and containing block)</p><p>instead of &ldquo;{&rdquo;, also can use &ldquo;}&rdquo; or &ldquo;B&rdquo;.<code>=aB</code> equals <code>=a{</code></p><p><code>>i{</code> increase indent for inner block</p><p><code>&lt;i}</code> decrease indent for inner block</p><p><code>>a{</code> increase indent for around block(including the brace)</p><p><code>&lt;a}</code> decrease indent for around block</p><p>With the cursor on <code>{</code> or <code>}</code></p><p><code>=%</code> autoindent the block(including matching brace)</p><p><code>&lt;%</code> or <code>>%</code> indents or unindents the block</p><p>###Insert mode:</p><p><code>&lt;c+t></code> indent the current line</p><p><code>&lt;c+d></code> reindent the current line</p><p>###Surroud plugin</p><p>以下是一些surround插件的功能：</p><pre><code>{
+	xxx
+	xxx
+}
+</code></pre><p>normal模式下输入：dS{,结果变为:</p><pre><code>xxx
+xxx
+
+&quot;hello world&quot;
+</code></pre><p>cS"&lsquo;之后，结果变为：</p><pre><code>'hello world'
+
+&lt;div&gt;hello&lt;/div&gt;
+</code></pre><p>通过cSt然后输入<code>&lt;p></code>,结果变为：</p><pre><code>&lt;p&gt;hello&lt;/p&gt;
+</code></pre><p>当然也可以选进入visual模式，然后S"，便给选中的文本包含""。</p><p>以上命令主要是关于缩进和对齐的一个总结，关于surround插件做的总结也只是将所学列出，学过之后才感觉几乎毫无用处，所以不学也罢。其他的一些常用功能抽空再做总结。</p></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
+<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
+<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>

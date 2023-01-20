@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Rails on Zhengdong.jzd 个人博客</title><link>http://xautjzd.github.io/categories/rails/</link><description>Recent content in Rails on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 30 Jul 2013 00:00:00 +0000</lastBuildDate><atom:link href="http://xautjzd.github.io/categories/rails/index.xml" rel="self" type="application/rss+xml"/><item><title>创建我的第一个rails程序</title><link>http://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</link><pubDate>Tue, 30 Jul 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</guid><description>&lt;p>##开启Mysql服务&lt;/p>
+&lt;p>我的一个rails程序是采用mysql数据库，不是默认的sqlite3.所以前提是已经安装了mysql。由于Mysql安装了好久，但是很少使用。所以服务没有启动，近来可能会频繁使用，便设置为开机自动启动了。设置方法为:&lt;code>#systemctl enable mysqld.service&lt;/code>或者&lt;code>service mysqld start&lt;/code>。&lt;/p>
+&lt;p>##安装mysql驱动&lt;/p>
+&lt;p>rails应用中使用msyql,需要Mysql对应的ruby驱动：msyql2。安装方式：&lt;/p>
+&lt;pre>&lt;code>$gem install mysql2
+&lt;/code>&lt;/pre>
+&lt;p>安装完成后可通过&lt;code>$rails console&lt;/code>进行测试。测试方法为：&lt;/p>
+&lt;pre>&lt;code>&amp;gt;require 'mysql2'
+&amp;gt;client=Mysql2::Client.new(:host =&amp;gt; &amp;quot;localhost&amp;quot;, :username=&amp;gt;&amp;quot;root&amp;quot;, :password=&amp;gt;&amp;quot;your_password&amp;quot;, :database=&amp;gt;&amp;quot;your_db&amp;quot;)
+=&amp;gt; #&amp;lt;Mysql2::Client:0xa058aac&amp;gt;
+&amp;gt; client.query(&amp;quot;select version()&amp;quot;)
+=&amp;gt; #&amp;lt;Mysql2::Result:0xa05233c&amp;gt;
+&lt;/code>&lt;/pre>
+&lt;p>这样表示已经连接成功。&lt;/p>
+&lt;p>到此为止，前期工作已经完成，后面就开始动手了。&lt;/p></description></item></channel></rss>

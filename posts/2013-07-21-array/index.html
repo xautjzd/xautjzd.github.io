@@ -1,0 +1,75 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>Ruby基础之Array,String and Hash - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="##Array
+数组通常都是同种元素的集合，元素可以为单个的变量，如数值或者字符串，但是也可以为数组和Hash等复杂对象。
+###数组表示矩阵
+其实数组可以用来表示矩阵，矩阵可以被看作数组的数组，也就是每个数组元素都是数组。三行三列的矩阵可以表示为：
+a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+“5”的位置则是：
+a[1][1]
+###数组初始化陷阱
+初始化数组时，若要使用数组对象或Hash对象作为初始值的元素时必须非常小心，否则便会陷入陷阱当中，如下所示：
+a = Array.new(3, [0, 0, 0])
+"><meta property="og:image" content><meta property="og:title" content="Ruby基础之Array,String and Hash"><meta property="og:description" content="##Array
+数组通常都是同种元素的集合，元素可以为单个的变量，如数值或者字符串，但是也可以为数组和Hash等复杂对象。
+###数组表示矩阵
+其实数组可以用来表示矩阵，矩阵可以被看作数组的数组，也就是每个数组元素都是数组。三行三列的矩阵可以表示为：
+a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+“5”的位置则是：
+a[1][1]
+###数组初始化陷阱
+初始化数组时，若要使用数组对象或Hash对象作为初始值的元素时必须非常小心，否则便会陷入陷阱当中，如下所示：
+a = Array.new(3, [0, 0, 0])
+"><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2013-07-21-array/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-07-21T00:00:00+00:00"><meta property="article:modified_time" content="2013-07-21T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="Ruby基础之Array,String and Hash"><meta name=twitter:description content="##Array
+数组通常都是同种元素的集合，元素可以为单个的变量，如数值或者字符串，但是也可以为数组和Hash等复杂对象。
+###数组表示矩阵
+其实数组可以用来表示矩阵，矩阵可以被看作数组的数组，也就是每个数组元素都是数组。三行三列的矩阵可以表示为：
+a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+
+“5”的位置则是：
+a[1][1]
+###数组初始化陷阱
+初始化数组时，若要使用数组对象或Hash对象作为初始值的元素时必须非常小心，否则便会陷入陷阱当中，如下所示：
+a = Array.new(3, [0, 0, 0])
+"><script src=http://xautjzd.github.io/js/feather.min.js></script>
+<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>Ruby基础之Array,String and Hash</h1><div class=meta>Posted on Jul 21, 2013</div></div><section class=body><p>##Array</p><p>数组通常都是同种元素的集合，元素可以为单个的变量，如数值或者字符串，但是也可以为数组和Hash等复杂对象。</p><p>###数组表示矩阵</p><p>其实数组可以用来表示矩阵，矩阵可以被看作数组的数组，也就是每个数组元素都是数组。三行三列的矩阵可以表示为：</p><pre><code>a = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+</code></pre><p>“5”的位置则是：
+a[1][1]</p><p>###数组初始化陷阱</p><p>初始化数组时，若要使用数组对象或Hash对象作为初始值的元素时必须非常小心，否则便会陷入陷阱当中，如下所示：</p><pre><code>a = Array.new(3, [0, 0, 0])
+</code></pre><p>这样看起来初始化结果是[[0, 0, 0], [0, 0, 0], [0, 0, 0]]。但是实则不是。</p><p>这样，当只想改动第二行第二个元素时，每一行的第二个元素都会修改，不是预期的结果：
+a = Array.new(3, [0, 0, 0])
+a[1][1] = 2
+p a #=>[[0, 2, 0], [0, 2, 0], [0, 2, 0]]</p><p>解决办法如下：
+a = Array.new(3) {
+[0, 0, 0]
+}
+p[1][1] = 2
+p a #=>[[0, 0 , 0], [0, 2, 0], [0, 0, 0]]</p><p>针对索引值初始化不同的内容：
+a = Array.new(5) { |i| i+1 }
+p a #=>[1, 2, 3, 4, 5]</p><p>###并行处理多个数组值</p><p>有时候可能会用到将多个数组的同一位置的元素一并处理。如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ruby data-lang=ruby><span style=display:flex><span>    array1 <span style=color:#f92672>=</span> <span style=color:#f92672>[</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>4</span>, <span style=color:#ae81ff>5</span><span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>    array2 <span style=color:#f92672>=</span> <span style=color:#f92672>[</span><span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>20</span>, <span style=color:#ae81ff>30</span>, <span style=color:#ae81ff>40</span>, <span style=color:#ae81ff>50</span><span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>    array3 <span style=color:#f92672>=</span> <span style=color:#f92672>[</span><span style=color:#ae81ff>100</span>, <span style=color:#ae81ff>200</span>, <span style=color:#ae81ff>300</span>, <span style=color:#ae81ff>400</span>, <span style=color:#ae81ff>500</span><span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    result <span style=color:#f92672>=</span> <span style=color:#f92672>[]</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> i <span style=color:#f92672>&lt;</span> array1<span style=color:#f92672>.</span>length
+</span></span><span style=display:flex><span>        result <span style=color:#f92672>&lt;&lt;</span> array1<span style=color:#f92672>[</span>i<span style=color:#f92672>]</span> <span style=color:#f92672>+</span> array2<span style=color:#f92672>[</span>i<span style=color:#f92672>]</span> <span style=color:#f92672>+</span> array3<span style=color:#f92672>[</span>i<span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>        i <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>end</span>
+</span></span><span style=display:flex><span>    p result     <span style=color:#75715e>#=&gt;[111, 222, 333, 444, 555]</span>
+</span></span></code></pre></div><p>如果使用zip方法则更简洁:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-ruby data-lang=ruby><span style=display:flex><span>    array1 <span style=color:#f92672>=</span> <span style=color:#f92672>[</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>3</span>, <span style=color:#ae81ff>4</span>, <span style=color:#ae81ff>5</span><span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>    array2 <span style=color:#f92672>=</span> <span style=color:#f92672>[</span><span style=color:#ae81ff>10</span>, <span style=color:#ae81ff>20</span>, <span style=color:#ae81ff>30</span>, <span style=color:#ae81ff>40</span>, <span style=color:#ae81ff>50</span><span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>    array3 <span style=color:#f92672>=</span> <span style=color:#f92672>[</span><span style=color:#ae81ff>100</span>, <span style=color:#ae81ff>200</span>, <span style=color:#ae81ff>300</span>, <span style=color:#ae81ff>400</span>, <span style=color:#ae81ff>500</span><span style=color:#f92672>]</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    i <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    result <span style=color:#f92672>=</span> <span style=color:#f92672>[]</span>
+</span></span><span style=display:flex><span>    array1<span style=color:#f92672>.</span>zip(array2, array3) { <span style=color:#f92672>|</span>a, b, c<span style=color:#f92672>|</span>
+</span></span><span style=display:flex><span>        result <span style=color:#f92672>&lt;&lt;</span> a <span style=color:#f92672>+</span> b <span style=color:#f92672>+</span> c
+</span></span><span style=display:flex><span>        i <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    p result     <span style=color:#75715e>#=&gt;[111, 222, 333, 444, 555]</span>
+</span></span></code></pre></div><p>zip方法会从接收者与实参所指定的数组中逐项获取数据，每次调用代码块内容。</p></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
+<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
+<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>

@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>vim-airline插件patched font配置成功 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="前段时间装好了airline插件，但是没呈现应有的效果，原因是没有安装字体。根据官网的提示需要安装powerline的字体，我便照着powerline官网的配置方法来，但是还是没有成功。其原因是我安装了patched fonts，但是没有将terminal的font设置为patched fonts中的一种，所以statusbar会有乱码。下面对安装patched fonts做一个小结。
+安装patched fonts方式请参考:powerline字体配置，尽管文档很详细，但是还是重复一下：
+1.Download patched fonts
+$mkdir ~/.fonts新建一个font文件夹，然后$cd ~/.fonts进入.fonts文件夹。$git clone git@github.com:Lokaltog/powerline-fonts.git将powerline的patched fonts拷贝到~/.fonts目录下，目录结构如下图：
+2.Install the patched fonts to your System
+运行$fc-cache -vf ~/.fonts安装patched fonts到系统中
+3.Set Terminal fonts
+设置Terminal字体非常重要，我初次配置时，安装patched fonts，但是由于没有set terminal font,所以statusbar显示乱码。设置方法如下：
+Edit——Profiles——Default(Edit)——General——Font，选择~/.fonts/powerline下的某一种即可(可选范围一定要在刚才下载的patched fonts中选一种，否则乱码。)，当然也可以采取powerline font installing中的另一种方式，不过我没做尝试，有兴趣的朋友try it。配置截图如下：
+最后可以在~/.vimrc中更改airline的theme。更改方式如下：
+let g:airline_theme=&#34;molokai&#34; "><meta property="og:image" content><meta property="og:title" content="vim-airline插件patched font配置成功"><meta property="og:description" content="前段时间装好了airline插件，但是没呈现应有的效果，原因是没有安装字体。根据官网的提示需要安装powerline的字体，我便照着powerline官网的配置方法来，但是还是没有成功。其原因是我安装了patched fonts，但是没有将terminal的font设置为patched fonts中的一种，所以statusbar会有乱码。下面对安装patched fonts做一个小结。
+安装patched fonts方式请参考:powerline字体配置，尽管文档很详细，但是还是重复一下：
+1.Download patched fonts
+$mkdir ~/.fonts新建一个font文件夹，然后$cd ~/.fonts进入.fonts文件夹。$git clone git@github.com:Lokaltog/powerline-fonts.git将powerline的patched fonts拷贝到~/.fonts目录下，目录结构如下图：
+2.Install the patched fonts to your System
+运行$fc-cache -vf ~/.fonts安装patched fonts到系统中
+3.Set Terminal fonts
+设置Terminal字体非常重要，我初次配置时，安装patched fonts，但是由于没有set terminal font,所以statusbar显示乱码。设置方法如下：
+Edit——Profiles——Default(Edit)——General——Font，选择~/.fonts/powerline下的某一种即可(可选范围一定要在刚才下载的patched fonts中选一种，否则乱码。)，当然也可以采取powerline font installing中的另一种方式，不过我没做尝试，有兴趣的朋友try it。配置截图如下：
+最后可以在~/.vimrc中更改airline的theme。更改方式如下：
+let g:airline_theme=&#34;molokai&#34; "><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2013-08-26-airline-patched-font-config/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-08-26T00:00:00+00:00"><meta property="article:modified_time" content="2013-08-26T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="vim-airline插件patched font配置成功"><meta name=twitter:description content="前段时间装好了airline插件，但是没呈现应有的效果，原因是没有安装字体。根据官网的提示需要安装powerline的字体，我便照着powerline官网的配置方法来，但是还是没有成功。其原因是我安装了patched fonts，但是没有将terminal的font设置为patched fonts中的一种，所以statusbar会有乱码。下面对安装patched fonts做一个小结。
+安装patched fonts方式请参考:powerline字体配置，尽管文档很详细，但是还是重复一下：
+1.Download patched fonts
+$mkdir ~/.fonts新建一个font文件夹，然后$cd ~/.fonts进入.fonts文件夹。$git clone git@github.com:Lokaltog/powerline-fonts.git将powerline的patched fonts拷贝到~/.fonts目录下，目录结构如下图：
+2.Install the patched fonts to your System
+运行$fc-cache -vf ~/.fonts安装patched fonts到系统中
+3.Set Terminal fonts
+设置Terminal字体非常重要，我初次配置时，安装patched fonts，但是由于没有set terminal font,所以statusbar显示乱码。设置方法如下：
+Edit——Profiles——Default(Edit)——General——Font，选择~/.fonts/powerline下的某一种即可(可选范围一定要在刚才下载的patched fonts中选一种，否则乱码。)，当然也可以采取powerline font installing中的另一种方式，不过我没做尝试，有兴趣的朋友try it。配置截图如下：
+最后可以在~/.vimrc中更改airline的theme。更改方式如下：
+let g:airline_theme=&#34;molokai&#34; "><script src=http://xautjzd.github.io/js/feather.min.js></script>
+<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>vim-airline插件patched font配置成功</h1><div class=meta>Posted on Aug 26, 2013</div></div><section class=body><p>前段时间装好了airline插件，但是没呈现应有的效果，原因是没有安装字体。根据官网的提示需要安装powerline的字体，我便照着<a href=ttps://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation>powerline官网</a>的配置方法来，但是还是没有成功。其原因是我安装了patched fonts，但是没有将terminal的font设置为patched fonts中的一种，所以statusbar会有乱码。下面对安装patched fonts做一个小结。</p><p>安装patched fonts方式请参考:<a href=https://powerline.readthedocs.org/en/latest/installation/linux.html#font-installation>powerline字体配置</a>，尽管文档很详细，但是还是重复一下：</p><p>1.Download patched fonts</p><p><code>$mkdir ~/.fonts</code>新建一个font文件夹，然后<code>$cd ~/.fonts</code>进入.fonts文件夹。<code>$git clone git@github.com:Lokaltog/powerline-fonts.git</code>将powerline的patched fonts拷贝到~/.fonts目录下，目录结构如下图：</p><p><img src=http://pic.yupoo.com/xautjzd/D79oXi6w/medish.jpg alt=~/.font目录结构></p><p>2.Install the patched fonts to your System</p><p>运行<code>$fc-cache -vf ~/.fonts</code>安装patched fonts到系统中</p><p>3.Set Terminal fonts</p><p>设置Terminal字体非常重要，我初次配置时，安装patched fonts，但是由于没有set terminal font,所以statusbar显示乱码。设置方法如下：</p><p>Edit——Profiles——Default(Edit)——General——Font，选择~/.fonts/powerline下的某一种即可(可选范围一定要在刚才下载的patched fonts中选一种，否则乱码。)，当然也可以采取powerline font installing中的另一种方式，不过我没做尝试，有兴趣的朋友try it。配置截图如下：</p><p><img src=http://pic.yupoo.com/xautjzd/D79olvGa/medish.jpg alt="Font config"></p><p>最后可以在~/.vimrc中更改airline的theme。更改方式如下：</p><pre><code>let g:airline_theme=&quot;molokai&quot;
+</code></pre></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
+<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
+<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>

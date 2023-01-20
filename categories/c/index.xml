@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>C on Zhengdong.jzd 个人博客</title><link>http://xautjzd.github.io/categories/c/</link><description>Recent content in C on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Wed, 21 May 2014 00:00:00 +0000</lastBuildDate><atom:link href="http://xautjzd.github.io/categories/c/index.xml" rel="self" type="application/rss+xml"/><item><title>Unix C的文件指针与文件描述符</title><link>http://xautjzd.github.io/posts/2014-05-21-file-pointer-and-file-descriptor-about-c/</link><pubDate>Wed, 21 May 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-05-21-file-pointer-and-file-descriptor-about-c/</guid><description>&lt;p>&lt;img src="http://xautjzd.github.io/images/20140521.jpg" alt="">&lt;/p>
+&lt;p>AISC C中通常用文件指针FILE *进行文件的操作，如fopen, fclose, fread, fwrite, fscanf, fprintf等函数，都是通过文件指针进行文件的一系列操作；而类Unix系统则大多用文件描述符(file descriptor)进行文件的操作，如open, close, read, write等函数，文件描述符是一个整数，是文件描述符表(file descriptor table)中的索引(文件描述符表其实是维护进程打开的文件)。当进程打开或者创建一个文件，内核便会在此进程对应的文件描述符表中分配一个位置，然后便可通过文件描述符操作文件。&lt;/p></description></item><item><title>C语言中的Segment fault问题</title><link>http://xautjzd.github.io/posts/2014-03-15-segment-fault-core-dumped-of-c/</link><pubDate>Sat, 15 Mar 2014 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2014-03-15-segment-fault-core-dumped-of-c/</guid><description>&lt;p>![](img /images/20140315.jpg)&lt;/p>
+&lt;h2 id="什么是segment-fault">什么是Segment fault?&lt;/h2>
+&lt;blockquote>
+&lt;p>a segmentation fault (often shortened to segfault) or access violation is a fault raised by hardware with memory protection, notifying an operating system (OS) about a memory access violation; on x86 computers this is a form of general protection fault.&lt;/p>
+&lt;/blockquote>
+&lt;p>以上为&lt;a href="http://en.wikipedia.org/wiki/Segmentation_fault">Wikipedia&lt;/a>对段错误的解释。用通俗易懂的话来说就是访问越界，访问了不存在或者受操作系统保护的内存，通常都是由于数组越界或者指针引起。&lt;/p>
+&lt;h2 id="产生段错误的原因">产生段错误的原因&lt;/h2>
+&lt;ol>
+&lt;li>dereferencing NULL&lt;/li>
+&lt;li>dereferencing an uninitialized pointer&lt;/li>
+&lt;li>deferencing a pointer that has been freed/out of scope&lt;/li>
+&lt;li>writing off the end of an array&lt;/li>
+&lt;li>recursive function that uses all of the stack space&lt;/li>
+&lt;/ol></description></item><item><title>Dead Code</title><link>http://xautjzd.github.io/posts/2013-09-29-dead-code/</link><pubDate>Sun, 29 Sep 2013 00:00:00 +0000</pubDate><guid>http://xautjzd.github.io/posts/2013-09-29-dead-code/</guid><description>今天在网上看到腾讯的一个实习生招聘题，里面提到了dead code，便上wikipedia查了下，解释如下：
+在计算机编程中，dead code是指那些被执行但执行结果在其他地方没有用到的代码。dead code的执行耗费cpu时间但是结果无用。
+dead code的执行结果没用也就罢了，但它还可能同时导致异常或影响某些全局状态，所以移除这些dead code可能会改变程序的输出，并且排除那些意想不到的bugs。
+参考文档：
+http://en.wikipedia.org/wiki/Dead_code</description></item></channel></rss>

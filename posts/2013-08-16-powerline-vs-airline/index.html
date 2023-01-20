@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>安装Powerline过程中的收获 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Powerline插件已经多次耳闻目见，但是一直没做尝试，今天再次看到便忍不住试了下，结果还没成功。可能是由于字体的原因吧，在找答案的过程中邂逅了airline,据说比powerline加载更快，而且还无需安装字体。所以便果断地换为airline。只需在vimrc中加入bundle bling/vim-airline即可。当然前提是在~/.vimrc中已有如下配置：
+set laststatus=2 &#34;Always show the status line set noshowmode set t_Co=256 配置好后效果如下图所示： 配置好后，在bash中显示没问题，但是在tmux中显示就有问题了，先前配置的效果无法显示。网上也找了好久答案，才得以解决，方法如下：
+1.$vim ~/.tmux.conf
+在~/.tmux.conf文件中添加如下代码：
+set -g default-terminal &#34;screen-256color&#34; 2.$vim ~/.bashrc
+在~/.bashrc中添加如下代码：
+alias tmux=&#34;tmux -2&#34; tmux -2是强制tmux的终端支持256种颜色。
+配置好后，显示没问题，但是在写博客的过程中发现vim突然不能输入中文了，不知为何。最后在~/.vimrc添加： set guifont=* 就顺利解决，不过原因待深究，要学的东西太多。"><meta property="og:image" content><meta property="og:title" content="安装Powerline过程中的收获"><meta property="og:description" content="Powerline插件已经多次耳闻目见，但是一直没做尝试，今天再次看到便忍不住试了下，结果还没成功。可能是由于字体的原因吧，在找答案的过程中邂逅了airline,据说比powerline加载更快，而且还无需安装字体。所以便果断地换为airline。只需在vimrc中加入bundle bling/vim-airline即可。当然前提是在~/.vimrc中已有如下配置：
+set laststatus=2 &#34;Always show the status line set noshowmode set t_Co=256 配置好后效果如下图所示： 配置好后，在bash中显示没问题，但是在tmux中显示就有问题了，先前配置的效果无法显示。网上也找了好久答案，才得以解决，方法如下：
+1.$vim ~/.tmux.conf
+在~/.tmux.conf文件中添加如下代码：
+set -g default-terminal &#34;screen-256color&#34; 2.$vim ~/.bashrc
+在~/.bashrc中添加如下代码：
+alias tmux=&#34;tmux -2&#34; tmux -2是强制tmux的终端支持256种颜色。
+配置好后，显示没问题，但是在写博客的过程中发现vim突然不能输入中文了，不知为何。最后在~/.vimrc添加： set guifont=* 就顺利解决，不过原因待深究，要学的东西太多。"><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2013-08-16-powerline-vs-airline/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-08-16T00:00:00+00:00"><meta property="article:modified_time" content="2013-08-16T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="安装Powerline过程中的收获"><meta name=twitter:description content="Powerline插件已经多次耳闻目见，但是一直没做尝试，今天再次看到便忍不住试了下，结果还没成功。可能是由于字体的原因吧，在找答案的过程中邂逅了airline,据说比powerline加载更快，而且还无需安装字体。所以便果断地换为airline。只需在vimrc中加入bundle bling/vim-airline即可。当然前提是在~/.vimrc中已有如下配置：
+set laststatus=2 &#34;Always show the status line set noshowmode set t_Co=256 配置好后效果如下图所示： 配置好后，在bash中显示没问题，但是在tmux中显示就有问题了，先前配置的效果无法显示。网上也找了好久答案，才得以解决，方法如下：
+1.$vim ~/.tmux.conf
+在~/.tmux.conf文件中添加如下代码：
+set -g default-terminal &#34;screen-256color&#34; 2.$vim ~/.bashrc
+在~/.bashrc中添加如下代码：
+alias tmux=&#34;tmux -2&#34; tmux -2是强制tmux的终端支持256种颜色。
+配置好后，显示没问题，但是在写博客的过程中发现vim突然不能输入中文了，不知为何。最后在~/.vimrc添加： set guifont=* 就顺利解决，不过原因待深究，要学的东西太多。"><script src=http://xautjzd.github.io/js/feather.min.js></script>
+<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>安装Powerline过程中的收获</h1><div class=meta>Posted on Aug 16, 2013</div></div><section class=body><p>Powerline插件已经多次耳闻目见，但是一直没做尝试，今天再次看到便忍不住试了下，结果还没成功。可能是由于字体的原因吧，在找答案的过程中邂逅了airline,据说比powerline加载更快，而且还无需安装字体。所以便果断地换为airline。只需在vimrc中加入<code>bundle bling/vim-airline</code>即可。当然前提是在~/.vimrc中已有如下配置：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-sh data-lang=sh><span style=display:flex><span>set laststatus<span style=color:#f92672>=</span><span style=color:#ae81ff>2</span>  <span style=color:#e6db74>&#34;Always show the status line
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>set noshowmode
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>set t_Co=256
+</span></span></span></code></pre></div><p>配置好后效果如下图所示：
+<img src=/images/airline.jpg alt></p><p>配置好后，在bash中显示没问题，但是在tmux中显示就有问题了，先前配置的效果无法显示。网上也找了好久答案，才得以解决，方法如下：</p><p><strong>1.$vim ~/.tmux.conf</strong></p><p>在~/.tmux.conf文件中添加如下代码：</p><pre><code>set -g default-terminal &quot;screen-256color&quot;
+</code></pre><p><strong>2.$vim ~/.bashrc</strong></p><p>在~/.bashrc中添加如下代码：</p><pre><code>alias tmux=&quot;tmux -2&quot;
+</code></pre><p><code>tmux -2</code>是强制tmux的终端支持256种颜色。</p><p>配置好后，显示没问题，但是在写博客的过程中发现vim突然不能输入中文了，不知为何。最后在~/.vimrc添加：
+set guifont=*
+就顺利解决，不过原因待深究，要学的东西太多。</p></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
+<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
+<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>
