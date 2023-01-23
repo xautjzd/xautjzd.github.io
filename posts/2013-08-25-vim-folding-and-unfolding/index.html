@@ -26,7 +26,7 @@ zf	=> create a fold za	=> unfold zf#j => fold down # lines zf#k => fold up #line
 ###3. Syntax method
 采用syntax方式，则只需如下配置即可：
 :set fdm=syntax 按键方式与上述相似
-###4. Marker method"><meta property="og:type" content="article"><meta property="og:url" content="http://xautjzd.github.io/posts/2013-08-25-vim-folding-and-unfolding/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-08-25T00:00:00+00:00"><meta property="article:modified_time" content="2013-08-25T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="vim文件的折叠与展开方式"><meta name=twitter:description content="最近一直在用Vim学习Ruby,但是一直有个问题困扰：
+###4. Marker method"><meta property="og:type" content="article"><meta property="og:url" content="https://xautjzd.github.io/posts/2013-08-25-vim-folding-and-unfolding/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-08-25T00:00:00+00:00"><meta property="article:modified_time" content="2013-08-25T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="vim文件的折叠与展开方式"><meta name=twitter:description content="最近一直在用Vim学习Ruby,但是一直有个问题困扰：
 那就是文件无法折叠，但是我记得以前看过Vim的视频，里面见别人用到了折叠与展开。文件比较小时，此功能便无用，但一旦文件量大时，折叠与展开便显得尤为重要了。
 折叠的方式有以下几种：
 manual indent syntax marker expr diff ###1. Manual method
@@ -40,8 +40,8 @@ zf	=> create a fold za	=> unfold zf#j => fold down # lines zf#k => fold up #line
 ###3. Syntax method
 采用syntax方式，则只需如下配置即可：
 :set fdm=syntax 按键方式与上述相似
-###4. Marker method"><script src=http://xautjzd.github.io/js/feather.min.js></script>
-<link href=http://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=http://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=http://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+###4. Marker method"><script src=https://xautjzd.github.io/js/feather.min.js></script>
+<link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
 <a href=/posts>All posts</a>
 <a href=/about>About</a>
 <a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>vim文件的折叠与展开方式</h1><div class=meta>Posted on Aug 25, 2013</div></div><section class=body><p>最近一直在用Vim学习Ruby,但是一直有个问题困扰：</p><p>那就是文件无法折叠，但是我记得以前看过Vim的视频，里面见别人用到了折叠与展开。文件比较小时，此功能便无用，但一旦文件量大时，折叠与展开便显得尤为重要了。</p><p>折叠的方式有以下几种：</p><ol><li>manual</li><li>indent</li><li>syntax</li><li>marker</li><li>expr</li><li>diff</li></ol><p>###1. Manual method</p><p>vim默认的折叠方式是此种方式，不需要设置即可。要启用其他方式还得采用<code>:set foldmethod=xxx</code>或者<code>:set fdm=xxx</code>来设置。</p><p><strong>使用方法</strong>：</p><p><code>v</code>或者<code>V</code>进入visual mode,然后选中要折叠的文字，按<code>zf</code>便可折叠，折叠后按<code>za</code>或者<code>zO</code>便展开。</p><p>同时也可以通过<code>zfnj</code>的方式将接下来的n行折叠。类似也有<code>zfnk</code>等;<code>zR</code>则打开所有的折叠。总结下来就是：</p><ul><li>zf => create a fold</li><li>za => unfold</li><li>zf#j => fold down # lines</li><li>zf#k => fold up #lines</li><li>zR => unfold all</li></ul><p>###2. Indent method</p><p>缩进方式主要是根据代码缩进的方式来折叠/展开代码。要使用缩进方式，则需要做配置，<code>:set foldmethod=indent</code>或者在~/.vimrc中配置：<code>set foldmethod=indent</code>。</p><p>其快捷键如下：
