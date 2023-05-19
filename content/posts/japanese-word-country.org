@@ -1,0 +1,19 @@
+#+title: Japanese Word Series - Countries
+#+tags[]: language, japanese
+#+date: 2023-05-19T22:54:11+08:00
+
+* Countries
+
+| Hiragana     | 漢字 | English        |
+|--------------+------+----------------|
+| にほん       | 日本 | Japan          |
+| ちゅうごく   |中国  | China          |
+| かんこく     | 韓国 | Korea          |
+| アメリカ     |      | America        |
+| イギリス     |      | United Kingdom |
+| インド       |      | India          |
+| インドネシア |      | Indonesia      |
+| タイ         |      | Tailand        |
+| ドイツ       |      | Germany        |
+| フランス     |      | France         |
+| ブラジル     |      | Brazil         |
