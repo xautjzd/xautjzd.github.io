@@ -1,5 +1,5 @@
 #+title: Japanese Word Series - Vegetables & Meat
-#+tags[]: language, japanese
+#+tags[]: language japanese
 #+date: 2023-05-06T23:02:01+08:00
 
 * Vegetables

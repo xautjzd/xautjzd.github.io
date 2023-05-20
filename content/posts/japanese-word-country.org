@@ -1,5 +1,5 @@
 #+title: Japanese Word Series - Countries
-#+tags[]: language, japanese
+#+tags[]: language japanese
 #+date: 2023-05-19T22:54:11+08:00
 
 * Countries
