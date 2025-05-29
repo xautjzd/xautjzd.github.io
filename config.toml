@@ -11,6 +11,10 @@ pygmentscodefencesguesssyntax = true
 
 # paginate=3 # articles per page
 
+[services]
+  [services.googleAnalytics]
+    id = "G-MD311WEJXY"
+
 # Social Tags
 
 [[params.social]]
