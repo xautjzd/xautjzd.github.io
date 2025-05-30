@@ -1,0 +1,122 @@
+{{ define "main" }}
+<h1 class="page-title">所有文章</h1>
+
+{{ $pages := where .Site.RegularPages "Type" "posts" }}
+{{ $pages = where $pages "Draft" "ne" true }}
+{{ $pages = where $pages "Params.hidden" "ne" true }}
+{{ $groups := $pages.GroupByDate "2006" }}
+
+{{ range $groups }}
+<div class="year-section">
+  <h2 class="year-title">{{ .Key }}</h2>
+  <ul class="posts">
+    {{ range .Pages }}
+    <li class="post">
+      <a class="post-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <span class="meta">{{ .Date.Format "2006-01-02" }}</span>
+    </li>
+    {{ end }}
+  </ul>
+</div>
+{{ end }}
+
+<style>
+/* 页面标题 */
+.page-title {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 年份区域 */
+.year-section {
+  margin-bottom: 1em;
+}
+
+.year-title {
+  font-size: 1.1em;
+  color: #666;
+  margin-bottom: 0.5em;
+  border-bottom: 1px solid #eee;
+}
+
+/* 文章列表 - 强制移除星号 */
+.posts {
+  list-style: none !important;
+  list-style-type: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.posts li {
+  list-style: none !important;
+  list-style-type: none !important;
+  list-style-image: none !important;
+  margin: 0 !important;
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+.posts li::before {
+  content: none !important;
+  display: none !important;
+}
+
+.posts li::marker {
+  content: none !important;
+  display: none !important;
+}
+
+.post {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5em;
+  padding: 0.2em 0;
+}
+
+.post-title {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.post-title:hover {
+  color: #007bff;
+}
+
+.meta {
+  color: #666;
+  font-size: 0.9em;
+  min-width: 90px;
+  text-align: right;
+  margin-left: auto;
+}
+
+/* 深色模式 */
+@media (prefers-color-scheme: dark) {
+  .page-title {
+    color: #ddd;
+  }
+  
+  .year-title {
+    color: #999;
+    border-bottom-color: #444;
+  }
+  
+  .post-title {
+    color: #ddd;
+  }
+  
+  .post-title:hover {
+    color: #66b3ff;
+  }
+  
+  .meta {
+    color: #999;
+  }
+}
+</style>
+{{ end }} 
