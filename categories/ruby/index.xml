@@ -1,36 +1,42 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ruby on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/categories/ruby/</link><description>Recent content in Ruby on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 18 May 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://xautjzd.github.io/categories/ruby/index.xml" rel="self" type="application/rss+xml"/><item><title>Ruby环境的搭建</title><link>https://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</link><pubDate>Sun, 18 May 2014 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</guid><description>&lt;p>&lt;img src="https://xautjzd.github.io/images/20140518.jpg" alt="">&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ruby on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/categories/ruby/</link><description>Recent content in Ruby on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 18 May 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://xautjzd.github.io/categories/ruby/index.xml" rel="self" type="application/rss+xml"/><item><title>Ruby环境的搭建</title><link>https://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</link><pubDate>Sun, 18 May 2014 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2014-05-18-build-ruby-environment/</guid><description>&lt;p>&lt;img src="https://xautjzd.github.io/images/20140518.jpg" alt="">&lt;/p>
 &lt;h2 id="ruby简介">Ruby简介&lt;/h2>
 &lt;p>第一次听到Ruby这个名词，可能会比较陌生，进而产生畏惧，毕竟在中国这片区域普及率还不是很高，但在世界范围内还是有不错的影响力，如果有所质疑，可以参考&lt;a href="http://www.tiobe.com/index.php/content/paperinfo/tpci/index.html">TIOBE&lt;/a>上Ruby的排名情况，进几年一直在前10左右徘徊。到目前为止，大家可能只了解到Ruby是一门编程语言，具体还未做了解，那这里引用&lt;a href="https://www.ruby-lang.org/en/">Ruby官网&lt;/a>的解释，供大家参考：&lt;/p>
 &lt;blockquote>
-&lt;p>Ruby is a dynamic, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.&lt;/p>
-&lt;/blockquote>
+&lt;p>Ruby is a dynamic, open source programming language with a focus on simplicity and productivity. It has an elegant syntax that is natural to read and easy to write.&lt;/p>&lt;/blockquote>
 &lt;p>用再多的语言描述都略显苍白，只有身临其中把玩一番才能有所体会，而且这种感触才最直观，最有说服力。这里，贴出一个网址，便可在浏览器中体验Ruby之美：&lt;/p>
 &lt;blockquote>
-&lt;p>&lt;a href="http://tryruby.org/levels/1/challenges/0">http://tryruby.org/levels/1/challenges/0&lt;/a>&lt;/p>
-&lt;/blockquote>
+&lt;p>&lt;a href="http://tryruby.org/levels/1/challenges/0">http://tryruby.org/levels/1/challenges/0&lt;/a>&lt;/p>&lt;/blockquote>
 &lt;p>请感受它的魅力所在吧。&lt;/p></description></item><item><title>Ruby语言独特点</title><link>https://xautjzd.github.io/posts/2013-09-19-ruby-syntax-special-point/</link><pubDate>Thu, 19 Sep 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-09-19-ruby-syntax-special-point/</guid><description>&lt;p>有时候真佩服别人的博文可以写的那么长，而且很有料，读起来也非常顺畅，而自己每次却不太善于总结，可能是平时积累的片段还不够，不足以总结，亦或是自己缺少这么一个总结性的思维，导致如今为止也没有产出一篇广为阅读的文章。不过即使如此，也没有打消我持续写博客的念头，不管好坏，不管是否有读者，我将会一如既往的写下去。正如哥哥的《我》:我就是我，是颜色不一样的烟火。每个人都有他存在的价值，无论高低贵贱，无论贫穷富贵，都有其独一无二不可替代的特性。所以无论自己的博文是否能带给大家一丝感触、一点帮助，我都会坚持，因为这也是对我自己学习的一个总结，同时也想尽力贡献一份自己的力量来帮助他人，但我想更多的还是能帮助自己，以便为未来某一天突然需要回味从前的知识提供便捷。我想这便是写博客的初衷。下面进入正题吧：&lt;/p></description></item><item><title>instance_eval vs class_eval</title><link>https://xautjzd.github.io/posts/2013-09-17-instance-eval-vs-class-eval/</link><pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-09-17-instance-eval-vs-class-eval/</guid><description>&lt;p>Ruby中类其实也是Class的实例。而且instance_eval必须由实例来调用，class_eval必须由类来调用。具体参考下面的实例：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">A&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-ruby" data-lang="ruby">&lt;span style="display:flex;">&lt;span>	&lt;span style="color:#66d9ef">class&lt;/span> &lt;span style="color:#a6e22e">A&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	&lt;span style="color:#66d9ef">end&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> A
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a&lt;span style="color:#f92672">.&lt;/span>instance_eval &lt;span style="color:#66d9ef">do&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> self &lt;span style="color:#75715e">#=&amp;gt;a&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	a &lt;span style="color:#f92672">=&lt;/span> &lt;span style="color:#66d9ef">new&lt;/span> A
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	a&lt;span style="color:#f92672">.&lt;/span>instance_eval &lt;span style="color:#66d9ef">do&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>		self &lt;span style="color:#75715e">#=&amp;gt;a&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>		
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>		&lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">test&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>			puts &lt;span style="color:#e6db74">&amp;#34;this is a singleton method of instance a&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>		&lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	&lt;span style="color:#66d9ef">end&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">def&lt;/span> &lt;span style="color:#a6e22e">test&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> puts &lt;span style="color:#e6db74">&amp;#34;this is a singleton method of instance a&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &lt;span style="color:#66d9ef">end&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	a&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;this is a singleton method of instance a&lt;/span>
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> a&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;this is a singleton method of instance a&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b &lt;span style="color:#f92672">=&lt;/span> A&lt;span style="color:#f92672">.&lt;/span>new
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> b&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;NoMethodError&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Ruby中symbol与string的区别</title><link>https://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</link><pubDate>Sun, 18 Aug 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</guid><description>记得当初学习Ruby基本语法时，还为Symbol与String的异同纠结了好久，后来经过一段时间的摸索，大致有了了解，但让我给他人解释，这点我还是办不到。但是今天看到了一篇博文,让我彻底明白他们的区别。
-symbol定义 Symbol其实就是string加上前缀：。
-二者异同点 其实Symbol与String本质相同，是string 的两种不同呈现方式。由于受SmallTalk影响，Ruby一切皆对象。所以每次给string赋值，name=&amp;quot;xautjzd&amp;quot;其实都是在内存中创建一个新对象。每次创建的对象的object_id都不相同。
-而symbol则不同，symbol创建一次即可。以后所有的操作都是指向先前创建的对象。所以object_id相同。
-不同点大致有三：
-symbol为常量，值不能改变。 多次使用同一个symbol,object_id相同，而多次使用string,每个对象有不同的object_id。 String的方法,eg:#upcase,#split不能用于Symbol。 参考网址 http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html(http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html)</description></item><item><title>Fedora17下搭建Ruby和Rails环境</title><link>https://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</link><pubDate>Mon, 29 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</guid><description>&lt;p>不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用&lt;a href="https://rvm.io/">RVM&lt;/a>进行管理。&lt;/p>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	b &lt;span style="color:#f92672">=&lt;/span> A&lt;span style="color:#f92672">.&lt;/span>new
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	b&lt;span style="color:#f92672">.&lt;/span>test &lt;span style="color:#75715e">#=&amp;gt;NoMethodError&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Ruby中symbol与string的区别</title><link>https://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</link><pubDate>Sun, 18 Aug 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-08-18-difference-between-symbol-and-string/</guid><description>&lt;p>记得当初学习Ruby基本语法时，还为Symbol与String的异同纠结了好久，后来经过一段时间的摸索，大致有了了解，但让我给他人解释，这点我还是办不到。但是今天看到了一篇&lt;a href="http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html">博文&lt;/a>,让我彻底明白他们的区别。&lt;/p>
+&lt;h3 id="symbol定义">symbol定义&lt;/h3>
+&lt;p>Symbol其实就是string加上前缀：。&lt;/p>
+&lt;h3 id="二者异同点">二者异同点&lt;/h3>
+&lt;p>其实Symbol与String本质相同，是string 的两种不同呈现方式。由于受SmallTalk影响，Ruby一切皆对象。所以每次给string赋值，&lt;code>name=&amp;quot;xautjzd&amp;quot;&lt;/code>其实都是在内存中创建一个新对象。每次创建的对象的object_id都不相同。&lt;/p>
+&lt;p>而symbol则不同，symbol创建一次即可。以后所有的操作都是指向先前创建的对象。所以object_id相同。&lt;/p>
+&lt;p>不同点大致有三：&lt;/p>
+&lt;ol>
+&lt;li>symbol为常量，值不能改变。&lt;/li>
+&lt;li>多次使用同一个symbol,object_id相同，而多次使用string,每个对象有不同的object_id。&lt;/li>
+&lt;li>String的方法,eg:#upcase,#split不能用于Symbol。&lt;/li>
+&lt;/ol>
+&lt;h3 id="参考网址">参考网址&lt;/h3>
+&lt;p>&lt;a href="http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html(http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html)">http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html(http://www.gaurishsharma.com/2013/04/understanding-differences-between-symbols-strings-in-ruby.html)&lt;/a>&lt;/p></description></item><item><title>Fedora17下搭建Ruby和Rails环境</title><link>https://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</link><pubDate>Mon, 29 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-29-install-ruby-and-rails/</guid><description>&lt;p>不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用&lt;a href="https://rvm.io/">RVM&lt;/a>进行管理。&lt;/p>
 &lt;p>##1.安装RVM&lt;/p>
 &lt;pre>&lt;code>#curl -L https://get.rvm.io | bash -s stable
 &lt;/code>&lt;/pre>

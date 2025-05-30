@@ -1,5 +1,50 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>macos on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/macos/</link><description>Recent content in macos on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Thu, 19 Jan 2023 17:22:37 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/macos/index.xml" rel="self" type="application/rss+xml"/><item><title>MacOS 环境批量安装软件</title><link>https://xautjzd.github.io/posts/use-brewfile-to-automation/</link><pubDate>Thu, 19 Jan 2023 17:22:37 +0800</pubDate><guid>https://xautjzd.github.io/posts/use-brewfile-to-automation/</guid><description>最近工作使用的电脑新换到 MacBook Pro M1 13寸，平时工作使用的各种工具 &amp;amp; 软件都需要重新安装 &amp;amp; 配置，耗时耗力而且没有太多成就感，所以一直在思索如何将其自动化掉，避免每次换电脑都要做重复的劳动。自己平时安装各种软件比较依赖 HomeBrew，印象中它有提供 Brewfile 可以批量安装软件，只是自己一直没有使用起来。刚好趁这次机会拿来练练手，一来总结经验以备下次复用，二来分享出来希望可以帮助到他人。下面分享下我是如何使用 Brewfile 批量安装工作必备软件的。
-1. 前提 使用 Brewfile 进行批量安装前，需要安装：
-git HomeBrew 另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，请保证 AppleID 已登录。
-2. 列出所需软件清单，形成 Brewfile 在批量安装前，列出自己平时工作所需的软件，在任意目录下创建名为 Brewfile 的文件，文件内容及格式可以参考我目前使用的 Brewfile 来声明:
-# taps tap &amp;#34;homebrew/bundle&amp;#34; tap &amp;#34;homebrew/cask&amp;#34; tap &amp;#34;homebrew/core&amp;#34; # packages brew &amp;#39;vim&amp;#39; brew &amp;#39;git&amp;#39; brew &amp;#39;zsh&amp;#39; brew &amp;#39;tmux&amp;#39; brew &amp;#39;ripgrep&amp;#39; brew &amp;#39;bat&amp;#39; brew &amp;#39;helix&amp;#39; brew &amp;#39;jq&amp;#39; brew &amp;#39;mas&amp;#39; # tools cask &amp;#39;emacs&amp;#39; cask &amp;#39;google-chrome&amp;#39; cask &amp;#39;notion&amp;#39; cask &amp;#39;alfred&amp;#39; cask &amp;#39;warp&amp;#39; cask &amp;#39;intellij-idea-ce&amp;#39; cask &amp;#39;sequel-pro&amp;#39; cask &amp;#39;clashx&amp;#39; cask &amp;#39;tunnelblick&amp;#39; # language # cask &amp;#39;java&amp;#39; brew &amp;#39;go&amp;#39; brew &amp;#39;cmake&amp;#39; brew &amp;#39;maven&amp;#39; brew &amp;#39;yarn&amp;#39; # install apps from apple store: 1.</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Macos on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/macos/</link><description>Recent content in Macos on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Thu, 19 Jan 2023 17:22:37 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/macos/index.xml" rel="self" type="application/rss+xml"/><item><title>MacOS 环境批量安装软件</title><link>https://xautjzd.github.io/posts/use-brewfile-to-automation/</link><pubDate>Thu, 19 Jan 2023 17:22:37 +0800</pubDate><guid>https://xautjzd.github.io/posts/use-brewfile-to-automation/</guid><description>&lt;p>最近工作使用的电脑新换到 MacBook Pro M1 13寸，平时工作使用的各种工具 &amp;amp; 软件都需要重新安装 &amp;amp; 配置，耗时耗力而且没有太多成就感，所以一直在思索如何将其自动化掉，避免每次换电脑都要做重复的劳动。自己平时安装各种软件比较依赖 &lt;a href="https://brew.sh/">HomeBrew&lt;/a>，印象中它有提供 Brewfile 可以批量安装软件，只是自己一直没有使用起来。刚好趁这次机会拿来练练手，一来总结经验以备下次复用，二来分享出来希望可以帮助到他人。下面分享下我是如何使用 Brewfile 批量安装工作必备软件的。&lt;/p>
+&lt;h2 id="1-前提">1. 前提&lt;/h2>
+&lt;p>使用 Brewfile 进行批量安装前，需要安装：&lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="https://git-scm.com/">git&lt;/a>&lt;/li>
+&lt;li>&lt;a href="https://brew.sh">HomeBrew&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;p>另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，请保证 AppleID 已登录。&lt;/p>
+&lt;h2 id="2-列出所需软件清单形成-brewfile">2. 列出所需软件清单，形成 Brewfile&lt;/h2>
+&lt;p>在批量安装前，列出自己平时工作所需的软件，在任意目录下创建名为 &lt;code>Brewfile&lt;/code> 的文件，文件内容及格式可以参考我目前使用的 &lt;a href="https://github.com/xautjzd/dotvim/blob/master/Brewfile">Brewfile&lt;/a> 来声明:&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># taps&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/bundle&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/cask&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/core&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># packages&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;vim&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;git&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;zsh&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;tmux&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;ripgrep&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;bat&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;helix&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;jq&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;mas&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># tools&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;emacs&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;google-chrome&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;notion&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;alfred&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;warp&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;intellij-idea-ce&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;sequel-pro&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;clashx&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;tunnelblick&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># language&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># cask &amp;#39;java&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;go&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;cmake&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;maven&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;yarn&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># install apps from apple store: 1. mas search &amp;lt;keyword&amp;gt;, find id 2. add one line below &lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;MindNode&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">1289197285&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;CopyClip&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">595191960&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;QQ音乐&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">595615424&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>文件内容主要分为四部分:&lt;/p></description></item></channel></rss>

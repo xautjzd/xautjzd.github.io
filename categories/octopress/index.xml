@@ -1,31 +1,107 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Octopress on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/categories/octopress/</link><description>Recent content in Octopress on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 01 Apr 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://xautjzd.github.io/categories/octopress/index.xml" rel="self" type="application/rss+xml"/><item><title>随时随地用Octopress写博客</title><link>https://xautjzd.github.io/posts/2014-04-01-clone-your-cotopress-to-different-places/</link><pubDate>Tue, 01 Apr 2014 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2014-04-01-clone-your-cotopress-to-different-places/</guid><description>&lt;p>&lt;img src="https://xautjzd.github.io/images/20140401octopress.jpg" alt="">&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Octopress on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/categories/octopress/</link><description>Recent content in Octopress on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 01 Apr 2014 00:00:00 +0000</lastBuildDate><atom:link href="https://xautjzd.github.io/categories/octopress/index.xml" rel="self" type="application/rss+xml"/><item><title>随时随地用Octopress写博客</title><link>https://xautjzd.github.io/posts/2014-04-01-clone-your-cotopress-to-different-places/</link><pubDate>Tue, 01 Apr 2014 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2014-04-01-clone-your-cotopress-to-different-places/</guid><description>&lt;p>&lt;img src="https://xautjzd.github.io/images/20140401octopress.jpg" alt="">&lt;/p>
 &lt;p>&lt;a href="http://octopress.org/">Octopress&lt;/a>所依赖的环境是Ruby和Git,所以要使用它写博客，必须先确保目标机器上已经安装Ruby和Git。有时候可能需要在新的环境中创作，那么得进行以下的一些操作了。在讲操作前先简要介绍下Octopress如何工作。&lt;/p>
 &lt;h2 id="octopress是怎么工作的">Octopress是怎么工作的?&lt;/h2>
 &lt;p>Octopress默认有两个分支，即master和source。source分支主要存储用于生成博客的源文件，而master分支则主要包含生成后的博客。master分支存储在_deploy文件夹中，之所以以下划线命名，是因为在执行&lt;code>git push origin source&lt;/code>时，下划线开头的文件夹会被忽略掉。&lt;/p>
 &lt;p>当然，也可以创建自己的分支，但master分支一般主要用于存储生成后的博客，而博客源文件则可以自己新建分支存储。我目前在原有的基础上新建了newtheme分支，用于更改主题后的博客源码存储，以前的源码存储在source分支。&lt;/p>
 &lt;h2 id="创建本地octopress库">创建本地Octopress库&lt;/h2>
-&lt;p>在新环境中写作时，需要进行以下几个步骤：&lt;/p></description></item><item><title>更新Octopress</title><link>https://xautjzd.github.io/posts/2013-09-17-update-my-blog/</link><pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-09-17-update-my-blog/</guid><description>现在已记不清接触Octopress多长时间了，只依稀记得当时配置Octopress配了好久，然后依然失败，后又忙于其他的事情，所以搭建工作便搁置一旁，七月中旬时间比较充足，所以又开始再次折腾，后来终于搭建成功，所以7.18便发表了第一篇博客。后来一个月之后又开始了我的换肤工作，一切都好，唯一的缺陷是Gravatar的图像没有显示出来，所以便向theme的作者发问，后来也忘了这茬事。就这样又过了一月，直到今天，突然发现我的unread消息里面有几条关于我的message，便打开浏览，才发现作者给的回复，说图像没显示是个bug，现已修复。具体见：
-https://github.com/shashankmehta/greyshade/issues/42
-我便立马更新了我的Octopress。更新方法如下：
-# Get the latest Octopress git pull octopress master # Keep gems updated bundle install # update the template's source rake update_source 具体参考：
-http://octopress.org/docs/updating/
-参考时请务必注意：如果您的octopress主题不是octopress默认主题,请不要执行rake update_style，否则会被还原成默认主题。
-本博客采用的主题为：
-https://github.com/shashankmehta/greyshade</description></item><item><title>更换Octopress主题</title><link>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</link><pubDate>Sat, 17 Aug 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</guid><description>Octopress博客搭建已经有一阵了，但一直采用的默认的主题，没时间更换。今天特意抽时间来更换下，先上Octopress官网了解了下更换Theme的原理，然后上Octopress所在的源码托管平台GitHub，在其Wiki上找到了第三方Themes,便从前到后大致将各种themes都预览了一遍，最后选择了Greyshade主题,安装方法官网写的已经非常详细，这里再啰嗦一遍：
-###Install
-$ cd octopress #octopress directory $ git clone git@github.com:shashankmehta/greyshade.git .themes/greyshade $ echo &amp;#34;\$greyshade: color;&amp;#34; &amp;gt;&amp;gt; sass/custom/_colors.scss //Substitue &amp;#39;color&amp;#39; with your highlight color $ rake &amp;#34;install[greyshade]&amp;#34; $ rake generate 至此，安装过程便已完成。
-左侧的显示效果主要配置在_config.yml文件中。
-###pages显示
-Octopress默认只有Homepage和Archives两个导航菜单，不满足要求，我便又添加了&amp;quot;编程&amp;quot;、“Linux”、“所思所想”和“关于我”这几个。“关于我”的页面为静态页面，在source/blog/aboutme/下，其他的几个需要将相关的文章显示在相应的导航菜单下，便需做如下配置：
---- layout: category_index title: Thinking category: Thinking --- 这样后，只要new_post并且category为Thinking的页面都会集中在所思所想对应的页面显示。</description></item><item><title>Octopress添加disqus评论到侧边栏</title><link>https://xautjzd.github.io/posts/2013-07-30-add-comments-to-sidebar/</link><pubDate>Tue, 30 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-30-add-comments-to-sidebar/</guid><description>##新建comments.html文件
-添加评论到侧边栏与添加关于、文章分类和友情链接相似，需要在source/_includes/custom/asides/目录下添加comments.html模块，名字根据自己的喜好可以换成其他的，如xxx.html，然后在comments.html里添加如下内容：
-&amp;lt;section id=&amp;#34;comment_sidebar&amp;#34;&amp;gt; &amp;lt;h1&amp;gt;近期评论&amp;lt;/h1&amp;gt; &amp;lt;script type=&amp;#34;text/javascript&amp;#34; src=&amp;#34;http://zhengdongjiang.disqus.com/recent_comments_widget.js?num_items=5&amp;amp;hide_avatars=0&amp;amp;avatar_size=32&amp;amp;excerpt_length=20&amp;#34;&amp;gt;&amp;lt;/script&amp;gt;&amp;lt;a href=&amp;#34;http://disqus.com/&amp;#34;&amp;gt;Powered by Disqus&amp;lt;/a&amp;gt; &amp;lt;/section&amp;gt; 其中zhengdongjiang为我disqus对应此网站的shortname，这就不要照搬了，换成你对应的名字即可。
-##修改_config.yml文件
-default_asides: [custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html] # Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below # and add an array with the asides you want to use. blog_index_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html] post_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]</description></item><item><title>Ocpress添加友情链接</title><link>https://xautjzd.github.io/posts/2013-07-27-octopress-add-frend-sites/</link><pubDate>Sat, 27 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-27-octopress-add-frend-sites/</guid><description>与在侧边栏添加Aboutme、Categories、Tagcloud等功能类似，在source/_include\custom\asides目录下添加一个frendsites.html文件，模仿about等写法，添加友情链接，如下所示：
-&amp;lt;section&amp;gt; &amp;lt;h1&amp;gt;友情链接&amp;lt;/h1&amp;gt; &amp;lt;ul&amp;gt; &amp;lt;li&amp;gt;&amp;lt;a href=&amp;#34;url_to_add&amp;#34;&amp;gt;友情链接的显示Id&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt; ... &amp;lt;/ul&amp;gt; &amp;lt;/section&amp;gt; 然后在_config.yml文件中相应的位置添加，如在default_asides中的数组添加custom/asides/friendsites.html，当然也可以在blog_index等其他数组中添加。</description></item><item><title>Octopress目录结构</title><link>https://xautjzd.github.io/posts/2013-07-18-structure-of-octopress/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-18-structure-of-octopress/</guid><description>###Octopress博客目录结构
-octopress博客的source目录结构大致如下:
-source/ ├── _attachments ├── _includes │ ├── asides │ ├── custom │ │ └── asides │ └── post ├── _layouts ├── _nav_menu_items ├── _pages ├── _posts ├── blog │ └── archives ├── font ├── images │ ├── 2012 │ │ ├── 01 │ │ ├── 02 │ ├── 2013 │ │ └── 01 │ ├── fancybox │ └── social ├── javascripts │ ├── asides │ └── libs ├── jsccp └── stylesheets ├── bootstrap └── syntax 当使用rake generate时，source的_post目录中的markdown文件会被编译成html文件，并拷贝到public目录下，public目录结构与source目录结构一致，里面的内容为最终的静态页面。一般都是先rake generate生成静态页面，然后通过rake preview进行本地预览，如果显示正常，则rake deploy部署到github上。如果特别熟练，也可以直接生成静态页面并部署，不需要本地预览。可以采用rake gen_deploy一步进行。</description></item><item><title>Octopress配置Disqus插件</title><link>https://xautjzd.github.io/posts/2013-07-18-congfig-disqus-plugin/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-18-congfig-disqus-plugin/</guid><description>###添加Disqus插件 看到不少人博客上都有Comments功能，便也想给自己的博客添加上。经过搜寻一番，发现大多用的都是Disqus，而且octopress其实内置了其功能，只是默认没有设置.编辑博客主目录下的config.yml文件即可： $vim _config.yml
-找到： #Disqus comments disqus_short_name: disqus_show_comment_count: false
-填上自己注册的disqus账号的short name，并将false改成true即可。
-注：Disqus一定要和yourname.github.com关联</description></item><item><title>我的第一篇博客</title><link>https://xautjzd.github.io/posts/2013-07-18-my-first-blog/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-18-my-first-blog/</guid><description>几个月前看过Ruby基本语法，也无意中接触了Octopress，便想在GitHub pages上采用Octopress搭建一个属于自己的博客，照着官网提示开始动手实施，不过最后以失败告终。后又忙于其他工作，此事便搁浅。直至最近得空，便又开始着手此事。搭建博客工作再一次展开。 详细搭建过程官方文档写的相当详细，这里不再赘述，请参考： 官网
-下面只说我搭建过程中遇到的难题： 我每次都是运行rake deploy时出现问题，也就是博客无法push到github的repository中。 每次都是![rejected] master-&amp;gt;master (no-fast-forward) 最后网上找了不少资料，然后自己也细细思考了一番，最后终得以解决。方法如下： 转到deploy目录下，执行$git pull，然后再执行git push origin master即可。</description></item></channel></rss>
+&lt;p>在新环境中写作时，需要进行以下几个步骤：&lt;/p></description></item><item><title>更新Octopress</title><link>https://xautjzd.github.io/posts/2013-09-17-update-my-blog/</link><pubDate>Tue, 17 Sep 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-09-17-update-my-blog/</guid><description>&lt;p>现在已记不清接触Octopress多长时间了，只依稀记得当时配置Octopress配了好久，然后依然失败，后又忙于其他的事情，所以搭建工作便搁置一旁，七月中旬时间比较充足，所以又开始再次折腾，后来终于搭建成功，所以7.18便发表了第一篇博客。后来一个月之后又开始了我的换肤工作，一切都好，唯一的缺陷是Gravatar的图像没有显示出来，所以便向theme的作者发问，后来也忘了这茬事。就这样又过了一月，直到今天，突然发现我的unread消息里面有几条关于我的message，便打开浏览，才发现作者给的回复，说图像没显示是个bug，现已修复。具体见：&lt;/p>
+&lt;p>&lt;a href="https://github.com/shashankmehta/greyshade/issues/42">https://github.com/shashankmehta/greyshade/issues/42&lt;/a>&lt;/p>
+&lt;p>我便立马更新了我的Octopress。更新方法如下：&lt;/p>
+&lt;pre>&lt;code># Get the latest Octopress
+git pull octopress master 
+# Keep gems updated
+bundle install 
+# update the template's source
+rake update_source 
+&lt;/code>&lt;/pre>
+&lt;p>具体参考：&lt;/p>
+&lt;p>&lt;a href="http://octopress.org/docs/updating/">http://octopress.org/docs/updating/&lt;/a>&lt;/p>
+&lt;p>参考时请务必注意：如果您的octopress主题不是octopress默认主题,请不要执行&lt;code>rake update_style&lt;/code>，否则会被还原成默认主题。&lt;/p>
+&lt;p>本博客采用的主题为：&lt;/p>
+&lt;p>&lt;a href="https://github.com/shashankmehta/greyshade">https://github.com/shashankmehta/greyshade&lt;/a>&lt;/p></description></item><item><title>更换Octopress主题</title><link>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</link><pubDate>Sat, 17 Aug 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</guid><description>&lt;p>Octopress博客搭建已经有一阵了，但一直采用的默认的主题，没时间更换。今天特意抽时间来更换下，先上&lt;a href="http://octopress.org/docs/theme/">Octopress官网&lt;/a>了解了下更换Theme的原理，然后上Octopress所在的源码托管平台GitHub，在其&lt;a href="https://github.com/imathis/octopress/wiki">Wiki&lt;/a>上找到了&lt;a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes">第三方Themes&lt;/a>,便从前到后大致将各种themes都预览了一遍，最后选择了&lt;a href="https://github.com/shashankmehta/greyshade">Greyshade主题&lt;/a>,安装方法官网写的已经非常详细，这里再啰嗦一遍：&lt;/p>
+&lt;p>###Install&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>$ cd octopress #octopress directory
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ git clone git@github.com:shashankmehta/greyshade.git .themes/greyshade
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ echo &amp;#34;\$greyshade: color;&amp;#34; &amp;gt;&amp;gt; sass/custom/_colors.scss //Substitue &amp;#39;color&amp;#39; with your highlight color
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ rake &amp;#34;install[greyshade]&amp;#34;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ rake generate
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>至此，安装过程便已完成。&lt;/p>
+&lt;p>左侧的显示效果主要配置在_config.yml文件中。&lt;/p>
+&lt;p>###pages显示&lt;/p>
+&lt;p>Octopress默认只有Homepage和Archives两个导航菜单，不满足要求，我便又添加了&amp;quot;编程&amp;quot;、“Linux”、“所思所想”和“关于我”这几个。“关于我”的页面为静态页面，在source/blog/aboutme/下，其他的几个需要将相关的文章显示在相应的导航菜单下，便需做如下配置：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-html" data-lang="html">&lt;span style="display:flex;">&lt;span>---
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>layout: category_index
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>title: Thinking
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>category: Thinking
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>---
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>这样后，只要new_post并且category为Thinking的页面都会集中在所思所想对应的页面显示。&lt;/p></description></item><item><title>Octopress添加disqus评论到侧边栏</title><link>https://xautjzd.github.io/posts/2013-07-30-add-comments-to-sidebar/</link><pubDate>Tue, 30 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-30-add-comments-to-sidebar/</guid><description>&lt;p>##新建comments.html文件&lt;/p>
+&lt;p>添加评论到侧边栏与添加关于、文章分类和友情链接相似，需要在source/_includes/custom/asides/目录下添加comments.html模块，名字根据自己的喜好可以换成其他的，如xxx.html，然后在comments.html里添加如下内容：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-html" data-lang="html">&lt;span style="display:flex;">&lt;span>&amp;lt;&lt;span style="color:#f92672">section&lt;/span> &lt;span style="color:#a6e22e">id&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;comment_sidebar&amp;#34;&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	&amp;lt;&lt;span style="color:#f92672">h1&lt;/span>&amp;gt;近期评论&amp;lt;/&lt;span style="color:#f92672">h1&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	&amp;lt;&lt;span style="color:#f92672">script&lt;/span> &lt;span style="color:#a6e22e">type&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;text/javascript&amp;#34;&lt;/span> &lt;span style="color:#a6e22e">src&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;http://zhengdongjiang.disqus.com/recent_comments_widget.js?num_items=5&amp;amp;hide_avatars=0&amp;amp;avatar_size=32&amp;amp;excerpt_length=20&amp;#34;&lt;/span>&amp;gt;&amp;lt;/&lt;span style="color:#f92672">script&lt;/span>&amp;gt;&amp;lt;&lt;span style="color:#f92672">a&lt;/span> &lt;span style="color:#a6e22e">href&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;http://disqus.com/&amp;#34;&lt;/span>&amp;gt;Powered by Disqus&amp;lt;/&lt;span style="color:#f92672">a&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;lt;/&lt;span style="color:#f92672">section&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>其中zhengdongjiang为我disqus对应此网站的shortname，这就不要照搬了，换成你对应的名字即可。&lt;/p>
+&lt;p>##修改_config.yml文件&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>	default_asides: [custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	# Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	# and add an array with the asides you want to use.
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	blog_index_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	post_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>Ocpress添加友情链接</title><link>https://xautjzd.github.io/posts/2013-07-27-octopress-add-frend-sites/</link><pubDate>Sat, 27 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-27-octopress-add-frend-sites/</guid><description>&lt;p>与在侧边栏添加Aboutme、Categories、Tagcloud等功能类似，在source/_include\custom\asides目录下添加一个frendsites.html文件，模仿about等写法，添加友情链接，如下所示：&lt;/p>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-html" data-lang="html">&lt;span style="display:flex;">&lt;span> &amp;lt;&lt;span style="color:#f92672">section&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;&lt;span style="color:#f92672">h1&lt;/span>&amp;gt;友情链接&amp;lt;/&lt;span style="color:#f92672">h1&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;&lt;span style="color:#f92672">ul&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;&lt;span style="color:#f92672">li&lt;/span>&amp;gt;&amp;lt;&lt;span style="color:#f92672">a&lt;/span> &lt;span style="color:#a6e22e">href&lt;/span>&lt;span style="color:#f92672">=&lt;/span>&lt;span style="color:#e6db74">&amp;#34;url_to_add&amp;#34;&lt;/span>&amp;gt;友情链接的显示Id&amp;lt;/&lt;span style="color:#f92672">a&lt;/span>&amp;gt;&amp;lt;/&lt;span style="color:#f92672">li&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> ...
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;/&lt;span style="color:#f92672">ul&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;/&lt;span style="color:#f92672">section&lt;/span>&amp;gt;
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>然后在_config.yml文件中相应的位置添加，如在default_asides中的数组添加custom/asides/friendsites.html，当然也可以在blog_index等其他数组中添加。&lt;/p></description></item><item><title>Octopress目录结构</title><link>https://xautjzd.github.io/posts/2013-07-18-structure-of-octopress/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-18-structure-of-octopress/</guid><description>&lt;p>###Octopress博客目录结构&lt;/p>
+&lt;p>octopress博客的source目录结构大致如下:&lt;/p>
+&lt;pre>&lt;code>source/
+├── _attachments
+├── _includes
+│ ├── asides
+│ ├── custom
+│ │ └── asides
+│ └── post
+├── _layouts
+├── _nav_menu_items
+├── _pages
+├── _posts
+├── blog
+│ └── archives
+├── font
+├── images
+│ ├── 2012
+│ │ ├── 01
+│ │ ├── 02
+│ ├── 2013
+│ │ └── 01
+│ ├── fancybox
+│ └── social
+├── javascripts
+│ ├── asides
+│ └── libs
+├── jsccp
+└── stylesheets
+ ├── bootstrap
+ └── syntax
+&lt;/code>&lt;/pre>
+&lt;p>当使用&lt;code>rake generate&lt;/code>时，source的_post目录中的markdown文件会被编译成html文件，并拷贝到public目录下，public目录结构与source目录结构一致，里面的内容为最终的静态页面。一般都是先&lt;code>rake generate&lt;/code>生成静态页面，然后通过&lt;code>rake preview&lt;/code>进行本地预览，如果显示正常，则&lt;code>rake deploy&lt;/code>部署到github上。如果特别熟练，也可以直接生成静态页面并部署，不需要本地预览。可以采用&lt;code>rake gen_deploy&lt;/code>一步进行。&lt;/p></description></item><item><title>Octopress配置Disqus插件</title><link>https://xautjzd.github.io/posts/2013-07-18-congfig-disqus-plugin/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-18-congfig-disqus-plugin/</guid><description>&lt;p>###添加Disqus插件
+看到不少人博客上都有Comments功能，便也想给自己的博客添加上。经过搜寻一番，发现大多用的都是Disqus，而且octopress其实内置了其功能，只是默认没有设置.编辑博客主目录下的config.yml文件即可：
+$vim _config.yml&lt;/p>
+&lt;p>找到：
+#Disqus comments
+disqus_short_name:
+disqus_show_comment_count: false&lt;/p>
+&lt;p>填上自己注册的disqus账号的short name，并将false改成true即可。&lt;/p>
+&lt;p>&lt;strong>注：Disqus一定要和yourname.github.com关联&lt;/strong>&lt;/p></description></item><item><title>我的第一篇博客</title><link>https://xautjzd.github.io/posts/2013-07-18-my-first-blog/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-18-my-first-blog/</guid><description>&lt;p>几个月前看过Ruby基本语法，也无意中接触了Octopress，便想在GitHub pages上采用Octopress搭建一个属于自己的博客，照着官网提示开始动手实施，不过最后以失败告终。后又忙于其他工作，此事便搁浅。直至最近得空，便又开始着手此事。搭建博客工作再一次展开。
+详细搭建过程官方文档写的相当详细，这里不再赘述，请参考：
+&lt;a href="octopress.org/docs/setup">官网&lt;/a>&lt;br>
+下面只说我搭建过程中遇到的难题：
+我每次都是运行rake deploy时出现问题，也就是博客无法push到github的repository中。
+每次都是![rejected] master-&amp;gt;master (no-fast-forward)
+最后网上找了不少资料，然后自己也细细思考了一番，最后终得以解决。方法如下：
+转到deploy目录下，执行$git pull，然后再执行git push origin master即可。&lt;/p></description></item></channel></rss>

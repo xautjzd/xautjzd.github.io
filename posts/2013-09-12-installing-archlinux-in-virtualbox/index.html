@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge"><title>VirtualBox安装ArchLinux系统 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>VirtualBox安装ArchLinux系统 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
 ##ArchLinux Install
 
 分区
@@ -26,67 +26,22 @@ dev/sda1 / 8G
 dev/sda2 /swap 1G(在空间最后)
 dev/sda3 /home 4G
 
-每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><meta property="og:image" content><meta property="og:title" content="VirtualBox安装ArchLinux系统"><meta property="og:description" content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
+每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2013-09-12-installing-archlinux-in-virtualbox/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="VirtualBox安装ArchLinux系统"><meta property="og:description" content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners’s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
 ##ArchLinux Install
-
-分区
-格式化分区
-挂载分区
-更改安装镜像
-安装基本系统
-生成fstab
-Chroot到新系统
-配置系统
-开启网络服务
-创建初始化ramdisk环境
-设置root密码
-安装配置bootloader
-卸载分区并重启系统
-安装图形用户界面
-
-详细步骤如下：
+分区 格式化分区 挂载分区 更改安装镜像 安装基本系统 生成fstab Chroot到新系统 配置系统 开启网络服务 创建初始化ramdisk环境 设置root密码 安装配置bootloader 卸载分区并重启系统 安装图形用户界面 详细步骤如下：
 ###1. 分区
 虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：
-root#cfdisk
-
-进行分区，一般分三个即可。最后分区结果如下：
-dev/sda1 / 8G
-dev/sda2 /swap 1G(在空间最后)
-dev/sda3 /home 4G
-
-每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><meta property="og:type" content="article"><meta property="og:url" content="https://xautjzd.github.io/posts/2013-09-12-installing-archlinux-in-virtualbox/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-09-12T00:00:00+00:00"><meta property="article:modified_time" content="2013-09-12T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="VirtualBox安装ArchLinux系统"><meta name=twitter:description content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
+root#cfdisk 进行分区，一般分三个即可。最后分区结果如下：
+dev/sda1 / 8G dev/sda2 /swap 1G(在空间最后) dev/sda3 /home 4G 每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-09-12T00:00:00+00:00"><meta property="article:modified_time" content="2013-09-12T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="VirtualBox安装ArchLinux系统"><meta name=twitter:description content="都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners’s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：
 ##ArchLinux Install
-
-分区
-格式化分区
-挂载分区
-更改安装镜像
-安装基本系统
-生成fstab
-Chroot到新系统
-配置系统
-开启网络服务
-创建初始化ramdisk环境
-设置root密码
-安装配置bootloader
-卸载分区并重启系统
-安装图形用户界面
-
-详细步骤如下：
+分区 格式化分区 挂载分区 更改安装镜像 安装基本系统 生成fstab Chroot到新系统 配置系统 开启网络服务 创建初始化ramdisk环境 设置root密码 安装配置bootloader 卸载分区并重启系统 安装图形用户界面 详细步骤如下：
 ###1. 分区
 虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：
-root#cfdisk
-
-进行分区，一般分三个即可。最后分区结果如下：
-dev/sda1 / 8G
-dev/sda2 /swap 1G(在空间最后)
-dev/sda3 /home 4G
-
-每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><script src=https://xautjzd.github.io/js/feather.min.js></script>
-<link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.ac08a4c9714baa859217f92f051deb58df2938ec352b506df655005dcaf98cc0.css></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+root#cfdisk 进行分区，一般分三个即可。最后分区结果如下：
+dev/sda1 / 8G dev/sda2 /swap 1G(在空间最后) dev/sda3 /home 4G 每个人的分区情况都可能不同，具体依照自己的分区来决定，以下操作都是根据我的分区来进行。"><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
 <a href=/posts>All posts</a>
 <a href=/about>About</a>
-<a href=/tags>Tags</a></nav></header><main><article><div class=title><h1 class=title>VirtualBox安装ArchLinux系统</h1><div class=meta>Posted on Sep 12, 2013</div></div><section class=body><p>都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：</p><p>##ArchLinux Install</p><ol><li>分区</li><li>格式化分区</li><li>挂载分区</li><li>更改安装镜像</li><li>安装基本系统</li><li>生成fstab</li><li>Chroot到新系统</li><li>配置系统</li><li>开启网络服务</li><li>创建初始化ramdisk环境</li><li>设置root密码</li><li>安装配置bootloader</li><li>卸载分区并重启系统</li><li>安装图形用户界面</li></ol><p>详细步骤如下：</p><p>###1. 分区</p><p>虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：</p><pre><code>root#cfdisk
+<a href=/tags>Tags</a></nav></header><main><article><div class=post-container><div class=post-content><div class=title><h1 class=title>VirtualBox安装ArchLinux系统</h1><div class=meta>Posted on Sep 12, 2013</div></div><section class=body><p>都说ArchLinux很适合折腾，趁今天有时间，就试着安装了一把，不过看ArchLinux的Beginners&rsquo;s Guide，照着其步骤来，结果还是看的云里雾里，看的人头大。便直接上Youtube上找了一个视频，顿时豁然开朗。安装概览如下：</p><p>##ArchLinux Install</p><ol><li>分区</li><li>格式化分区</li><li>挂载分区</li><li>更改安装镜像</li><li>安装基本系统</li><li>生成fstab</li><li>Chroot到新系统</li><li>配置系统</li><li>开启网络服务</li><li>创建初始化ramdisk环境</li><li>设置root密码</li><li>安装配置bootloader</li><li>卸载分区并重启系统</li><li>安装图形用户界面</li></ol><p>详细步骤如下：</p><p>###1. 分区</p><p>虚拟机挂在iso镜像后，然后启动系统，进入后默认进入root提示符，然后输入：</p><pre><code>root#cfdisk
 </code></pre><p>进行分区，一般分三个即可。最后分区结果如下：</p><pre><code>dev/sda1 / 8G
 dev/sda2 /swap 1G(在空间最后)
 dev/sda3 /home 4G
@@ -122,6 +77,4 @@ Server = http://ftp.tku.edu.tw/Linux/ArchLinux/$repo/os/$arch
 grub-mkconfig生成grub的配置，通过-o参数将配置输出到指定的配置文件，默认输出到标准输出。</p><p>###13. 卸载分区并重启系统</p><p>卸载分区前先通过<code>#exit</code>退出刚才新安装的系统，然后通过以下方法卸载分区:</p><pre><code>#umount /mnt/home
 #umount /mnt
 </code></pre><p>然后通过<code>#reboot</code>重启系统。</p><p>###14. 安装图形用户界面</p><p>先确定能否联网：#ping <a href=https://www.google.com>www.google.com</a>,如不能，则查看dhcp服务是否已经开启，可通过<code>dhcpcd interface_name</code>开启。在确保能上网的前提下通过：</p><pre><code>#pacman -S gnome xorg
-</code></pre><p>安装gnome图形用户界面。</p><p>经过以上步骤，基本的安装便可完成。我也是安装了好几遍之后才对其安装过程有了大致的了解，写此篇博客的目的主要是为了记录自己的安装过程供今后参考、锻炼自己的写作水平和分享给那些安装ArchLinux过程中碰到问题的朋友参考。</p><p>###参考资料</p><ol><li><p><a href=https://wiki.archlinux.org/index.php/Beginners%27_Guide>ArchLinux新手指南</a></p></li><li><p>Youtube ArchLinux安装视频</p></li></ol></section><div class=post-tags></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><i data-feather=github></i></a>
-<a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><i data-feather=twitter></i></a>
-<a class=border></a></div><div class=footer-info>2023 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script>feather.replace()</script></div></body></html>
+</code></pre><p>安装gnome图形用户界面。</p><p>经过以上步骤，基本的安装便可完成。我也是安装了好几遍之后才对其安装过程有了大致的了解，写此篇博客的目的主要是为了记录自己的安装过程供今后参考、锻炼自己的写作水平和分享给那些安装ArchLinux过程中碰到问题的朋友参考。</p><p>###参考资料</p><ol><li><p><a href=https://wiki.archlinux.org/index.php/Beginners%27_Guide>ArchLinux新手指南</a></p></li><li><p>Youtube ArchLinux安装视频</p></li></ol></section><div class=post-tags></div></div></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#twitter"/></svg></a><a class=border></a></div><div class=footer-info>2025 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>

@@ -1,4 +1,28 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>OS on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/os/</link><description>Recent content in OS on Zhengdong.jzd 个人博客</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 08 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/os/index.xml" rel="self" type="application/rss+xml"/><item><title>什么是文件系统？</title><link>https://xautjzd.github.io/posts/2020-09-08-what-is-file-system/</link><pubDate>Tue, 08 Sep 2020 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2020-09-08-what-is-file-system/</guid><description>文件系统是什么？ 文件系统组成 如何写一个简单的文件系统 文件系统是什么？ 软件 记录文件元信息(文件大小，所属用户，包含块等) 文件系统组成 inode inode 记录着文件的元信息，包含以下部分:
-文件大小 组件文件的块(block) 属主(owner) 访问权限 访问时间 创建时间 修改时间 inode table 为了管理 inode 信息，需要有个数据数据结构存储 inode 信息, 称之为 inode table, 会占一部分磁盘空间，若 inode 大小为 256 bytes, 一个 4k 大小的 block 可存储 16 个 inodes。
-allocation list 为了管理 block 是否已分配，需要有个数据结构存储，通常可以用位图(bitmap) 算法进行存储, 用 1bit 表示该 block 是否已使用，一个 4k 大小的 block 可存储 32k 个 block 使用情况。
-superblock superblock 用于存储文件系统元信息，包括 inodes 数量、文件系统中数据块(data block)数量、inode table 起始块位置、用于标识文件系统类型的魔数(magic number)等。操作系统挂载文件系统时，会首先读取 superblock 信息。</description></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>OS on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/os/</link><description>Recent content in OS on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 08 Sep 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/os/index.xml" rel="self" type="application/rss+xml"/><item><title>什么是文件系统？</title><link>https://xautjzd.github.io/posts/2020-09-08-what-is-file-system/</link><pubDate>Tue, 08 Sep 2020 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2020-09-08-what-is-file-system/</guid><description>&lt;ul>
+&lt;li>文件系统是什么？&lt;/li>
+&lt;li>文件系统组成&lt;/li>
+&lt;li>如何写一个简单的文件系统&lt;/li>
+&lt;/ul>
+&lt;h2 id="文件系统是什么">文件系统是什么？&lt;/h2>
+&lt;ul>
+&lt;li>软件&lt;/li>
+&lt;li>记录文件元信息(文件大小，所属用户，包含块等)&lt;/li>
+&lt;/ul>
+&lt;h2 id="文件系统组成">文件系统组成&lt;/h2>
+&lt;h3 id="inode">inode&lt;/h3>
+&lt;p>inode 记录着文件的元信息，包含以下部分:&lt;/p>
+&lt;ul>
+&lt;li>文件大小&lt;/li>
+&lt;li>组件文件的块(block)&lt;/li>
+&lt;li>属主(owner)&lt;/li>
+&lt;li>访问权限&lt;/li>
+&lt;li>访问时间&lt;/li>
+&lt;li>创建时间&lt;/li>
+&lt;li>修改时间&lt;/li>
+&lt;/ul>
+&lt;h3 id="inode-table">inode table&lt;/h3>
+&lt;p>为了管理 inode 信息，需要有个数据数据结构存储 inode 信息, 称之为 inode table, 会占一部分磁盘空间，若 inode 大小为 256 bytes, 一个 4k 大小的 block 可存储 16 个 inodes。&lt;/p>
+&lt;h3 id="allocation-list">allocation list&lt;/h3>
+&lt;p>为了管理 block 是否已分配，需要有个数据结构存储，通常可以用&lt;a href="https://en.wikipedia.org/wiki/Bitap_algorithm">位图(bitmap)&lt;/a> 算法进行存储, 用 1bit 表示该 block 是否已使用，一个 4k 大小的 block 可存储 32k 个 block 使用情况。&lt;/p>
+&lt;h3 id="superblock">superblock&lt;/h3>
+&lt;p>superblock 用于存储文件系统元信息，包括 inodes 数量、文件系统中数据块(data block)数量、inode table 起始块位置、用于标识文件系统类型的魔数(magic number)等。操作系统挂载文件系统时，会首先读取 superblock 信息。&lt;/p></description></item></channel></rss>
