@@ -58,43 +58,43 @@ git HomeBrew 另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，�
 # taps tap &#34;homebrew/bundle&#34; tap &#34;homebrew/cask&#34; tap &#34;homebrew/core&#34; # packages brew 'vim' brew 'git' brew 'zsh' brew 'tmux' brew 'ripgrep' brew 'bat' brew 'helix' brew 'jq' brew 'mas' # tools cask 'emacs' cask 'google-chrome' cask 'notion' cask 'alfred' cask 'warp' cask 'intellij-idea-ce' cask 'sequel-pro' cask 'clashx' cask 'tunnelblick' # language # cask 'java' brew 'go' brew 'cmake' brew 'maven' brew 'yarn' # install apps from apple store: 1. mas search <keyword>, find id 2. add one line below mas &#34;MindNode&#34;, id: 1289197285 mas &#34;CopyClip&#34;, id: 595191960 mas &#34;QQ音乐&#34;, id: 595615424 文件内容主要分为四部分:"><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
 <a href=/posts>All posts</a>
 <a href=/about>About</a>
-<a href=/tags>Tags</a></nav></header><main><article><div class=post-container><div class=post-content><div class=title><h1 class=title>MacOS 环境批量安装软件</h1><div class=meta>Posted on Jan 19, 2023</div></div><section class=body><p>最近工作使用的电脑新换到 MacBook Pro M1 13寸，平时工作使用的各种工具 & 软件都需要重新安装 & 配置，耗时耗力而且没有太多成就感，所以一直在思索如何将其自动化掉，避免每次换电脑都要做重复的劳动。自己平时安装各种软件比较依赖 <a href=https://brew.sh/>HomeBrew</a>，印象中它有提供 Brewfile 可以批量安装软件，只是自己一直没有使用起来。刚好趁这次机会拿来练练手，一来总结经验以备下次复用，二来分享出来希望可以帮助到他人。下面分享下我是如何使用 Brewfile 批量安装工作必备软件的。</p><h2 id=1-前提>1. 前提</h2><p>使用 Brewfile 进行批量安装前，需要安装：</p><ul><li><a href=https://git-scm.com/>git</a></li><li><a href=https://brew.sh>HomeBrew</a></li></ul><p>另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，请保证 AppleID 已登录。</p><h2 id=2-列出所需软件清单形成-brewfile>2. 列出所需软件清单，形成 Brewfile</h2><p>在批量安装前，列出自己平时工作所需的软件，在任意目录下创建名为 <code>Brewfile</code> 的文件，文件内容及格式可以参考我目前使用的 <a href=https://github.com/xautjzd/dotvim/blob/master/Brewfile>Brewfile</a> 来声明:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-gdscript3 data-lang=gdscript3><span style=display:flex><span><span style=color:#75715e># taps</span>
-</span></span><span style=display:flex><span>tap <span style=color:#e6db74>&#34;homebrew/bundle&#34;</span>
-</span></span><span style=display:flex><span>tap <span style=color:#e6db74>&#34;homebrew/cask&#34;</span>
-</span></span><span style=display:flex><span>tap <span style=color:#e6db74>&#34;homebrew/core&#34;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># packages</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;vim&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;git&#39;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;zsh&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;tmux&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;ripgrep&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;bat&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;helix&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;jq&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;mas&#39;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># tools</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;emacs&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;google-chrome&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;notion&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;alfred&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;warp&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;intellij-idea-ce&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;sequel-pro&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;clashx&#39;</span>
-</span></span><span style=display:flex><span>cask <span style=color:#e6db74>&#39;tunnelblick&#39;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># language</span>
-</span></span><span style=display:flex><span><span style=color:#75715e># cask &#39;java&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;go&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;cmake&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;maven&#39;</span>
-</span></span><span style=display:flex><span>brew <span style=color:#e6db74>&#39;yarn&#39;</span>
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span><span style=color:#75715e># install apps from apple store: 1. mas search &lt;keyword&gt;, find id 2. add one line below </span>
-</span></span><span style=display:flex><span>mas <span style=color:#e6db74>&#34;MindNode&#34;</span>, id: <span style=color:#ae81ff>1289197285</span>
-</span></span><span style=display:flex><span>mas <span style=color:#e6db74>&#34;CopyClip&#34;</span>, id: <span style=color:#ae81ff>595191960</span>
-</span></span><span style=display:flex><span>mas <span style=color:#e6db74>&#34;QQ音乐&#34;</span>, id: <span style=color:#ae81ff>595615424</span>
-</span></span></code></pre></div><p>文件内容主要分为四部分:</p><ul><li>tap: 声明 brew 下载软件源，详细介绍请通过: <code>brew help tap</code> 查看。</li><li>brew: 声明安装终端使用工具。</li><li>cask: 声明安装 MacOS 本地应用软件。</li><li>mas: 声明将从 AppleStore 下载的应用。</li></ul><p>其中 <code>#</code> 开头是注释，这里提一下 mas。<a href=https://github.com/mas-cli/mas>mas</a> 是 Apple Store 的命令行工具，可以利用 mas 在终端下安装 Apple Store 中的软件，Brewfile 中 mas 部分需指定软件名称及 id，若我们已知软件名称，可通过 <code>mas search &lt;appName></code> 搜索，找到待安装软件 id, 填入 Brewfile。</p><h2 id=2-利用-brewfile-批量安装软件>2. 利用 Brewfile 批量安装软件</h2><p>在终端下切换到 Brewfile 所在目录，执行: <code>brew bundle</code> 或 <code>brew bundle install</code> 进行批量安装/更新，更多信息可查阅 bundle 帮助文档: <code>brew help bundle</code>。</p><h2 id=3-如何清理从-brewfile-中移除的已安装软件>3. 如何清理从 Brewfile 中移除的已安装软件？</h2><p>在 Brewfile 所在目录执行: <code>brew bundle cleanup</code> 卸载未列在当前 Brewfile 中的已安装软件(仅通过 brew 安装, 不包含 mas 部分)。</p></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/macos>macos</a></li><li><a href=/tags/tool>tool</a></li></ul></nav></div></div></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#twitter"/></svg></a><a class=border></a></div><div class=footer-info>2025 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>
+<a href=/tags>Tags</a></nav></header><main><article><div class=post-container><div class=post-content><div class=title><h1 class=title>MacOS 环境批量安装软件</h1><div class=meta>Posted on Jan 19, 2023</div></div><section class=body><p>最近工作使用的电脑新换到 MacBook Pro M1 13寸，平时工作使用的各种工具 & 软件都需要重新安装 & 配置，耗时耗力而且没有太多成就感，所以一直在思索如何将其自动化掉，避免每次换电脑都要做重复的劳动。自己平时安装各种软件比较依赖 <a href=https://brew.sh/>HomeBrew</a>，印象中它有提供 Brewfile 可以批量安装软件，只是自己一直没有使用起来。刚好趁这次机会拿来练练手，一来总结经验以备下次复用，二来分享出来希望可以帮助到他人。下面分享下我是如何使用 Brewfile 批量安装工作必备软件的。</p><h2 id=1-前提>1. 前提</h2><p>使用 Brewfile 进行批量安装前，需要安装：</p><ul><li><a href=https://git-scm.com/>git</a></li><li><a href=https://brew.sh>HomeBrew</a></li></ul><p>另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，请保证 AppleID 已登录。</p><h2 id=2-列出所需软件清单形成-brewfile>2. 列出所需软件清单，形成 Brewfile</h2><p>在批量安装前，列出自己平时工作所需的软件，在任意目录下创建名为 <code>Brewfile</code> 的文件，文件内容及格式可以参考我目前使用的 <a href=https://github.com/xautjzd/dotvim/blob/master/Brewfile>Brewfile</a> 来声明:</p><pre tabindex=0><code># taps
+tap &#34;homebrew/bundle&#34;
+tap &#34;homebrew/cask&#34;
+tap &#34;homebrew/core&#34;
+
+# packages
+brew &#39;vim&#39;
+brew &#39;git&#39;
+
+brew &#39;zsh&#39;
+brew &#39;tmux&#39;
+brew &#39;ripgrep&#39;
+brew &#39;bat&#39;
+brew &#39;helix&#39;
+brew &#39;jq&#39;
+brew &#39;mas&#39;
+
+# tools
+cask &#39;emacs&#39;
+cask &#39;google-chrome&#39;
+cask &#39;notion&#39;
+cask &#39;alfred&#39;
+cask &#39;warp&#39;
+cask &#39;intellij-idea-ce&#39;
+cask &#39;sequel-pro&#39;
+cask &#39;clashx&#39;
+cask &#39;tunnelblick&#39;
+
+# language
+# cask &#39;java&#39;
+brew &#39;go&#39;
+brew &#39;cmake&#39;
+brew &#39;maven&#39;
+brew &#39;yarn&#39;
+
+# install apps from apple store: 1. mas search &lt;keyword&gt;, find id 2. add one line below 
+mas &#34;MindNode&#34;, id: 1289197285
+mas &#34;CopyClip&#34;, id: 595191960
+mas &#34;QQ音乐&#34;, id: 595615424
+</code></pre><p>文件内容主要分为四部分:</p><ul><li>tap: 声明 brew 下载软件源，详细介绍请通过: <code>brew help tap</code> 查看。</li><li>brew: 声明安装终端使用工具。</li><li>cask: 声明安装 MacOS 本地应用软件。</li><li>mas: 声明将从 AppleStore 下载的应用。</li></ul><p>其中 <code>#</code> 开头是注释，这里提一下 mas。<a href=https://github.com/mas-cli/mas>mas</a> 是 Apple Store 的命令行工具，可以利用 mas 在终端下安装 Apple Store 中的软件，Brewfile 中 mas 部分需指定软件名称及 id，若我们已知软件名称，可通过 <code>mas search &lt;appName></code> 搜索，找到待安装软件 id, 填入 Brewfile。</p><h2 id=2-利用-brewfile-批量安装软件>2. 利用 Brewfile 批量安装软件</h2><p>在终端下切换到 Brewfile 所在目录，执行: <code>brew bundle</code> 或 <code>brew bundle install</code> 进行批量安装/更新，更多信息可查阅 bundle 帮助文档: <code>brew help bundle</code>。</p><h2 id=3-如何清理从-brewfile-中移除的已安装软件>3. 如何清理从 Brewfile 中移除的已安装软件？</h2><p>在 Brewfile 所在目录执行: <code>brew bundle cleanup</code> 卸载未列在当前 Brewfile 中的已安装软件(仅通过 brew 安装, 不包含 mas 部分)。</p></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/macos>macos</a></li><li><a href=/tags/tool>tool</a></li></ul></nav></div></div></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#twitter"/></svg></a><a class=border></a></div><div class=footer-info>2025 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>

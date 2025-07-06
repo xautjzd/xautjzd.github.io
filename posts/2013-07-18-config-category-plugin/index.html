@@ -28,43 +28,51 @@
             {\% category_list %}
         </ul>
     </section>
-其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。"><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2013-07-18-config-category-plugin/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="配置文章分类插件"><meta property="og:description" content="Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：
+其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。
+3. 配置侧边栏
+在_config.yml中配置侧边栏，修改其中的default_asides项：
+    default_asides: [custom/asides/category_list.html, ...]
+"><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2013-07-18-config-category-plugin/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="配置文章分类插件"><meta property="og:description" content="Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：
 ###1. 添加category_list插件
 代码如下：
 module Jekyll class CategoryListTag < Liquid::Tag def render(context) html = &#34;&#34; categories = context.registers[:site].categories.keys categories.sort.each do |category| posts_in_category = context.registers[:site].categories[category].size category_dir = context.registers[:site].config['category_dir'] category_url = File.join(category_dir, category.gsub(/_|\P{Word}/, '-').gsub(/-{2,}/, '-').downcase) html << &#34;<li class='category'><a href='/#{category_url}/'>#{category} (#{posts_in_category})</a></li>\n&#34; end html end end end Liquid::Template.register_tag('category_list', Jekyll::CategoryListTag) 将以上代码保存到plugins/category_list_tag.rb中。
 这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside
 2. 添加category到aside中 在source/_include/custom/asides中新建category_list.html文件，并且将以下代码复制到其中：
-<section> <h1>Categories</h1> <ul id=&#34;categories&#34;> {\% category_list %} </ul> </section> 其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。"><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-07-18T00:00:00+00:00"><meta property="article:modified_time" content="2013-07-18T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="配置文章分类插件"><meta name=twitter:description content="Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：
+<section> <h1>Categories</h1> <ul id=&#34;categories&#34;> {\% category_list %} </ul> </section> 其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。
+3. 配置侧边栏 在_config.yml中配置侧边栏，修改其中的default_asides项：
+default_asides: [custom/asides/category_list.html, ...]"><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-07-18T00:00:00+00:00"><meta property="article:modified_time" content="2013-07-18T00:00:00+00:00"><meta name=twitter:card content="summary"><meta name=twitter:title content="配置文章分类插件"><meta name=twitter:description content="Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：
 ###1. 添加category_list插件
 代码如下：
 module Jekyll class CategoryListTag < Liquid::Tag def render(context) html = &#34;&#34; categories = context.registers[:site].categories.keys categories.sort.each do |category| posts_in_category = context.registers[:site].categories[category].size category_dir = context.registers[:site].config['category_dir'] category_url = File.join(category_dir, category.gsub(/_|\P{Word}/, '-').gsub(/-{2,}/, '-').downcase) html << &#34;<li class='category'><a href='/#{category_url}/'>#{category} (#{posts_in_category})</a></li>\n&#34; end html end end end Liquid::Template.register_tag('category_list', Jekyll::CategoryListTag) 将以上代码保存到plugins/category_list_tag.rb中。
 这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside
 2. 添加category到aside中 在source/_include/custom/asides中新建category_list.html文件，并且将以下代码复制到其中：
-<section> <h1>Categories</h1> <ul id=&#34;categories&#34;> {\% category_list %} </ul> </section> 其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。"><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<section> <h1>Categories</h1> <ul id=&#34;categories&#34;> {\% category_list %} </ul> </section> 其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。
+3. 配置侧边栏 在_config.yml中配置侧边栏，修改其中的default_asides项：
+default_asides: [custom/asides/category_list.html, ...]"><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
 <a href=/posts>All posts</a>
 <a href=/about>About</a>
-<a href=/tags>Tags</a></nav></header><main><article><div class=post-container><div class=post-content><div class=title><h1 class=title>配置文章分类插件</h1><div class=meta>Posted on Jul 18, 2013</div></div><section class=body><p>Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：</p><p>###1. 添加category_list插件</p><p>代码如下：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>    module Jekyll
-</span></span><span style=display:flex><span>        class CategoryListTag &lt; Liquid::Tag
-</span></span><span style=display:flex><span>            def render(context)
-</span></span><span style=display:flex><span>                html = &#34;&#34;
-</span></span><span style=display:flex><span>                categories = context.registers[:site].categories.keys
-</span></span><span style=display:flex><span>                categories.sort.each do |category|
-</span></span><span style=display:flex><span>                    posts_in_category = context.registers[:site].categories[category].size
-</span></span><span style=display:flex><span>                    category_dir = context.registers[:site].config[&#39;category_dir&#39;]
-</span></span><span style=display:flex><span>                    category_url = File.join(category_dir, category.gsub(/_|\P{Word}/, &#39;-&#39;).gsub(/-{2,}/, &#39;-&#39;).downcase)
-</span></span><span style=display:flex><span>                    html &lt;&lt; &#34;&lt;li class=&#39;category&#39;&gt;&lt;a href=&#39;/#{category_url}/&#39;&gt;#{category} (#{posts_in_category})&lt;/a&gt;&lt;/li&gt;\n&#34;
-</span></span><span style=display:flex><span>                end
-</span></span><span style=display:flex><span>                html
-</span></span><span style=display:flex><span>            end
-</span></span><span style=display:flex><span>        end
-</span></span><span style=display:flex><span>    end
-</span></span><span style=display:flex><span>
-</span></span><span style=display:flex><span>    Liquid::Template.register_tag(&#39;category_list&#39;, Jekyll::CategoryListTag)
-</span></span></code></pre></div><p>将以上代码保存到plugins/category_list_tag.rb中。</p><p>这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside</p><h3 id=2-添加category到aside中>2. 添加category到aside中</h3><p>在source/_include/custom/asides中新建category_list.html文件，并且将以下代码复制到其中：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>    &lt;section&gt;
-</span></span><span style=display:flex><span>        &lt;h1&gt;Categories&lt;/h1&gt;
-</span></span><span style=display:flex><span>        &lt;ul id=&#34;categories&#34;&gt;
-</span></span><span style=display:flex><span>            {\% category_list %}
-</span></span><span style=display:flex><span>        &lt;/ul&gt;
-</span></span><span style=display:flex><span>    &lt;/section&gt;
-</span></span></code></pre></div><p>其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。</p><h3 id=3-配置侧边栏>3. 配置侧边栏</h3><p>在_config.yml中配置侧边栏，修改其中的default_asides项：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-fallback data-lang=fallback><span style=display:flex><span>    default_asides: [custom/asides/category_list.html, ...]
-</span></span></code></pre></div></section><div class=post-tags></div></div></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#twitter"/></svg></a><a class=border></a></div><div class=footer-info>2025 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>
+<a href=/tags>Tags</a></nav></header><main><article><div class=post-container><div class=post-content><div class=title><h1 class=title>配置文章分类插件</h1><div class=meta>Posted on Jul 18, 2013</div></div><section class=body><p>Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：</p><p>###1. 添加category_list插件</p><p>代码如下：</p><pre tabindex=0><code>    module Jekyll
+        class CategoryListTag &lt; Liquid::Tag
+            def render(context)
+                html = &#34;&#34;
+                categories = context.registers[:site].categories.keys
+                categories.sort.each do |category|
+                    posts_in_category = context.registers[:site].categories[category].size
+                    category_dir = context.registers[:site].config[&#39;category_dir&#39;]
+                    category_url = File.join(category_dir, category.gsub(/_|\P{Word}/, &#39;-&#39;).gsub(/-{2,}/, &#39;-&#39;).downcase)
+                    html &lt;&lt; &#34;&lt;li class=&#39;category&#39;&gt;&lt;a href=&#39;/#{category_url}/&#39;&gt;#{category} (#{posts_in_category})&lt;/a&gt;&lt;/li&gt;\n&#34;
+                end
+                html
+            end
+        end
+    end
+
+    Liquid::Template.register_tag(&#39;category_list&#39;, Jekyll::CategoryListTag)
+</code></pre><p>将以上代码保存到plugins/category_list_tag.rb中。</p><p>这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside</p><h3 id=2-添加category到aside中>2. 添加category到aside中</h3><p>在source/_include/custom/asides中新建category_list.html文件，并且将以下代码复制到其中：</p><pre tabindex=0><code>    &lt;section&gt;
+        &lt;h1&gt;Categories&lt;/h1&gt;
+        &lt;ul id=&#34;categories&#34;&gt;
+            {\% category_list %}
+        &lt;/ul&gt;
+    &lt;/section&gt;
+</code></pre><p>其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。</p><h3 id=3-配置侧边栏>3. 配置侧边栏</h3><p>在_config.yml中配置侧边栏，修改其中的default_asides项：</p><pre tabindex=0><code>    default_asides: [custom/asides/category_list.html, ...]
+</code></pre></section><div class=post-tags></div></div></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#twitter"/></svg></a><a class=border></a></div><div class=footer-info>2025 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>

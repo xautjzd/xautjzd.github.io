@@ -59,12 +59,12 @@
 &lt;/ul>
 &lt;p>其他联系方式见我的&lt;a href="http://xautjzd.github.io/blog/aboutme">About&lt;/a>&lt;/p></description></item><item><title>更换Octopress主题</title><link>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</link><pubDate>Sat, 17 Aug 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</guid><description>&lt;p>Octopress博客搭建已经有一阵了，但一直采用的默认的主题，没时间更换。今天特意抽时间来更换下，先上&lt;a href="http://octopress.org/docs/theme/">Octopress官网&lt;/a>了解了下更换Theme的原理，然后上Octopress所在的源码托管平台GitHub，在其&lt;a href="https://github.com/imathis/octopress/wiki">Wiki&lt;/a>上找到了&lt;a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes">第三方Themes&lt;/a>,便从前到后大致将各种themes都预览了一遍，最后选择了&lt;a href="https://github.com/shashankmehta/greyshade">Greyshade主题&lt;/a>,安装方法官网写的已经非常详细，这里再啰嗦一遍：&lt;/p>
 &lt;p>###Install&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>$ cd octopress #octopress directory
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ git clone git@github.com:shashankmehta/greyshade.git .themes/greyshade
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ echo &amp;#34;\$greyshade: color;&amp;#34; &amp;gt;&amp;gt; sass/custom/_colors.scss //Substitue &amp;#39;color&amp;#39; with your highlight color
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ rake &amp;#34;install[greyshade]&amp;#34;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ rake generate
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>至此，安装过程便已完成。&lt;/p>
+&lt;pre tabindex="0">&lt;code>$ cd octopress #octopress directory
+$ git clone git@github.com:shashankmehta/greyshade.git .themes/greyshade
+$ echo &amp;#34;\$greyshade: color;&amp;#34; &amp;gt;&amp;gt; sass/custom/_colors.scss //Substitue &amp;#39;color&amp;#39; with your highlight color
+$ rake &amp;#34;install[greyshade]&amp;#34;
+$ rake generate
+&lt;/code>&lt;/pre>&lt;p>至此，安装过程便已完成。&lt;/p>
 &lt;p>左侧的显示效果主要配置在_config.yml文件中。&lt;/p>
 &lt;p>###pages显示&lt;/p>
 &lt;p>Octopress默认只有Homepage和Archives两个导航菜单，不满足要求，我便又添加了&amp;quot;编程&amp;quot;、“Linux”、“所思所想”和“关于我”这几个。“关于我”的页面为静态页面，在source/blog/aboutme/下，其他的几个需要将相关的文章显示在相应的导航菜单下，便需做如下配置：&lt;/p>

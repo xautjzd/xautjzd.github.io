@@ -1,4 +1,49 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tool on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/tool/</link><description>Recent content in Tool on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Thu, 19 Jan 2023 17:22:37 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/tool/index.xml" rel="self" type="application/rss+xml"/><item><title>MacOS 环境批量安装软件</title><link>https://xautjzd.github.io/posts/use-brewfile-to-automation/</link><pubDate>Thu, 19 Jan 2023 17:22:37 +0800</pubDate><guid>https://xautjzd.github.io/posts/use-brewfile-to-automation/</guid><description>&lt;p>最近工作使用的电脑新换到 MacBook Pro M1 13寸，平时工作使用的各种工具 &amp;amp; 软件都需要重新安装 &amp;amp; 配置，耗时耗力而且没有太多成就感，所以一直在思索如何将其自动化掉，避免每次换电脑都要做重复的劳动。自己平时安装各种软件比较依赖 &lt;a href="https://brew.sh/">HomeBrew&lt;/a>，印象中它有提供 Brewfile 可以批量安装软件，只是自己一直没有使用起来。刚好趁这次机会拿来练练手，一来总结经验以备下次复用，二来分享出来希望可以帮助到他人。下面分享下我是如何使用 Brewfile 批量安装工作必备软件的。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Tool on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/tool/</link><description>Recent content in Tool on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 06 Jul 2025 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/tool/index.xml" rel="self" type="application/rss+xml"/><item><title>Homebrew 国内下载慢的解决之法及下载过程剖析</title><link>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</link><pubDate>Sun, 06 Jul 2025 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</guid><description>&lt;p>对懂点技术的人来说， &lt;a href="https://brew.sh/">HomeBrew&lt;/a> 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 &lt;a href="https://github.com/sharkdp/fd">fd&lt;/a>、&lt;a href="https://neovim.io/">neovim&lt;/a> 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: &lt;code>brew install &amp;lt;formula&amp;gt;&lt;/code>，GUI 软件安装方式: &lt;code>brew install --cask &amp;lt;cask&amp;gt;&lt;/code>，其中的 &lt;code>&amp;lt;formula&amp;gt;&lt;/code> 和 &lt;code>&amp;lt;cask&amp;gt;&lt;/code> 均为你想安装的软件名称， 如果不确定具体名称，可通过: &lt;code>brew search &amp;lt;keyword&amp;gt;&lt;/code>搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：&lt;/p>
+&lt;p>&lt;img src="https://xautjzd.github.io/images/brew-downloading.png" alt="">&lt;/p>
+&lt;p>等了好久也没见动静，这是因为默认下载源是从 GitHub 数据中心下载，国内对 GitHub 有限制。&lt;/p>
+&lt;h2 id="解决办法配置国内镜像源">解决办法：配置国内镜像源&lt;/h2>
+&lt;p>目前国内主流的 Homebrew 镜像有：清华大学、阿里云、中科大、腾讯云等。以清华源和阿里云为例，介绍配置方法。&lt;/p>
+&lt;h3 id="1-配置清华源">1. 配置清华源&lt;/h3>
+&lt;h4 id="替换-homebrew-源">替换 Homebrew 源&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#替换 brew.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-core.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/core&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-cask.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/cask&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 配置 bottle 镜像(formula 二进制)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 推荐写入 ~/.zshrc 或 ~/.bash_profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>export HOMEBREW_BOTTLE_DOMAIN&lt;span style="color:#f92672">=&lt;/span>https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 立即生效&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>source ~/.zshrc &lt;span style="color:#75715e"># 或 source ~/.bash_profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 更新 brew&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew update
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-配置阿里云源">2. 配置阿里云源&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 brew.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.aliyun.com/homebrew/brew.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-core.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/core&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-core.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-cask.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/cask&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-cask.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 配置 bottle 镜像&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>export HOMEBREW_BOTTLE_DOMAIN&lt;span style="color:#f92672">=&lt;/span>https://mirrors.aliyun.com/homebrew/homebrew-bottles
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>source ~/.zprofile &lt;span style="color:#75715e"># 或 source ~/.bash_profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew update
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>其他镜像如中科大、腾讯云等配置方法类似，详见各镜像站帮助文档。&lt;/p></description></item><item><title>MacOS 环境批量安装软件</title><link>https://xautjzd.github.io/posts/use-brewfile-to-automation/</link><pubDate>Thu, 19 Jan 2023 17:22:37 +0800</pubDate><guid>https://xautjzd.github.io/posts/use-brewfile-to-automation/</guid><description>&lt;p>最近工作使用的电脑新换到 MacBook Pro M1 13寸，平时工作使用的各种工具 &amp;amp; 软件都需要重新安装 &amp;amp; 配置，耗时耗力而且没有太多成就感，所以一直在思索如何将其自动化掉，避免每次换电脑都要做重复的劳动。自己平时安装各种软件比较依赖 &lt;a href="https://brew.sh/">HomeBrew&lt;/a>，印象中它有提供 Brewfile 可以批量安装软件，只是自己一直没有使用起来。刚好趁这次机会拿来练练手，一来总结经验以备下次复用，二来分享出来希望可以帮助到他人。下面分享下我是如何使用 Brewfile 批量安装工作必备软件的。&lt;/p>
 &lt;h2 id="1-前提">1. 前提&lt;/h2>
 &lt;p>使用 Brewfile 进行批量安装前，需要安装：&lt;/p>
 &lt;ul>
@@ -8,46 +53,46 @@
 &lt;p>另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，请保证 AppleID 已登录。&lt;/p>
 &lt;h2 id="2-列出所需软件清单形成-brewfile">2. 列出所需软件清单，形成 Brewfile&lt;/h2>
 &lt;p>在批量安装前，列出自己平时工作所需的软件，在任意目录下创建名为 &lt;code>Brewfile&lt;/code> 的文件，文件内容及格式可以参考我目前使用的 &lt;a href="https://github.com/xautjzd/dotvim/blob/master/Brewfile">Brewfile&lt;/a> 来声明:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># taps&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/bundle&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/cask&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/core&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># packages&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;vim&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;git&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;zsh&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;tmux&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;ripgrep&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;bat&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;helix&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;jq&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;mas&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># tools&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;emacs&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;google-chrome&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;notion&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;alfred&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;warp&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;intellij-idea-ce&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;sequel-pro&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;clashx&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;tunnelblick&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># language&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># cask &amp;#39;java&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;go&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;cmake&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;maven&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;yarn&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># install apps from apple store: 1. mas search &amp;lt;keyword&amp;gt;, find id 2. add one line below &lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;MindNode&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">1289197285&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;CopyClip&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">595191960&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;QQ音乐&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">595615424&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>文件内容主要分为四部分:&lt;/p></description></item><item><title>Emacs 常用基本操作</title><link>https://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</link><pubDate>Thu, 04 Aug 2022 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</guid><description>&lt;p>Emacs 作为 Programmer 熟知的两大 Editor 之一流行了很多年了，据说学习曲线陡峭，一直处于劝退状态。但作为喜欢折腾各种工具的自己来说，内心一直有跃跃欲试的想法，终于最近两个月得闲，开始研究学习上了。通过学习&lt;a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html">官网Tutorials&lt;/a> 熟悉其基本操作 &amp;amp; 配置，同时 Google 了解 Emacs 使用频次最高的一些插件，在使用过程中不断优化配置，打造成自己趁手的工具。目前，我主要有三种使用场景: 1. 文本编辑 2. 代码阅读 3. 写业余代码。以下是我在学习过程中整理的常用基本操作，分享出来一方面是当作学习笔记输出，以便后续遗忘时快速查找，另一方面也希望能带给他人一些帮助。&lt;/p>
+&lt;pre tabindex="0">&lt;code># taps
+tap &amp;#34;homebrew/bundle&amp;#34;
+tap &amp;#34;homebrew/cask&amp;#34;
+tap &amp;#34;homebrew/core&amp;#34;
+
+# packages
+brew &amp;#39;vim&amp;#39;
+brew &amp;#39;git&amp;#39;
+
+brew &amp;#39;zsh&amp;#39;
+brew &amp;#39;tmux&amp;#39;
+brew &amp;#39;ripgrep&amp;#39;
+brew &amp;#39;bat&amp;#39;
+brew &amp;#39;helix&amp;#39;
+brew &amp;#39;jq&amp;#39;
+brew &amp;#39;mas&amp;#39;
+
+# tools
+cask &amp;#39;emacs&amp;#39;
+cask &amp;#39;google-chrome&amp;#39;
+cask &amp;#39;notion&amp;#39;
+cask &amp;#39;alfred&amp;#39;
+cask &amp;#39;warp&amp;#39;
+cask &amp;#39;intellij-idea-ce&amp;#39;
+cask &amp;#39;sequel-pro&amp;#39;
+cask &amp;#39;clashx&amp;#39;
+cask &amp;#39;tunnelblick&amp;#39;
+
+# language
+# cask &amp;#39;java&amp;#39;
+brew &amp;#39;go&amp;#39;
+brew &amp;#39;cmake&amp;#39;
+brew &amp;#39;maven&amp;#39;
+brew &amp;#39;yarn&amp;#39;
+
+# install apps from apple store: 1. mas search &amp;lt;keyword&amp;gt;, find id 2. add one line below 
+mas &amp;#34;MindNode&amp;#34;, id: 1289197285
+mas &amp;#34;CopyClip&amp;#34;, id: 595191960
+mas &amp;#34;QQ音乐&amp;#34;, id: 595615424
+&lt;/code>&lt;/pre>&lt;p>文件内容主要分为四部分:&lt;/p></description></item><item><title>Emacs 常用基本操作</title><link>https://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</link><pubDate>Thu, 04 Aug 2022 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</guid><description>&lt;p>Emacs 作为 Programmer 熟知的两大 Editor 之一流行了很多年了，据说学习曲线陡峭，一直处于劝退状态。但作为喜欢折腾各种工具的自己来说，内心一直有跃跃欲试的想法，终于最近两个月得闲，开始研究学习上了。通过学习&lt;a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html">官网Tutorials&lt;/a> 熟悉其基本操作 &amp;amp; 配置，同时 Google 了解 Emacs 使用频次最高的一些插件，在使用过程中不断优化配置，打造成自己趁手的工具。目前，我主要有三种使用场景: 1. 文本编辑 2. 代码阅读 3. 写业余代码。以下是我在学习过程中整理的常用基本操作，分享出来一方面是当作学习笔记输出，以便后续遗忘时快速查找，另一方面也希望能带给他人一些帮助。&lt;/p>
 &lt;p>目前的常用操作有：&lt;/p>
 &lt;ul>
 &lt;li>单文件操作&lt;/li>
@@ -71,10 +116,10 @@
 &lt;p>&lt;strong>注：&lt;/strong>&lt;code>C-h&lt;/code> 表示按住 Ctrl 键的同时按 h 键；&lt;code>M-x&lt;/code> 表示按住 Alt/Meta 键的同时按 x 键; &lt;code>S-p f&lt;/code> 表示按住 Windows 键，再依次按 p f 键。&lt;/p>&lt;/blockquote></description></item><item><title>IP 归属地查询</title><link>https://xautjzd.github.io/posts/2019-10-21-ip-location/</link><pubDate>Mon, 21 Oct 2019 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2019-10-21-ip-location/</guid><description>&lt;p>这里分享下几个不错的 ip 地址库:&lt;/p>
 &lt;h2 id="1-httpsipcn">1. &lt;a href="https://ip.cn">https://ip.cn&lt;/a>&lt;/h2>
 &lt;h3 id="查询指定-ip">查询指定 IP&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn?ip=202.200.112.2
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="查询本机-ip">查询本机 IP&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;strong>优势&lt;/strong>: 国内服务，速度较快, 且免费&lt;/p>
+&lt;pre tabindex="0">&lt;code>curl https://ip.cn?ip=202.200.112.2
+&lt;/code>&lt;/pre>&lt;h3 id="查询本机-ip">查询本机 IP&lt;/h3>
+&lt;pre tabindex="0">&lt;code>curl https://ip.cn
+&lt;/code>&lt;/pre>&lt;p>&lt;strong>优势&lt;/strong>: 国内服务，速度较快, 且免费&lt;/p>
 &lt;p>&lt;strong>劣势&lt;/strong>: 信息量太少, 没有经纬度信息&lt;/p></description></item><item><title>Ubuntu14.04上搭建ShadowSocks服务</title><link>https://xautjzd.github.io/posts/2015-06-01-build-shadowsocks-on-ubuntu/</link><pubDate>Mon, 01 Jun 2015 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2015-06-01-build-shadowsocks-on-ubuntu/</guid><description>&lt;p>&lt;img src="https://xautjzd.github.io/images/20150601.jpg" alt="">&lt;/p>
 &lt;h2 id="1-vps选择">1. VPS选择&lt;/h2>
 &lt;p>之前一直使用GoAgent作为破墙工具，不过后来有一阵用不成，即使更新到最新版，也未能如愿，后来忙于写论文，便用微软的&lt;a href="http://www.bing.com/">Bing&lt;/a>临时代替Google。用了一阵Bing,发现其实也挺好用，无论是UI还是搜索内容，都相当不错。只是偶尔想呼吸墙外空气，却未能如愿，始终给人不快的感觉。所以便有意选择付费服务。一直听说ShadowSocks搭建代理特别稳定，便开始留意VPS。可选的VPS很多，比较流行的当属Linode和Digital Ocean,不过Linode服务实在是太贵了，且最低配都感觉有点大材小用，没必要这么奢侈。便着重关注了下DO。可选的VPS有：&lt;/p></description></item></channel></rss>

@@ -1,4 +1,49 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/posts/</link><description>Recent content in Posts on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Fri, 30 May 2025 14:00:11 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>0-3 岁孩子应该培养的关键能力</title><link>https://xautjzd.github.io/posts/2025-05-30-early-education/</link><pubDate>Fri, 30 May 2025 14:00:11 +0800</pubDate><guid>https://xautjzd.github.io/posts/2025-05-30-early-education/</guid><description>&lt;p>家里有一个快两岁的孩子，我一直在思考，该如何科学地养育他，需要培养哪些核心能力，使他成为一个身心健康、积极上进的人，而不是一味关注他参加多少辅导班、课外兴趣班，或计较他吃得胖瘦。带着这些思考，我咨询了多个“名导”——OpenAI 4o-mini、Kimi、DeepSeek R1等，整合了他们的回答，整体很满意，在自己受用的同时也分享给大家，希望能给有孩子的家长带来一些启发，下面是我整理的内容：&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/posts/</link><description>Recent content in Posts on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 06 Jul 2025 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Homebrew 国内下载慢的解决之法及下载过程剖析</title><link>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</link><pubDate>Sun, 06 Jul 2025 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</guid><description>&lt;p>对懂点技术的人来说， &lt;a href="https://brew.sh/">HomeBrew&lt;/a> 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 &lt;a href="https://github.com/sharkdp/fd">fd&lt;/a>、&lt;a href="https://neovim.io/">neovim&lt;/a> 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: &lt;code>brew install &amp;lt;formula&amp;gt;&lt;/code>，GUI 软件安装方式: &lt;code>brew install --cask &amp;lt;cask&amp;gt;&lt;/code>，其中的 &lt;code>&amp;lt;formula&amp;gt;&lt;/code> 和 &lt;code>&amp;lt;cask&amp;gt;&lt;/code> 均为你想安装的软件名称， 如果不确定具体名称，可通过: &lt;code>brew search &amp;lt;keyword&amp;gt;&lt;/code>搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：&lt;/p>
+&lt;p>&lt;img src="https://xautjzd.github.io/images/brew-downloading.png" alt="">&lt;/p>
+&lt;p>等了好久也没见动静，这是因为默认下载源是从 GitHub 数据中心下载，国内对 GitHub 有限制。&lt;/p>
+&lt;h2 id="解决办法配置国内镜像源">解决办法：配置国内镜像源&lt;/h2>
+&lt;p>目前国内主流的 Homebrew 镜像有：清华大学、阿里云、中科大、腾讯云等。以清华源和阿里云为例，介绍配置方法。&lt;/p>
+&lt;h3 id="1-配置清华源">1. 配置清华源&lt;/h3>
+&lt;h4 id="替换-homebrew-源">替换 Homebrew 源&lt;/h4>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e">#替换 brew.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-core.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/core&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-cask.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/cask&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 配置 bottle 镜像(formula 二进制)&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 推荐写入 ~/.zshrc 或 ~/.bash_profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>export HOMEBREW_BOTTLE_DOMAIN&lt;span style="color:#f92672">=&lt;/span>https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 立即生效&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>source ~/.zshrc &lt;span style="color:#75715e"># 或 source ~/.bash_profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 更新 brew&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew update
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="2-配置阿里云源">2. 配置阿里云源&lt;/h3>
+&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-bash" data-lang="bash">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 brew.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.aliyun.com/homebrew/brew.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-core.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/core&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-core.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 替换 homebrew-cask.git&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cd &lt;span style="color:#e6db74">&amp;#34;&lt;/span>&lt;span style="color:#66d9ef">$(&lt;/span>brew --repo homebrew/cask&lt;span style="color:#66d9ef">)&lt;/span>&lt;span style="color:#e6db74">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-cask.git
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># 配置 bottle 镜像&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>export HOMEBREW_BOTTLE_DOMAIN&lt;span style="color:#f92672">=&lt;/span>https://mirrors.aliyun.com/homebrew/homebrew-bottles
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>source ~/.zprofile &lt;span style="color:#75715e"># 或 source ~/.bash_profile&lt;/span>
+&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew update
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>其他镜像如中科大、腾讯云等配置方法类似，详见各镜像站帮助文档。&lt;/p></description></item><item><title>0-3 岁孩子应该培养的关键能力</title><link>https://xautjzd.github.io/posts/2025-05-30-early-education/</link><pubDate>Fri, 30 May 2025 14:00:11 +0800</pubDate><guid>https://xautjzd.github.io/posts/2025-05-30-early-education/</guid><description>&lt;p>家里有一个快两岁的孩子，我一直在思考，该如何科学地养育他，需要培养哪些核心能力，使他成为一个身心健康、积极上进的人，而不是一味关注他参加多少辅导班、课外兴趣班，或计较他吃得胖瘦。带着这些思考，我咨询了多个“名导”——OpenAI 4o-mini、Kimi、DeepSeek R1等，整合了他们的回答，整体很满意，在自己受用的同时也分享给大家，希望能给有孩子的家长带来一些启发，下面是我整理的内容：&lt;/p>
 &lt;p>0-3 岁是儿童发展的关键期。此时大脑突触连接数量达到高峰，感官、认知、社交与情感等多方面发展迅速。皮亚杰的感知运动阶段理论、埃里克森的心理社会发展理论，以及哈佛大学、UNESCO 和 WHO 等权威研究，都强调了这一阶段丰富感官刺激、稳定亲子互动与系统性早教的重要性。基于这些理论与实证，个人认为 0-3 岁阶段最应着重培养以下五大关键能力：&lt;/p>
 &lt;ol>
 &lt;li>运动能力（Gross &amp;amp; Fine Motor）&lt;/li>
@@ -347,46 +392,46 @@ References
 &lt;p>另外若在 Brewfile 中指定 mas 从 AppleStore 安装软件，请保证 AppleID 已登录。&lt;/p>
 &lt;h2 id="2-列出所需软件清单形成-brewfile">2. 列出所需软件清单，形成 Brewfile&lt;/h2>
 &lt;p>在批量安装前，列出自己平时工作所需的软件，在任意目录下创建名为 &lt;code>Brewfile&lt;/code> 的文件，文件内容及格式可以参考我目前使用的 &lt;a href="https://github.com/xautjzd/dotvim/blob/master/Brewfile">Brewfile&lt;/a> 来声明:&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-gdscript3" data-lang="gdscript3">&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># taps&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/bundle&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/cask&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>tap &lt;span style="color:#e6db74">&amp;#34;homebrew/core&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># packages&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;vim&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;git&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;zsh&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;tmux&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;ripgrep&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;bat&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;helix&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;jq&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;mas&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># tools&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;emacs&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;google-chrome&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;notion&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;alfred&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;warp&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;intellij-idea-ce&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;sequel-pro&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;clashx&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>cask &lt;span style="color:#e6db74">&amp;#39;tunnelblick&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># language&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># cask &amp;#39;java&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;go&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;cmake&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;maven&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>brew &lt;span style="color:#e6db74">&amp;#39;yarn&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&lt;span style="color:#75715e"># install apps from apple store: 1. mas search &amp;lt;keyword&amp;gt;, find id 2. add one line below &lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;MindNode&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">1289197285&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;CopyClip&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">595191960&lt;/span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>mas &lt;span style="color:#e6db74">&amp;#34;QQ音乐&amp;#34;&lt;/span>, id: &lt;span style="color:#ae81ff">595615424&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>文件内容主要分为四部分:&lt;/p></description></item><item><title>域名是如何解析的？</title><link>https://xautjzd.github.io/posts/2022-08-18-how-dns-works/</link><pubDate>Thu, 18 Aug 2022 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2022-08-18-how-dns-works/</guid><description>&lt;h2 id="基本概念">基本概念&lt;/h2>
+&lt;pre tabindex="0">&lt;code># taps
+tap &amp;#34;homebrew/bundle&amp;#34;
+tap &amp;#34;homebrew/cask&amp;#34;
+tap &amp;#34;homebrew/core&amp;#34;
+
+# packages
+brew &amp;#39;vim&amp;#39;
+brew &amp;#39;git&amp;#39;
+
+brew &amp;#39;zsh&amp;#39;
+brew &amp;#39;tmux&amp;#39;
+brew &amp;#39;ripgrep&amp;#39;
+brew &amp;#39;bat&amp;#39;
+brew &amp;#39;helix&amp;#39;
+brew &amp;#39;jq&amp;#39;
+brew &amp;#39;mas&amp;#39;
+
+# tools
+cask &amp;#39;emacs&amp;#39;
+cask &amp;#39;google-chrome&amp;#39;
+cask &amp;#39;notion&amp;#39;
+cask &amp;#39;alfred&amp;#39;
+cask &amp;#39;warp&amp;#39;
+cask &amp;#39;intellij-idea-ce&amp;#39;
+cask &amp;#39;sequel-pro&amp;#39;
+cask &amp;#39;clashx&amp;#39;
+cask &amp;#39;tunnelblick&amp;#39;
+
+# language
+# cask &amp;#39;java&amp;#39;
+brew &amp;#39;go&amp;#39;
+brew &amp;#39;cmake&amp;#39;
+brew &amp;#39;maven&amp;#39;
+brew &amp;#39;yarn&amp;#39;
+
+# install apps from apple store: 1. mas search &amp;lt;keyword&amp;gt;, find id 2. add one line below 
+mas &amp;#34;MindNode&amp;#34;, id: 1289197285
+mas &amp;#34;CopyClip&amp;#34;, id: 595191960
+mas &amp;#34;QQ音乐&amp;#34;, id: 595615424
+&lt;/code>&lt;/pre>&lt;p>文件内容主要分为四部分:&lt;/p></description></item><item><title>域名是如何解析的？</title><link>https://xautjzd.github.io/posts/2022-08-18-how-dns-works/</link><pubDate>Thu, 18 Aug 2022 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2022-08-18-how-dns-works/</guid><description>&lt;h2 id="基本概念">基本概念&lt;/h2>
 &lt;p>我们生活在互联网时代，每天的工作生活几乎都在与互联网打交道，比如使用 Google 查找工作学习所需资料，使用 Youtube、抖音、网易云音乐等进行娱乐活动，通过 Twitter、微博、微信等获取新闻资讯及社交，使用京东、天猫、拼多多等购物，使用微信支付、支付宝支付进行付款等，这些都离不开网络。那么作为构成网络基础设施核心之一的域名(Domain)你知道是如何工作的吗？下面我们简单展开介绍下。&lt;/p>
 &lt;p>所有的信息都存储在服务器上，可通过 IP 地址访问获取，但通常 IP 地址难以记住，于是乎产生了域名概念。起初网络仅有少数服务器构成，域名到 IP 的映射信息可存储在单个文件(eg: /etc/hosts)，随着网络的蓬勃发展，单文件难以容纳所有的域名IP 映射关系，同时映射关系变更时，难以及时同步至各服务器，于是 &lt;a href="https://en.wikipedia.org/wiki/Domain_Name_System">DNS(Domain Name System) 协议&lt;/a>诞生，映射关系通过 DNS 服务器集中存储，用户根据所需向 DNS 服务器查询。那么 DNS 服务器是如何来存储域名映射关系的呢？这个映射关系是谁来负责写入的呢？下面来揭晓。&lt;/p></description></item><item><title>Emacs 常用基本操作</title><link>https://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</link><pubDate>Thu, 04 Aug 2022 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2022-08-04-emacs-basic-operation/</guid><description>&lt;p>Emacs 作为 Programmer 熟知的两大 Editor 之一流行了很多年了，据说学习曲线陡峭，一直处于劝退状态。但作为喜欢折腾各种工具的自己来说，内心一直有跃跃欲试的想法，终于最近两个月得闲，开始研究学习上了。通过学习&lt;a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html">官网Tutorials&lt;/a> 熟悉其基本操作 &amp;amp; 配置，同时 Google 了解 Emacs 使用频次最高的一些插件，在使用过程中不断优化配置，打造成自己趁手的工具。目前，我主要有三种使用场景: 1. 文本编辑 2. 代码阅读 3. 写业余代码。以下是我在学习过程中整理的常用基本操作，分享出来一方面是当作学习笔记输出，以便后续遗忘时快速查找，另一方面也希望能带给他人一些帮助。&lt;/p>
 &lt;p>目前的常用操作有：&lt;/p>
@@ -483,10 +528,10 @@ References
 &lt;/ul></description></item><item><title>IP 归属地查询</title><link>https://xautjzd.github.io/posts/2019-10-21-ip-location/</link><pubDate>Mon, 21 Oct 2019 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2019-10-21-ip-location/</guid><description>&lt;p>这里分享下几个不错的 ip 地址库:&lt;/p>
 &lt;h2 id="1-httpsipcn">1. &lt;a href="https://ip.cn">https://ip.cn&lt;/a>&lt;/h2>
 &lt;h3 id="查询指定-ip">查询指定 IP&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn?ip=202.200.112.2
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="查询本机-ip">查询本机 IP&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;strong>优势&lt;/strong>: 国内服务，速度较快, 且免费&lt;/p>
+&lt;pre tabindex="0">&lt;code>curl https://ip.cn?ip=202.200.112.2
+&lt;/code>&lt;/pre>&lt;h3 id="查询本机-ip">查询本机 IP&lt;/h3>
+&lt;pre tabindex="0">&lt;code>curl https://ip.cn
+&lt;/code>&lt;/pre>&lt;p>&lt;strong>优势&lt;/strong>: 国内服务，速度较快, 且免费&lt;/p>
 &lt;p>&lt;strong>劣势&lt;/strong>: 信息量太少, 没有经纬度信息&lt;/p></description></item><item><title>Go 二进制应用注入 version 信息</title><link>https://xautjzd.github.io/posts/2019-10-20-go-app-version/</link><pubDate>Sun, 20 Oct 2019 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2019-10-20-go-app-version/</guid><description>&lt;p>当线上服务出现问题时，在排查问题前，我们需要确定线上服务部署版本、对应源码分支、最近一次提交记录、编译/打包时间、语言版本等，这些信息可写入配置文件，应用启动时读取。若采用 docker 部署时，也可将这些信息作为 LABEL 或应用镜像的 tag 中，方式多种多样，今天要介绍的是 go 应用下的另一个可选方式: 二进制编译时注入。&lt;/p></description></item><item><title>Ubuntu14.04上搭建ShadowSocks服务</title><link>https://xautjzd.github.io/posts/2015-06-01-build-shadowsocks-on-ubuntu/</link><pubDate>Mon, 01 Jun 2015 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2015-06-01-build-shadowsocks-on-ubuntu/</guid><description>&lt;p>&lt;img src="https://xautjzd.github.io/images/20150601.jpg" alt="">&lt;/p>
 &lt;h2 id="1-vps选择">1. VPS选择&lt;/h2>
 &lt;p>之前一直使用GoAgent作为破墙工具，不过后来有一阵用不成，即使更新到最新版，也未能如愿，后来忙于写论文，便用微软的&lt;a href="http://www.bing.com/">Bing&lt;/a>临时代替Google。用了一阵Bing,发现其实也挺好用，无论是UI还是搜索内容，都相当不错。只是偶尔想呼吸墙外空气，却未能如愿，始终给人不快的感觉。所以便有意选择付费服务。一直听说ShadowSocks搭建代理特别稳定，便开始留意VPS。可选的VPS很多，比较流行的当属Linode和Digital Ocean,不过Linode服务实在是太贵了，且最低配都感觉有点大材小用，没必要这么奢侈。便着重关注了下DO。可选的VPS有：&lt;/p></description></item><item><title>Ubuntu安装TexStudio</title><link>https://xautjzd.github.io/posts/2015-04-13-install-texstudio-on-ubuntu/</link><pubDate>Mon, 13 Apr 2015 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2015-04-13-install-texstudio-on-ubuntu/</guid><description>&lt;p>&lt;img src="https://xautjzd.github.io/images/20150601.png" alt="">&lt;/p>
@@ -563,16 +608,16 @@ References
 &lt;p>[Surround.vim] &lt;a href="https://github.com/tpope/vim-surround">1&lt;/a> 是一款关于括号、引号和xml标签匹配的插件，可以成对的添加、修改和删除。当然也可以自定义匹配项。下面就常用的功能分别对标记的添加、修改和删除一一介绍。&lt;/p>
 &lt;h4 id="添加">添加&lt;/h4>
 &lt;p>如现有一文本&lt;code>Hello,wolrd&lt;/code>。光标处在文本中，然后输入ysiw&amp;quot;,文本变成：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>&amp;#34;Hello,world&amp;#34;
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>yss&lt;/code>则将光标所在的当前行全部添加标签。如&lt;code>yss)&lt;/code>则将当前行用()包围。&lt;/p></description></item><item><title>回首2013，展望2014</title><link>https://xautjzd.github.io/posts/2014-01-02-new-year-plan/</link><pubDate>Thu, 02 Jan 2014 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2014-01-02-new-year-plan/</guid><description>&lt;p>回首过去这一年，无论从技术还是思维上，都有很大的提升，但要我数萝卜下窖似的列举出来，我还真的列不出。只清楚地记得以下几件大事：&lt;/p>
+&lt;pre tabindex="0">&lt;code>&amp;#34;Hello,world&amp;#34;
+&lt;/code>&lt;/pre>&lt;p>&lt;code>yss&lt;/code>则将光标所在的当前行全部添加标签。如&lt;code>yss)&lt;/code>则将当前行用()包围。&lt;/p></description></item><item><title>回首2013，展望2014</title><link>https://xautjzd.github.io/posts/2014-01-02-new-year-plan/</link><pubDate>Thu, 02 Jan 2014 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2014-01-02-new-year-plan/</guid><description>&lt;p>回首过去这一年，无论从技术还是思维上，都有很大的提升，但要我数萝卜下窖似的列举出来，我还真的列不出。只清楚地记得以下几件大事：&lt;/p>
 &lt;ol>
 &lt;li>将博客从CSDN迁移到Octopress上。之所以迁移到Octopress上，是因为Octopress基于Jekyll，而Jekyll采用Ruby语言实现，恰巧我又迷上了Ruby。另一个原因是Octopress采用Markdown语法实现，排版更方便，简单的几个符号便能搞定,而且更美观。自从用了Markdown语法排版后，腰不酸了，腿不疼了。剩余的时间则可投入写作，何乐而不为呢?最大的好处是易迁移，只不过现在暂时还没有切身的体会，想想罢了，毕竟托管到GitHub上对于目前阶段已经够用，不必花钱买VPS，但不排除以后有钱了弄个VPS折腾下。那时候迁移也方便，所有的博客都是通过Jekyll引擎将markdown格式的文本转换为静态的Html文档，简单的拷贝下便可以了，而且还可以很方便的进行备份。其实与他人协作共同管理博客也是轻而易举的事了，只不过目前没这必要。&lt;/li>
 &lt;/ol></description></item><item><title>Tmux常用操作总结</title><link>https://xautjzd.github.io/posts/2013-12-04-sumary-about-tmux-operation/</link><pubDate>Wed, 04 Dec 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-12-04-sumary-about-tmux-operation/</guid><description>&lt;p>以前也写过一篇关于&lt;a href="http://xautjzd.github.io/blog/2013/08/08/tmux-use-and-configuration/">tmux的文章&lt;/a>,大概对tmux从简介、安装到操作已有简单的介绍，但由于是刚使用tmux时所写，总感觉操作部分写的不是很好，不够全面，所以便出现了此篇，算是填补前一篇的不足吧。&lt;/p>
 &lt;p>前边的操作前缀是Ctrl+b组合键，这两个键相隔甚远，操作起来太别扭，后来便在&lt;code>~/.tmux.conf&lt;/code>配置文件中更改成&lt;code>Ctrl+a&lt;/code>前缀了。具体配置见GitHub上&lt;a href="https://github.com/xautjzd/dotvim">我的tmux配置&lt;/a>。&lt;/p>
 &lt;h3 id="tmux常用操作">&lt;strong>Tmux常用操作&lt;/strong>&lt;/h3>
 &lt;p>####1. 新建Session&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>$tmux new -s sessionname
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>####2. 杀死指定Session&lt;/p></description></item><item><title>拆机过程中的一些收获</title><link>https://xautjzd.github.io/posts/2013-11-23-experience-share-about-computer-disassembly/</link><pubDate>Sat, 23 Nov 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-11-23-experience-share-about-computer-disassembly/</guid><description>&lt;p>昨天吃完午饭后来到教研室，突然师妹说有个远程(其实只是充分利用教研室的旧机器，在上面发布一些教研室的web项目，还有做为版本控制器的服务器)机器现在不能远程了，尝试关机不得所以强关，然后重启便无法启动，而她的数据在上面。所以我便开始了肢解之路。&lt;/p>
+&lt;pre tabindex="0">&lt;code>$tmux new -s sessionname
+&lt;/code>&lt;/pre>&lt;p>####2. 杀死指定Session&lt;/p></description></item><item><title>拆机过程中的一些收获</title><link>https://xautjzd.github.io/posts/2013-11-23-experience-share-about-computer-disassembly/</link><pubDate>Sat, 23 Nov 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-11-23-experience-share-about-computer-disassembly/</guid><description>&lt;p>昨天吃完午饭后来到教研室，突然师妹说有个远程(其实只是充分利用教研室的旧机器，在上面发布一些教研室的web项目，还有做为版本控制器的服务器)机器现在不能远程了，尝试关机不得所以强关，然后重启便无法启动，而她的数据在上面。所以我便开始了肢解之路。&lt;/p>
 &lt;p>由于几乎没有拆台式机的经验，所以拆机过程花费时间比较长，尤其是机箱外盖的拆卸。毕竟是旧机器，没有什么拆机教程可供参考，所以只能摸索着前进了，最后还是使用了点暴力手段才卸下的。拆开后，首先看了下是不是由于接口松动导致无法开机(其实连我自己都不相信是接口松动导致，因为强关不可能导致接口松动吧，可能是为了自我安慰才想到是接口松动的缘故)，查看了一番，便很快排除这个原因。突然想强关的后果很可能就是导致硬盘坏掉，但是起码也应该进入BIOS吧。便猜想是不是电源坏掉导致的原因，老师刚好这时候也出来了，看到我在拆着机，便问我什么情况，我便跟老师一五一十地把情况汇报了一番。然后老师便去隔壁(其实是老师所在部门的办公室)找了一台不能用的机器，我拿过来之后卸下电源重新换上去，当然其中还有不少接线的问题还摸索了一阵,最后才发现电源存在的作用：&lt;/p></description></item><item><title>放慢脚步回首过去一个月</title><link>https://xautjzd.github.io/posts/2013-11-21-some-ideas/</link><pubDate>Thu, 21 Nov 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-11-21-some-ideas/</guid><description>&lt;p>自上篇文章到现在差不多快一个月了，也因各种琐碎的事情没有闲下来构思一篇博文，顿时有一丝的罪恶感。吃完晚饭洗完澡坐在电脑前突然有种茫然的感觉，上了会儿高端大气的知乎浏览了几个帖子，本想着改下代码，结果发现也打不起精神，便趁此机会来码字来寻求心灵片刻的安宁吧。&lt;/p>
 &lt;p>首先，说说最近的劳动吧，虽然没啥成果。最近教研室事不多，刚好师姐有个同学需要找人帮忙改个项目，便答应帮忙(当然是有酬劳的，不然也不会闲到改.net的代码，虽然目前还没有谈具体的数字)。其实也不在乎都多少，答应干此活也只是为了积累经验而已，方便日后找工作，同时也算是练手。拿到代码后，我顿时有种欲哭无泪的感觉，代码逻辑及结构之混乱超乎我想象，可以总结为以下几点：&lt;/p></description></item><item><title>Welcome to Jekyll!</title><link>https://xautjzd.github.io/posts/2013-11-10-welcome-to-jekyll/</link><pubDate>Sun, 10 Nov 2013 10:18:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-11-10-welcome-to-jekyll/</guid><description>&lt;p>You&amp;rsquo;ll find this post in your &lt;code>_posts&lt;/code> directory - edit this post and re-build (or run with the &lt;code>-w&lt;/code> switch) to see your changes!
 To add new posts, simply add a file in the &lt;code>_posts&lt;/code> directory that follows the convention: YYYY-MM-DD-name-of-post.ext.&lt;/p>
@@ -803,12 +848,12 @@ za		=&amp;gt; fold/unfold&lt;/p>
 &lt;li>D 删除至行尾&lt;/li>
 &lt;/ul></description></item><item><title>更换Octopress主题</title><link>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</link><pubDate>Sat, 17 Aug 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-08-17-change-theme-of-blog/</guid><description>&lt;p>Octopress博客搭建已经有一阵了，但一直采用的默认的主题，没时间更换。今天特意抽时间来更换下，先上&lt;a href="http://octopress.org/docs/theme/">Octopress官网&lt;/a>了解了下更换Theme的原理，然后上Octopress所在的源码托管平台GitHub，在其&lt;a href="https://github.com/imathis/octopress/wiki">Wiki&lt;/a>上找到了&lt;a href="https://github.com/imathis/octopress/wiki/3rd-Party-Octopress-Themes">第三方Themes&lt;/a>,便从前到后大致将各种themes都预览了一遍，最后选择了&lt;a href="https://github.com/shashankmehta/greyshade">Greyshade主题&lt;/a>,安装方法官网写的已经非常详细，这里再啰嗦一遍：&lt;/p>
 &lt;p>###Install&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>$ cd octopress #octopress directory
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ git clone git@github.com:shashankmehta/greyshade.git .themes/greyshade
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ echo &amp;#34;\$greyshade: color;&amp;#34; &amp;gt;&amp;gt; sass/custom/_colors.scss //Substitue &amp;#39;color&amp;#39; with your highlight color
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ rake &amp;#34;install[greyshade]&amp;#34;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>$ rake generate
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>至此，安装过程便已完成。&lt;/p>
+&lt;pre tabindex="0">&lt;code>$ cd octopress #octopress directory
+$ git clone git@github.com:shashankmehta/greyshade.git .themes/greyshade
+$ echo &amp;#34;\$greyshade: color;&amp;#34; &amp;gt;&amp;gt; sass/custom/_colors.scss //Substitue &amp;#39;color&amp;#39; with your highlight color
+$ rake &amp;#34;install[greyshade]&amp;#34;
+$ rake generate
+&lt;/code>&lt;/pre>&lt;p>至此，安装过程便已完成。&lt;/p>
 &lt;p>左侧的显示效果主要配置在_config.yml文件中。&lt;/p>
 &lt;p>###pages显示&lt;/p>
 &lt;p>Octopress默认只有Homepage和Archives两个导航菜单，不满足要求，我便又添加了&amp;quot;编程&amp;quot;、“Linux”、“所思所想”和“关于我”这几个。“关于我”的页面为静态页面，在source/blog/aboutme/下，其他的几个需要将相关的文章显示在相应的导航菜单下，便需做如下配置：&lt;/p>
@@ -872,13 +917,13 @@ set guifont=*
 &lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>&amp;lt;/&lt;span style="color:#f92672">section&lt;/span>&amp;gt;
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>其中zhengdongjiang为我disqus对应此网站的shortname，这就不要照搬了，换成你对应的名字即可。&lt;/p>
 &lt;p>##修改_config.yml文件&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>	default_asides: [custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	# Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	# and add an array with the asides you want to use.
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	blog_index_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>	post_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div></description></item><item><title>创建我的第一个rails程序</title><link>https://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</link><pubDate>Tue, 30 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</guid><description>&lt;p>##开启Mysql服务&lt;/p>
+&lt;pre tabindex="0">&lt;code>	default_asides: [custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+
+	# Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
+	# and add an array with the asides you want to use.
+	blog_index_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+	post_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+&lt;/code>&lt;/pre></description></item><item><title>创建我的第一个rails程序</title><link>https://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</link><pubDate>Tue, 30 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-30-create-my-first-rails-app/</guid><description>&lt;p>##开启Mysql服务&lt;/p>
 &lt;p>我的一个rails程序是采用mysql数据库，不是默认的sqlite3.所以前提是已经安装了mysql。由于Mysql安装了好久，但是很少使用。所以服务没有启动，近来可能会频繁使用，便设置为开机自动启动了。设置方法为:&lt;code>#systemctl enable mysqld.service&lt;/code>或者&lt;code>service mysqld start&lt;/code>。&lt;/p>
 &lt;p>##安装mysql驱动&lt;/p>
 &lt;p>rails应用中使用msyql,需要Mysql对应的ruby驱动：msyql2。安装方式：&lt;/p>
@@ -1026,31 +1071,35 @@ disqus_show_comment_count: false&lt;/p>
 转到deploy目录下，执行$git pull，然后再执行git push origin master即可。&lt;/p></description></item><item><title>配置文章分类插件</title><link>https://xautjzd.github.io/posts/2013-07-18-config-category-plugin/</link><pubDate>Thu, 18 Jul 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-07-18-config-category-plugin/</guid><description>&lt;p>Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：&lt;/p>
 &lt;p>###1. 添加category_list插件&lt;/p>
 &lt;p>代码如下：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span> module Jekyll
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> class CategoryListTag &amp;lt; Liquid::Tag
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> def render(context)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> html = &amp;#34;&amp;#34;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> categories = context.registers[:site].categories.keys
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> categories.sort.each do |category|
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> posts_in_category = context.registers[:site].categories[category].size
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> category_dir = context.registers[:site].config[&amp;#39;category_dir&amp;#39;]
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> category_url = File.join(category_dir, category.gsub(/_|\P{Word}/, &amp;#39;-&amp;#39;).gsub(/-{2,}/, &amp;#39;-&amp;#39;).downcase)
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> html &amp;lt;&amp;lt; &amp;#34;&amp;lt;li class=&amp;#39;category&amp;#39;&amp;gt;&amp;lt;a href=&amp;#39;/#{category_url}/&amp;#39;&amp;gt;#{category} (#{posts_in_category})&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;\n&amp;#34;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> html
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> end
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span>
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> Liquid::Template.register_tag(&amp;#39;category_list&amp;#39;, Jekyll::CategoryListTag)
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>将以上代码保存到plugins/category_list_tag.rb中。&lt;/p>
+&lt;pre tabindex="0">&lt;code> module Jekyll
+ class CategoryListTag &amp;lt; Liquid::Tag
+ def render(context)
+ html = &amp;#34;&amp;#34;
+ categories = context.registers[:site].categories.keys
+ categories.sort.each do |category|
+ posts_in_category = context.registers[:site].categories[category].size
+ category_dir = context.registers[:site].config[&amp;#39;category_dir&amp;#39;]
+ category_url = File.join(category_dir, category.gsub(/_|\P{Word}/, &amp;#39;-&amp;#39;).gsub(/-{2,}/, &amp;#39;-&amp;#39;).downcase)
+ html &amp;lt;&amp;lt; &amp;#34;&amp;lt;li class=&amp;#39;category&amp;#39;&amp;gt;&amp;lt;a href=&amp;#39;/#{category_url}/&amp;#39;&amp;gt;#{category} (#{posts_in_category})&amp;lt;/a&amp;gt;&amp;lt;/li&amp;gt;\n&amp;#34;
+ end
+ html
+ end
+ end
+ end
+
+ Liquid::Template.register_tag(&amp;#39;category_list&amp;#39;, Jekyll::CategoryListTag)
+&lt;/code>&lt;/pre>&lt;p>将以上代码保存到plugins/category_list_tag.rb中。&lt;/p>
 &lt;p>这个插件会向liquid注册一个名为category_list的tag，该tag就是以li的形式将站点所有的category组织起来。如果要将category加入到侧边导航栏，需要增加一个aside&lt;/p>
 &lt;h3 id="2-添加category到aside中">2. 添加category到aside中&lt;/h3>
 &lt;p>在source/_include/custom/asides中新建category_list.html文件，并且将以下代码复制到其中：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span> &amp;lt;section&amp;gt;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;h1&amp;gt;Categories&amp;lt;/h1&amp;gt;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;ul id=&amp;#34;categories&amp;#34;&amp;gt;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> {\% category_list %}
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;/ul&amp;gt;
-&lt;/span>&lt;/span>&lt;span style="display:flex;">&lt;span> &amp;lt;/section&amp;gt;
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。&lt;/p></description></item></channel></rss>
+&lt;pre tabindex="0">&lt;code> &amp;lt;section&amp;gt;
+ &amp;lt;h1&amp;gt;Categories&amp;lt;/h1&amp;gt;
+ &amp;lt;ul id=&amp;#34;categories&amp;#34;&amp;gt;
+ {\% category_list %}
+ &amp;lt;/ul&amp;gt;
+ &amp;lt;/section&amp;gt;
+&lt;/code>&lt;/pre>&lt;p>其中\是为了显示才添加上的，不然无法正常显示，复制代码时请去掉%前的\。&lt;/p>
+&lt;h3 id="3-配置侧边栏">3. 配置侧边栏&lt;/h3>
+&lt;p>在_config.yml中配置侧边栏，修改其中的default_asides项：&lt;/p>
+&lt;pre tabindex="0">&lt;code> default_asides: [custom/asides/category_list.html, ...]
+&lt;/code>&lt;/pre></description></item></channel></rss>

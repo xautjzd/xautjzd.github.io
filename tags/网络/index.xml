@@ -3,8 +3,8 @@
 &lt;p>所有的信息都存储在服务器上，可通过 IP 地址访问获取，但通常 IP 地址难以记住，于是乎产生了域名概念。起初网络仅有少数服务器构成，域名到 IP 的映射信息可存储在单个文件(eg: /etc/hosts)，随着网络的蓬勃发展，单文件难以容纳所有的域名IP 映射关系，同时映射关系变更时，难以及时同步至各服务器，于是 &lt;a href="https://en.wikipedia.org/wiki/Domain_Name_System">DNS(Domain Name System) 协议&lt;/a>诞生，映射关系通过 DNS 服务器集中存储，用户根据所需向 DNS 服务器查询。那么 DNS 服务器是如何来存储域名映射关系的呢？这个映射关系是谁来负责写入的呢？下面来揭晓。&lt;/p></description></item><item><title>IP 归属地查询</title><link>https://xautjzd.github.io/posts/2019-10-21-ip-location/</link><pubDate>Mon, 21 Oct 2019 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2019-10-21-ip-location/</guid><description>&lt;p>这里分享下几个不错的 ip 地址库:&lt;/p>
 &lt;h2 id="1-httpsipcn">1. &lt;a href="https://ip.cn">https://ip.cn&lt;/a>&lt;/h2>
 &lt;h3 id="查询指定-ip">查询指定 IP&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn?ip=202.200.112.2
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;h3 id="查询本机-ip">查询本机 IP&lt;/h3>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>curl https://ip.cn
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;strong>优势&lt;/strong>: 国内服务，速度较快, 且免费&lt;/p>
+&lt;pre tabindex="0">&lt;code>curl https://ip.cn?ip=202.200.112.2
+&lt;/code>&lt;/pre>&lt;h3 id="查询本机-ip">查询本机 IP&lt;/h3>
+&lt;pre tabindex="0">&lt;code>curl https://ip.cn
+&lt;/code>&lt;/pre>&lt;p>&lt;strong>优势&lt;/strong>: 国内服务，速度较快, 且免费&lt;/p>
 &lt;p>&lt;strong>劣势&lt;/strong>: 信息量太少, 没有经纬度信息&lt;/p></description></item></channel></rss>

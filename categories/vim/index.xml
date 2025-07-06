@@ -2,8 +2,8 @@
 &lt;p>[Surround.vim] &lt;a href="https://github.com/tpope/vim-surround">1&lt;/a> 是一款关于括号、引号和xml标签匹配的插件，可以成对的添加、修改和删除。当然也可以自定义匹配项。下面就常用的功能分别对标记的添加、修改和删除一一介绍。&lt;/p>
 &lt;h4 id="添加">添加&lt;/h4>
 &lt;p>如现有一文本&lt;code>Hello,wolrd&lt;/code>。光标处在文本中，然后输入ysiw&amp;quot;,文本变成：&lt;/p>
-&lt;div class="highlight">&lt;pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;">&lt;code class="language-fallback" data-lang="fallback">&lt;span style="display:flex;">&lt;span>&amp;#34;Hello,world&amp;#34;
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/div>&lt;p>&lt;code>yss&lt;/code>则将光标所在的当前行全部添加标签。如&lt;code>yss)&lt;/code>则将当前行用()包围。&lt;/p></description></item><item><title>Vim常用快捷键总结</title><link>https://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</link><pubDate>Wed, 18 Sep 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</guid><description>&lt;p>Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：&lt;/p>
+&lt;pre tabindex="0">&lt;code>&amp;#34;Hello,world&amp;#34;
+&lt;/code>&lt;/pre>&lt;p>&lt;code>yss&lt;/code>则将光标所在的当前行全部添加标签。如&lt;code>yss)&lt;/code>则将当前行用()包围。&lt;/p></description></item><item><title>Vim常用快捷键总结</title><link>https://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</link><pubDate>Wed, 18 Sep 2013 00:00:00 +0000</pubDate><guid>https://xautjzd.github.io/posts/2013-09-18-vim-shortcut-maps/</guid><description>&lt;p>Vim的学习之路真的很长，永远有记不完的命令，永远会突然冒出一个新插件。不过我总算从Vim的荆棘中一路走过来了，现在真的是苦尽甘来，时刻体会它带给我的喜悦和惊奇。下面对我所学习所了解到的常用命令做一个基本总结：&lt;/p>
 &lt;p>###Normal mode:&lt;/p>
 &lt;p>&lt;code>&amp;gt;&amp;gt;&lt;/code> indent current line&lt;/p>
 &lt;p>&lt;code>n&amp;gt;&amp;gt;&lt;/code> indent the next n line&lt;/p>

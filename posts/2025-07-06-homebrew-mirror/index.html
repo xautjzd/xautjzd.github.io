@@ -1,0 +1,97 @@
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>Homebrew 国内下载慢的解决之法及下载过程剖析 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='对懂点技术的人来说， HomeBrew 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 fd、neovim 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: brew install <formula>，GUI 软件安装方式: brew install --cask <cask>，其中的 <formula> 和 <cask> 均为你想安装的软件名称， 如果不确定具体名称，可通过: brew search <keyword>搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：
+
+等了好久也没见动静，这是因为默认下载源是从 GitHub 数据中心下载，国内对 GitHub 有限制。
+解决办法：配置国内镜像源
+目前国内主流的 Homebrew 镜像有：清华大学、阿里云、中科大、腾讯云等。以清华源和阿里云为例，介绍配置方法。
+1. 配置清华源
+替换 Homebrew 源
+#替换 brew.git
+cd "$(brew --repo)"
+git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+
+# 替换 homebrew-core.git
+cd "$(brew --repo homebrew/core)"
+git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+
+# 替换 homebrew-cask.git
+cd "$(brew --repo homebrew/cask)"
+git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+
+# 配置 bottle 镜像(formula 二进制)
+# 推荐写入 ~/.zshrc 或 ~/.bash_profile
+export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+
+# 立即生效
+source ~/.zshrc  # 或 source ~/.bash_profile
+
+# 更新 brew
+brew update
+2. 配置阿里云源
+# 替换 brew.git
+cd "$(brew --repo)"
+git remote set-url origin https://mirrors.aliyun.com/homebrew/brew.git
+
+# 替换 homebrew-core.git
+cd "$(brew --repo homebrew/core)"
+git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-core.git
+
+# 替换 homebrew-cask.git
+cd "$(brew --repo homebrew/cask)"
+git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-cask.git
+
+# 配置 bottle 镜像
+export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles
+source ~/.zprofile  # 或 source ~/.bash_profile
+brew update
+其他镜像如中科大、腾讯云等配置方法类似，详见各镜像站帮助文档。'><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="Homebrew 国内下载慢的解决之法及下载过程剖析"><meta property="og:description" content='对懂点技术的人来说， HomeBrew 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 fd、neovim 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: brew install <formula>，GUI 软件安装方式: brew install --cask <cask>，其中的 <formula> 和 <cask> 均为你想安装的软件名称， 如果不确定具体名称，可通过: brew search <keyword>搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：
+等了好久也没见动静，这是因为默认下载源是从 GitHub 数据中心下载，国内对 GitHub 有限制。
+解决办法：配置国内镜像源 目前国内主流的 Homebrew 镜像有：清华大学、阿里云、中科大、腾讯云等。以清华源和阿里云为例，介绍配置方法。
+1. 配置清华源 替换 Homebrew 源 #替换 brew.git cd "$(brew --repo)" git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git # 替换 homebrew-core.git cd "$(brew --repo homebrew/core)" git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git # 替换 homebrew-cask.git cd "$(brew --repo homebrew/cask)" git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git # 配置 bottle 镜像(formula 二进制) # 推荐写入 ~/.zshrc 或 ~/.bash_profile export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles # 立即生效 source ~/.zshrc # 或 source ~/.bash_profile # 更新 brew brew update 2. 配置阿里云源 # 替换 brew.git cd "$(brew --repo)" git remote set-url origin https://mirrors.aliyun.com/homebrew/brew.git # 替换 homebrew-core.git cd "$(brew --repo homebrew/core)" git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-core.git # 替换 homebrew-cask.git cd "$(brew --repo homebrew/cask)" git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-cask.git # 配置 bottle 镜像 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles source ~/.zprofile # 或 source ~/.bash_profile brew update 其他镜像如中科大、腾讯云等配置方法类似，详见各镜像站帮助文档。'><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2025-07-06T10:00:00+08:00"><meta property="article:modified_time" content="2025-07-06T10:00:00+08:00"><meta property="article:tag" content="Tool"><meta property="article:tag" content="Macos"><meta name=twitter:card content="summary"><meta name=twitter:title content="Homebrew 国内下载慢的解决之法及下载过程剖析"><meta name=twitter:description content='对懂点技术的人来说， HomeBrew 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 fd、neovim 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: brew install <formula>，GUI 软件安装方式: brew install --cask <cask>，其中的 <formula> 和 <cask> 均为你想安装的软件名称， 如果不确定具体名称，可通过: brew search <keyword>搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：
+等了好久也没见动静，这是因为默认下载源是从 GitHub 数据中心下载，国内对 GitHub 有限制。
+解决办法：配置国内镜像源 目前国内主流的 Homebrew 镜像有：清华大学、阿里云、中科大、腾讯云等。以清华源和阿里云为例，介绍配置方法。
+1. 配置清华源 替换 Homebrew 源 #替换 brew.git cd "$(brew --repo)" git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git # 替换 homebrew-core.git cd "$(brew --repo homebrew/core)" git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git # 替换 homebrew-cask.git cd "$(brew --repo homebrew/cask)" git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git # 配置 bottle 镜像(formula 二进制) # 推荐写入 ~/.zshrc 或 ~/.bash_profile export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles # 立即生效 source ~/.zshrc # 或 source ~/.bash_profile # 更新 brew brew update 2. 配置阿里云源 # 替换 brew.git cd "$(brew --repo)" git remote set-url origin https://mirrors.aliyun.com/homebrew/brew.git # 替换 homebrew-core.git cd "$(brew --repo homebrew/core)" git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-core.git # 替换 homebrew-cask.git cd "$(brew --repo homebrew/cask)" git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-cask.git # 配置 bottle 镜像 export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.aliyun.com/homebrew/homebrew-bottles source ~/.zprofile # 或 source ~/.bash_profile brew update 其他镜像如中科大、腾讯云等配置方法类似，详见各镜像站帮助文档。'><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/about>About</a>
+<a href=/tags>Tags</a></nav></header><main><article><div class=post-container><div class=post-content><div class=title><h1 class=title>Homebrew 国内下载慢的解决之法及下载过程剖析</h1><div class=meta>Posted on Jul 6, 2025</div></div><section class=body><p>对懂点技术的人来说， <a href=https://brew.sh/>HomeBrew</a> 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 <a href=https://github.com/sharkdp/fd>fd</a>、<a href=https://neovim.io/>neovim</a> 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: <code>brew install &lt;formula></code>，GUI 软件安装方式: <code>brew install --cask &lt;cask></code>，其中的 <code>&lt;formula></code> 和 <code>&lt;cask></code> 均为你想安装的软件名称， 如果不确定具体名称，可通过: <code>brew search &lt;keyword></code>搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：</p><p><img src=/images/brew-downloading.png alt></p><p>等了好久也没见动静，这是因为默认下载源是从 GitHub 数据中心下载，国内对 GitHub 有限制。</p><h2 id=解决办法配置国内镜像源>解决办法：配置国内镜像源</h2><p>目前国内主流的 Homebrew 镜像有：清华大学、阿里云、中科大、腾讯云等。以清华源和阿里云为例，介绍配置方法。</p><h3 id=1-配置清华源>1. 配置清华源</h3><h4 id=替换-homebrew-源>替换 Homebrew 源</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e>#替换 brew.git</span>
+</span></span><span style=display:flex><span>cd <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/brew.git
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 替换 homebrew-core.git</span>
+</span></span><span style=display:flex><span>cd <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo homebrew/core<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-core.git
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 替换 homebrew-cask.git</span>
+</span></span><span style=display:flex><span>cd <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo homebrew/cask<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>git remote set-url origin https://mirrors.tuna.tsinghua.edu.cn/git/homebrew/homebrew-cask.git
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 配置 bottle 镜像(formula 二进制)</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 推荐写入 ~/.zshrc 或 ~/.bash_profile</span>
+</span></span><span style=display:flex><span>export HOMEBREW_BOTTLE_DOMAIN<span style=color:#f92672>=</span>https://mirrors.tuna.tsinghua.edu.cn/homebrew-bottles
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 立即生效</span>
+</span></span><span style=display:flex><span>source ~/.zshrc  <span style=color:#75715e># 或 source ~/.bash_profile</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 更新 brew</span>
+</span></span><span style=display:flex><span>brew update
+</span></span></code></pre></div><h3 id=2-配置阿里云源>2. 配置阿里云源</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e># 替换 brew.git</span>
+</span></span><span style=display:flex><span>cd <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>git remote set-url origin https://mirrors.aliyun.com/homebrew/brew.git
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 替换 homebrew-core.git</span>
+</span></span><span style=display:flex><span>cd <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo homebrew/core<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-core.git
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 替换 homebrew-cask.git</span>
+</span></span><span style=display:flex><span>cd <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo homebrew/cask<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>git remote set-url origin https://mirrors.aliyun.com/homebrew/homebrew-cask.git
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 配置 bottle 镜像</span>
+</span></span><span style=display:flex><span>export HOMEBREW_BOTTLE_DOMAIN<span style=color:#f92672>=</span>https://mirrors.aliyun.com/homebrew/homebrew-bottles
+</span></span><span style=display:flex><span>source ~/.zprofile  <span style=color:#75715e># 或 source ~/.bash_profile</span>
+</span></span><span style=display:flex><span>brew update
+</span></span></code></pre></div><p>其他镜像如中科大、腾讯云等配置方法类似，详见各镜像站帮助文档。</p><h3 id=恢复官方源>恢复官方源</h3><p>如需恢复官方源：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>git -C <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span> remote set-url origin https://github.com/Homebrew/brew.git
+</span></span><span style=display:flex><span>git -C <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo homebrew/core<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span> remote set-url origin https://github.com/Homebrew/homebrew-core.git
+</span></span><span style=display:flex><span>git -C <span style=color:#e6db74>&#34;</span><span style=color:#66d9ef>$(</span>brew --repo homebrew/cask<span style=color:#66d9ef>)</span><span style=color:#e6db74>&#34;</span> remote set-url origin https://github.com/Homebrew/homebrew-cask.git
+</span></span><span style=display:flex><span>unset HOMEBREW_BOTTLE_DOMAIN
+</span></span><span style=display:flex><span>brew update
+</span></span></code></pre></div><h2 id=homebrew-软件下载过程剖析>Homebrew 软件下载过程剖析</h2><p>Homebrew 的软件包分为两大类：</p><ul><li><strong>Formula</strong>：命令行工具、库等（如 wget、git、python）</li><li><strong>Cask</strong>：图形界面应用（如 Google Chrome、Visual Studio Code）</li></ul><h3 id=formula-的下载流程>Formula 的下载流程</h3><ol><li>用户执行 <code>brew install &lt;formula></code>。</li><li>自 Homebrew 4.0 起，Homebrew 优先通过 API（如 <a href=https://formulae.brew.sh/api/formula.jws.json>https://formulae.brew.sh/api/formula.jws.json</a>）获取 formula 信息，Homebrew 默认会直接请求 API 获取最新的 formula 元数据（包括版本、依赖、bottle 地址等），在 API 不可用或用户设置了 HOMEBREW_NO_INSTALL_FROM_API=1 时，会回退到查询本地 formula 脚本索引（Ruby 脚本，描述如何下载/编译软件），Apple Silicon 芯片的脚本位置通常位于： <code>/opt/homebrew/Library/Taps/homebrew/homebrew-core/Formula</code> 的目录下。</li><li>优先尝试下载预编译的二进制包（bottle），URL 由 <code>HOMEBREW_BOTTLE_DOMAIN</code> 控制。</li><li>若无 bottle 或下载失败，则源码编译安装，源码 URL 由 formula 文件指定。</li><li>安装后自动链接到 <code>/usr/local/bin</code> 或 <code>/opt/homebrew/bin</code>。</li></ol><h4 id=关键点>关键点</h4><ul><li>配置国内 bottle 镜像后，绝大多数常用软件可直接高速下载二进制包</li><li>极少数软件或自定义参数会触发源码编译，速度取决于源码仓库和本地编译性能</li></ul><h3 id=cask-的下载流程>Cask 的下载流程</h3><ol><li>用户执行 <code>brew install --cask &lt;cask></code></li><li>Homebrew 查询本地 cask 索引（Ruby 脚本，描述 App 的下载和安装方式）</li><li>直接从 App 官方网站或 GitHub 下载 dmg/pkg/zip 等安装包</li><li>下载完成后自动挂载/解压并安装到 <code>/Applications</code></li></ol><h4 id=关键点-1>关键点</h4><ul><li>Cask 下载链接通常直连 App 官方站点，<strong>不受 bottle 镜像影响</strong></li><li>国内访问部分 App 官网（如 Google Chrome、VSCode）可能依然较慢</li><li>可通过科学上网或手动下载后 <code>brew install --cask &lt;cask> --no-quarantine --appdir=/Applications &lt;本地文件></code> 安装</li></ul><h2 id=总结与建议>总结与建议</h2><ul><li>Formula 类软件优先配置国内 bottle 镜像，极大提升下载速度</li><li>Cask 类软件如遇下载慢，可考虑手动下载安装包</li><li>遇到 <code>brew update</code>、<code>brew install</code> 卡顿，优先检查源配置和网络环境</li><li>推荐定期关注各大镜像站公告，及时调整配置</li></ul><h2 id=参考链接>参考链接</h2><ul><li><a href=https://mirror.tuna.tsinghua.edu.cn/help/homebrew/>清华大学开源软件镜像站 Homebrew 帮助</a></li><li><a href=https://developer.aliyun.com/mirror/homebrew>阿里云 Homebrew 镜像</a></li><li><a href=https://docs.brew.sh/>Homebrew 官方文档</a></li></ul></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/tool>tool</a></li><li><a href=/tags/macos>macos</a></li></ul></nav></div></div></div></article></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://twitter.com/xautjzd/ rel=me title=Twitter><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#twitter"/></svg></a><a class=border></a></div><div class=footer-info>2025 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var dnt,doNotTrack=!1;if(!1&&(dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes"),!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>
