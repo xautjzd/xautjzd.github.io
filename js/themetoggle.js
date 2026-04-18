@@ -3,10 +3,12 @@ function setTheme(mode) {
     var e = document.querySelector("#dark-mode-toggle > .feather > use")
     if (mode === "dark") {
         document.getElementById("darkModeStyle").disabled=false;
-	e.href.baseVal = e.href.baseVal.replace(/#.*$/, "#sun")
+        document.documentElement.classList.add("dark");
+        e.href.baseVal = e.href.baseVal.replace(/#.*$/, "#sun")
     } else if (mode === "light") {
         document.getElementById("darkModeStyle").disabled=true;
-	e.href.baseVal = e.href.baseVal.replace(/#.*$/, "#moon")
+        document.documentElement.classList.remove("dark");
+        e.href.baseVal = e.href.baseVal.replace(/#.*$/, "#moon")
     }
 }
 
