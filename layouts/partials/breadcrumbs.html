@@ -1,0 +1,9 @@
+<nav class="breadcrumbs">
+  <a href="{{ "/" | absLangURL }}">Home</a>
+  {{ if eq .Type "posts" }}
+  <span class="separator">/</span>
+  <a href="{{ "/posts" | absLangURL }}">Posts</a>
+  {{ end }}
+  <span class="separator">/</span>
+  <span class="current">{{ .Title }}</span>
+</nav>
