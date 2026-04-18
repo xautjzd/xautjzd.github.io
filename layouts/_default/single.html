@@ -1,0 +1,85 @@
+{{ define "main" }}
+<main>
+  <!-- Breadcrumbs -->
+  {{ partial "breadcrumbs.html" . }}
+
+  <article>
+    <div class="post-container">
+      <!-- Main Content -->
+      <div class="post-content">
+        <div class="title">
+          <h1 class="title">{{ .Title }}</h1>
+          <div class="meta">
+            Posted on {{ dateFormat ":date_medium" .Date }}{{ if .Draft }} <span class="draft-label">DRAFT</span> {{ end }}
+            <span class="reading-time"> · {{ .ReadingTime }} min read</span>
+          </div>
+        </div>
+        {{ if isset .Params "tldr" }}
+        <div class="tldr">
+          <strong>tl;dr:</strong>
+          {{ .Params.tldr }}
+        </div>{{ end }}
+        <section class="body">
+          {{ .Content }}
+        </section>
+        <div class="post-tags">
+          {{ if ne .Type "page" }}
+          {{ if gt .Params.tags 0 }}
+          <nav class="nav tags">
+            <ul class="tags">
+              {{ range .Params.Tags }}
+              <li><a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}">{{ . }}</a></li>
+              {{ end }}
+            </ul>
+          </nav>
+          {{ end }}
+          {{ end }}
+        </div>
+
+        <!-- Related Posts -->
+        {{ partial "related.html" . }}
+      </div>
+
+      <!-- TOC -->
+      {{ if isset .Params "toc" }}
+      <div class="toc">
+        <strong>Table of contents:</strong>
+        {{ .TableOfContents }}
+      </div>
+      {{ end }}
+    </div>
+
+    <!-- Disqus -->
+    {{- $.Scratch.Set "isDisqus" true -}}
+    {{ if not .Site.Config.Services.Disqus.Shortname }}
+    {{- $.Scratch.Set "isDisqus" false -}}
+    {{ end }}
+
+    {{- if eq ($.Scratch.Get "isDisqus") true -}}
+    {{- partial "disqus.html" . -}}
+    {{- end -}}
+  </article>
+</main>
+
+<style>
+/* 统一悬停效果 - 蓝色背景白色文字 */
+.post-content a:hover,
+.post-tags .tags a:hover,
+.related-posts a:hover,
+.breadcrumbs a:hover {
+  background-color: var(--hovercolor, navy);
+  color: #fff;
+}
+
+/* 深色模式统一 */
+@media (prefers-color-scheme: dark) {
+  .post-content a:hover,
+  .post-tags .tags a:hover,
+  .related-posts a:hover,
+  .breadcrumbs a:hover {
+    background-color: var(--hovercolor, navy);
+    color: #fff;
+  }
+}
+</style>
+{{ end }}

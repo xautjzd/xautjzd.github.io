@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html>
+	{{ partial "header.html" . }}
+	<body>
+		<div class="content">
+			{{ partial "head.html" . }}
+
+			<!-- 首页搜索框 -->
+			<div class="home-search">
+				<input type="text" id="home-search-input" placeholder="搜索文章..." autocomplete="off">
+				<div id="home-search-results"></div>
+			</div>
+
+			<main class="list">
+				<div class="site-description">
+					{{- if isset .Site.Params "subtitle" -}}
+					<p>{{ .Site.Params.Subtitle | .Page.RenderString }}</p>
+					{{- end -}}
+				</div>
+				{{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
+				{{ $paginator := .Paginate (where $pages "Params.hidden" "ne" true) }}
+				{{ range $paginator.Pages }}
+				<section class="list-item">
+					<h1 class="title"><a href="{{ .RelPermalink }}">{{.Title}}</a></h1>
+					<time>{{ dateFormat ":date_medium" .Date }}{{ if .Draft }} <span class="draft-label">DRAFT</span> {{ end }}</time>
+					<br>{{ template "partials/pagedescription.html" . }}
+					<a class="readmore" href="{{ .RelPermalink }}">Read more ⟶</a>
+				</section>
+				{{ end }}
+				{{ template "partials/paginator.html" . }}
+			</main>
+			{{ partial "footer.html" . }}
+		</div>
+
+		<!-- 搜索脚本 -->
+		<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+		<script>
+		(function() {
+			let fuse;
+			let searchData = [];
+			let searchLoaded = false;
+
+			const searchInput = document.getElementById('home-search-input');
+			const searchResults = document.getElementById('home-search-results');
+
+			// 加载搜索索引
+			function loadSearchIndex() {
+				if (searchLoaded) return Promise.resolve();
+
+				return fetch('/index.json')
+					.then(response => response.json())
+					.then(data => {
+						searchData = data;
+						fuse = new Fuse(data, {
+							keys: ['title', 'content', 'tags'],
+							threshold: 0.3,
+							includeScore: true,
+							includeMatches: true,
+						});
+						searchLoaded = true;
+					})
+					.catch(error => console.error('Error loading search index:', error));
+			}
+
+			// 显示搜索结果
+			function displayResults(results, query) {
+				if (results.length === 0) {
+					searchResults.innerHTML = '<div class="home-search-no-results">没有找到相关文章</div>';
+					return;
+				}
+
+				let html = `<div class="home-search-count">找到 ${results.length} 个结果</div>`;
+				html += '<ul class="home-search-list">';
+
+				results.slice(0, 5).forEach(result => {
+					const item = result.item;
+					const date = new Date(item.date).toLocaleDateString('zh-CN');
+					html += `
+						<li class="home-search-item">
+							<a href="${item.permalink}" class="home-search-title">${escapeHtml(item.title)}</a>
+							<span class="home-search-date">${date}</span>
+							<p class="home-search-summary">${truncate(item.summary || item.content, 100)}</p>
+						</li>
+					`;
+				});
+
+				if (results.length > 5) {
+					html += `<li class="home-search-more"><a href="/search?q=${encodeURIComponent(query)}">查看全部 ${results.length} 个结果 →</a></li>`;
+				}
+
+				html += '</ul>';
+				searchResults.innerHTML = html;
+			}
+
+			// 工具函数
+			function truncate(text, length) {
+				if (!text) return '';
+				text = text.replace(/<[^>]*>/g, '');
+				if (text.length <= length) return escapeHtml(text);
+				return escapeHtml(text.substring(0, length)) + '...';
+			}
+
+			function escapeHtml(text) {
+				const div = document.createElement('div');
+				div.textContent = text;
+				return div.innerHTML;
+			}
+
+			// 搜索输入处理
+			searchInput.addEventListener('focus', function() {
+				loadSearchIndex();
+			});
+
+			searchInput.addEventListener('input', function() {
+				const query = this.value.trim();
+
+				if (query.length < 2) {
+					searchResults.innerHTML = '';
+					return;
+				}
+
+				if (!searchLoaded) {
+					searchResults.innerHTML = '<div class="home-search-loading">加载中...</div>';
+					loadSearchIndex().then(() => {
+						if (searchInput.value.trim() === query) {
+							const results = fuse.search(query);
+							displayResults(results, query);
+						}
+					});
+					return;
+				}
+
+				const results = fuse.search(query);
+				displayResults(results, query);
+			});
+
+			// 点击外部关闭搜索结果
+			document.addEventListener('click', function(e) {
+				if (!e.target.closest('.home-search')) {
+					searchResults.innerHTML = '';
+				}
+			});
+
+			// 按 ESC 关闭搜索结果
+			searchInput.addEventListener('keydown', function(e) {
+				if (e.key === 'Escape') {
+					searchResults.innerHTML = '';
+					this.blur();
+				}
+			});
+		})();
+		</script>
+
+		<style>
+		.home-search {
+			margin: 1.5em 0;
+			position: relative;
+		}
+
+		#home-search-input {
+			width: 100%;
+			padding: 0.8em 1em;
+			font-size: 1rem;
+			font-family: 'Roboto Mono', monospace;
+			border: 2px solid var(--bordercl, #ececec);
+			background: transparent;
+			color: inherit;
+			outline: none;
+			box-sizing: border-box;
+		}
+
+		#home-search-input:focus {
+			border-color: var(--maincolor, red);
+		}
+
+		#home-search-results {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			right: 0;
+			background: #fff;
+			border: 2px solid var(--bordercl, #ececec);
+			border-top: none;
+			z-index: 100;
+			max-height: 400px;
+			overflow-y: auto;
+			box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+		}
+
+		.home-search-loading,
+		.home-search-no-results,
+		.home-search-count {
+			padding: 1em;
+			color: #666;
+			font-style: italic;
+		}
+
+		.home-search-list {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+		}
+
+		.home-search-list li::before {
+			content: none;
+		}
+
+		.home-search-item {
+			padding: 0.8em 1em;
+			border-bottom: 1px solid #eee;
+		}
+
+		.home-search-item:last-child {
+			border-bottom: none;
+		}
+
+		.home-search-title {
+			font-weight: bold;
+			border-bottom: none;
+			display: block;
+			margin-bottom: 0.2em;
+		}
+
+		.home-search-title:hover {
+			background-color: var(--hovercolor, navy);
+			color: #fff;
+		}
+
+		.home-search-date {
+			font-size: 0.85em;
+			color: #999;
+		}
+
+		.home-search-summary {
+			margin: 0.3em 0 0 0;
+			font-size: 0.9em;
+			color: #666;
+			line-height: 1.4;
+		}
+
+		.home-search-more {
+			padding: 0.8em 1em;
+			text-align: center;
+		}
+
+		.home-search-more a {
+			border-bottom: 2px solid var(--maincolor, red);
+			color: var(--maincolor, red);
+		}
+
+		.home-search-more a:hover {
+			background-color: var(--hovercolor, navy);
+			color: #fff;
+		}
+
+		/* Dark mode */
+		html.dark #home-search-input {
+			border-color: #444;
+			color: #ddd;
+		}
+
+		html.dark #home-search-input:focus {
+			border-color: #50fa7b;
+		}
+
+		html.dark #home-search-results {
+			background: #272822;
+			border-color: #444;
+		}
+
+		html.dark .home-search-item {
+			border-bottom-color: #444;
+		}
+
+		html.dark .home-search-loading,
+		html.dark .home-search-no-results,
+		html.dark .home-search-count {
+			color: #888;
+		}
+
+		html.dark .home-search-title {
+			color: #e0e0e0;
+		}
+
+		html.dark .home-search-title:hover {
+			background-color: #50fa7b;
+			color: #000;
+		}
+
+		html.dark .home-search-date {
+			color: #888;
+		}
+
+		html.dark .home-search-summary {
+			color: #aaa;
+		}
+
+		html.dark .home-search-more a {
+			border-bottom: 2px solid #50fa7b;
+			color: #50fa7b;
+		}
+
+		html.dark .home-search-more a:hover {
+			background-color: #50fa7b;
+			color: #000;
+		}
+		</style>
+	</body>
+</html>

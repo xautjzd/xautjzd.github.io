@@ -1,0 +1,221 @@
+{{ define "main" }}
+<main>
+  <h1 class="page-title">Search</h1>
+
+  <div class="search-container">
+    <input type="text" id="search-input" placeholder="输入关键词搜索文章..." autocomplete="off">
+    <div id="search-results"></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script>
+// 搜索功能
+let fuse;
+let searchData = [];
+
+// 加载搜索索引
+fetch('/index.json')
+  .then(response => response.json())
+  .then(data => {
+    searchData = data;
+    fuse = new Fuse(data, {
+      keys: ['title', 'content', 'tags'],
+      threshold: 0.3,
+      includeScore: true,
+      includeMatches: true,
+    });
+  })
+  .catch(error => console.error('Error loading search index:', error));
+
+// 搜索输入处理
+const searchInput = document.getElementById('search-input');
+const searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', function() {
+  const query = this.value.trim();
+
+  if (query.length < 2) {
+    searchResults.innerHTML = '';
+    return;
+  }
+
+  if (!fuse) {
+    searchResults.innerHTML = '<p class="search-loading">加载搜索索引中...</p>';
+    return;
+  }
+
+  const results = fuse.search(query);
+  displayResults(results, query);
+});
+
+function displayResults(results, query) {
+  if (results.length === 0) {
+    searchResults.innerHTML = `<p class="search-no-results">没有找到包含 "${escapeHtml(query)}" 的文章</p>`;
+    return;
+  }
+
+  let html = `<p class="search-count">找到 ${results.length} 个结果</p>`;
+  html += '<ul class="search-list">';
+
+  results.forEach(result => {
+    const item = result.item;
+    const date = new Date(item.date).toLocaleDateString('zh-CN');
+    html += `
+      <li class="search-item">
+        <a href="${item.permalink}" class="search-title">${highlightMatch(item.title, result.matches)}</a>
+        <span class="search-date">${date}</span>
+        <p class="search-summary">${truncate(item.summary || item.content, 150)}</p>
+        ${item.tags ? `<div class="search-tags">🏷 ${item.tags.join(', ')}</div>` : ''}
+      </li>
+    `;
+  });
+
+  html += '</ul>';
+  searchResults.innerHTML = html;
+}
+
+function highlightMatch(text, matches) {
+  if (!matches) return escapeHtml(text);
+
+  // 简化的高亮处理
+  return escapeHtml(text);
+}
+
+function truncate(text, length) {
+  if (!text) return '';
+  text = text.replace(/<[^>]*>/g, ''); // 移除 HTML 标签
+  if (text.length <= length) return escapeHtml(text);
+  return escapeHtml(text.substring(0, length)) + '...';
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+// 支持按 Enter 键搜索
+searchInput.addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+  }
+});
+</script>
+
+<style>
+.search-container {
+  margin-top: 2em;
+}
+
+#search-input {
+  width: 100%;
+  max-width: 600px;
+  padding: 0.8em 1em;
+  font-size: 1rem;
+  font-family: 'Roboto Mono', monospace;
+  border: 2px solid var(--bordercl, #ececec);
+  background: transparent;
+  color: inherit;
+  outline: none;
+}
+
+#search-input:focus {
+  border-color: var(--maincolor, red);
+}
+
+#search-results {
+  margin-top: 2em;
+}
+
+.search-loading,
+.search-no-results,
+.search-count {
+  color: #666;
+  font-style: italic;
+}
+
+.search-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.search-list li::before {
+  content: none;
+}
+
+.search-item {
+  margin-bottom: 1.5em;
+  padding-bottom: 1em;
+  border-bottom: 1px dotted var(--bordercl, #ececec);
+}
+
+.search-title {
+  font-size: 1.1em;
+  font-weight: bold;
+  border-bottom: 2px solid var(--maincolor, red);
+  text-decoration: none;
+}
+
+.search-title:hover {
+  background-color: var(--hovercolor, navy);
+  color: #fff;
+}
+
+.search-date {
+  color: #999;
+  font-size: 0.9em;
+  margin-left: 1em;
+}
+
+.search-summary {
+  margin-top: 0.5em;
+  color: #666;
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+
+.search-tags {
+  margin-top: 0.3em;
+  font-size: 0.85em;
+  color: #888;
+}
+
+/* Dark mode */
+html.dark #search-input {
+  border-color: #444;
+  color: #ddd;
+}
+
+html.dark #search-input:focus {
+  border-color: #50fa7b;
+}
+
+html.dark .search-loading,
+html.dark .search-no-results,
+html.dark .search-count {
+  color: #888;
+}
+
+html.dark .search-item {
+  border-bottom-color: #444;
+}
+
+html.dark .search-title {
+  border-bottom-color: #50fa7b;
+}
+
+html.dark .search-title:hover {
+  background-color: #50fa7b;
+  color: #000;
+}
+
+html.dark .search-summary {
+  color: #aaa;
+}
+
+html.dark .search-tags {
+  color: #888;
+}
+</style>
+{{ end }}

@@ -4,12 +4,30 @@ title = 'Zhengdong.jzd 个人博客'
 theme = 'archie'
 copyright = "© jzd"
 
+# Theme mode: auto, light, dark, or toggle
+[params]
+mode = "toggle"
+
+# Pagination (Hugo v0.128+)
+pagination.pagerSize = 10
+
 # Code Highlight
 pygmentsstyle = "monokai"
 pygmentscodefences = true
 pygmentscodefencesguesssyntax = true
 
-# paginate=3 # articles per page
+# Fix raw HTML rendering in older posts
+[markup.goldmark.renderer]
+unsafe = true
+
+# Enable JSON output for search
+[outputs]
+home = ["HTML", "RSS", "JSON"]
+
+[outputFormats.JSON]
+mediaType = "application/json"
+baseName = "index"
+isPlainText = true
 
 [services]
   [services.googleAnalytics]

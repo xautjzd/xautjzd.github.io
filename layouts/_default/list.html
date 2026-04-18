@@ -4,7 +4,10 @@
 {{ $pages := where .Site.RegularPages "Type" "posts" }}
 {{ $pages = where $pages "Draft" "ne" true }}
 {{ $pages = where $pages "Params.hidden" "ne" true }}
-{{ $groups := $pages.GroupByDate "2006" }}
+
+<!-- Pagination -->
+{{ $paginator := .Paginate $pages 10 }}
+{{ $groups := $paginator.Pages.GroupByDate "2006" }}
 
 {{ range $groups }}
 <div class="year-section">
@@ -12,11 +15,29 @@
   <ul class="posts">
     {{ range .Pages }}
     <li class="post">
-      <a class="post-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+      <div class="post-main">
+        <a class="post-title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        {{ if .Summary }}
+        <div class="post-summary">{{ .Summary | plainify | truncate 150 }}</div>
+        {{ end }}
+      </div>
       <span class="meta">{{ .Date.Format "2006-01-02" }}</span>
     </li>
     {{ end }}
   </ul>
+</div>
+{{ end }}
+
+<!-- Pagination Navigation -->
+{{ if gt $paginator.TotalPages 1 }}
+<div class="pagination">
+  {{ if $paginator.HasPrev }}
+  <a href="{{ $paginator.Prev.URL }}" class="prev">← Previous</a>
+  {{ end }}
+  <span class="page-number">Page {{ $paginator.PageNumber }} of {{ $paginator.TotalPages }}</span>
+  {{ if $paginator.HasNext }}
+  <a href="{{ $paginator.Next.URL }}" class="next">Next →</a>
+  {{ end }}
 </div>
 {{ end }}
 
@@ -72,19 +93,35 @@
 .post {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5em;
+  align-items: flex-start;
+  margin-bottom: 1em;
   padding: 0.2em 0;
+  gap: 1em;
+}
+
+.post-main {
+  flex: 1;
 }
 
 .post-title {
-  color: #333;
+  color: #333 !important;
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all 0.2s ease;
+  border-bottom: 3px solid red !important;
 }
 
 .post-title:hover {
-  color: #007bff;
+  background-color: navy !important;
+  color: #fff !important;
+  border-bottom-color: navy !important;
+}
+
+.post-summary {
+  font-family: 'Fira Sans', sans-serif;
+  color: #666;
+  font-size: 0.9em;
+  margin-top: 0.3em;
+  line-height: 1.4;
 }
 
 .meta {
@@ -93,30 +130,111 @@
   min-width: 90px;
   text-align: right;
   margin-left: auto;
+  white-space: nowrap;
 }
 
-/* 深色模式 */
-@media (prefers-color-scheme: dark) {
-  .page-title {
-    color: #ddd;
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 3px dotted var(--bordercl, rebeccapurple);
+}
+
+.pagination a {
+  padding: 0.5em 1em;
+  border: 2px solid red !important;
+  text-decoration: none;
+  color: inherit;
+  font-family: 'Roboto Mono', monospace;
+  transition: all 0.2s ease;
+}
+
+.pagination a:hover {
+  background-color: navy !important;
+  color: #fff !important;
+  border-color: navy !important;
+}
+
+.pagination .page-number {
+  color: #666;
+  font-size: 0.9em;
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 600px) {
+  .post {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3em;
   }
-  
-  .year-title {
-    color: #999;
-    border-bottom-color: #444;
-  }
-  
-  .post-title {
-    color: #ddd;
-  }
-  
-  .post-title:hover {
-    color: #66b3ff;
-  }
-  
+
   .meta {
-    color: #999;
+    text-align: left;
+    margin-left: 0;
+    font-size: 0.85em;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .pagination a {
+    width: 100%;
+    text-align: center;
   }
 }
+
+/* 深色模式 - 移除系统偏好媒体查询，依赖主题的 dark.css */
+html.dark .page-title {
+  color: #ddd;
+}
+
+html.dark .year-title {
+  color: #999;
+  border-bottom-color: #444;
+}
+
+html.dark .post-title {
+  color: #fff !important;
+  border-bottom-color: #50fa7b !important;
+}
+
+html.dark .post-title:hover {
+  background-color: #50fa7b !important;
+  color: #000 !important;
+  border-bottom-color: #50fa7b !important;
+}
+
+html.dark .post-summary {
+  color: #999;
+}
+
+html.dark .meta {
+  color: #999;
+}
+
+html.dark .pagination {
+  border-top-color: #50fa7b;
+}
+
+html.dark .pagination a {
+  border-color: #50fa7b !important;
+  color: #ddd;
+}
+
+html.dark .pagination a:hover {
+  background-color: #50fa7b !important;
+  color: #000 !important;
+  border-color: #50fa7b !important;
+}
+
+html.dark .pagination .page-number {
+  color: #888;
+}
 </style>
-{{ end }} 
+{{ end }}
