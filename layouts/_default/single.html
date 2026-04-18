@@ -62,6 +62,38 @@
 </main>
 
 <style>
+/* 文章内容对齐优化 - 所有屏幕尺寸 */
+.post-content p,
+.body p,
+.post-content,
+.body {
+  text-align: justify !important;
+  text-align-last: left;
+  text-justify: inter-ideograph;
+  word-wrap: break-word;
+}
+
+/* 列表项左对齐，避免两端对齐导致的空隙问题 */
+.post-content li,
+.body li {
+  text-align: left;
+}
+
+/* 长链接和代码允许在任意位置断行 */
+.post-content a,
+.body a,
+.post-content code,
+.body code {
+  word-break: break-all;
+  hyphens: none;
+}
+
+/* 有序列表保持原有缩进 */
+.post-content ol,
+.body ol {
+  padding-left: 2em;
+}
+
 /* 统一悬停效果 - 蓝色背景白色文字 */
 .post-content a:hover,
 .post-tags .tags a:hover,

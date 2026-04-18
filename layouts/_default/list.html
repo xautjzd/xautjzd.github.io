@@ -122,6 +122,11 @@
   font-size: 0.9em;
   margin-top: 0.3em;
   line-height: 1.4;
+  text-align: justify;
+  text-justify: inter-ideograph;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  text-indent: 0;
 }
 
 .meta {
@@ -235,6 +240,18 @@ html.dark .pagination a:hover {
 
 html.dark .pagination .page-number {
   color: #888;
+}
+
+/* 主题切换按钮垂直对齐 */
+#dark-mode-toggle {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+#dark-mode-toggle .feather {
+  vertical-align: middle;
 }
 </style>
 {{ end }}
