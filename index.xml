@@ -1,4 +1,24 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/</link><description>Recent content on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 06 Jul 2025 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Homebrew 国内下载慢的解决之法及下载过程剖析</title><link>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</link><pubDate>Sun, 06 Jul 2025 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</guid><description>&lt;p&gt;对懂点技术的人来说， &lt;a href="https://brew.sh/"&gt;HomeBrew&lt;/a&gt; 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 &lt;a href="https://github.com/sharkdp/fd"&gt;fd&lt;/a&gt;、&lt;a href="https://neovim.io/"&gt;neovim&lt;/a&gt; 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: &lt;code&gt;brew install &amp;lt;formula&amp;gt;&lt;/code&gt;，GUI 软件安装方式: &lt;code&gt;brew install --cask &amp;lt;cask&amp;gt;&lt;/code&gt;，其中的 &lt;code&gt;&amp;lt;formula&amp;gt;&lt;/code&gt; 和 &lt;code&gt;&amp;lt;cask&amp;gt;&lt;/code&gt; 均为你想安装的软件名称， 如果不确定具体名称，可通过: &lt;code&gt;brew search &amp;lt;keyword&amp;gt;&lt;/code&gt;搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/</link><description>Recent content on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 19 Apr 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>基于 Terraform 构建企业内部 kubernetes 集群</title><link>https://xautjzd.github.io/posts/2026-04-19-terraform-kubernetes-cluster/</link><pubDate>Sun, 19 Apr 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-19-terraform-kubernetes-cluster/</guid><description>&lt;h2 id="1-为什么要构建企业内部-kubernetes-集群"&gt;1. 为什么要构建企业内部 Kubernetes 集群？&lt;/h2&gt;
+&lt;p&gt;随着企业业务规模的不断扩张，微服务架构逐渐成为主流，应用的数量、版本迭代的频率以及部署的复杂度都在急剧上升。在这一背景下，建立一套稳定、高效、可扩展的企业内部 Kubernetes 集群，成为支撑企业数字化转型的核心基础设施之一。&lt;/p&gt;
+&lt;h3 id="11-构建统一的资源调度平台"&gt;1.1 构建统一的资源调度平台&lt;/h3&gt;
+&lt;p&gt;企业内部往往同时运行着多条业务线、多个团队的应用服务。Kubernetes 提供了统一的容器编排与资源调度能力，能够将计算、存储、网络资源进行统一抽象和调度，避免各团队烟囱式的资源使用模式，显著提升整体资源利用率。&lt;/p&gt;
+&lt;h3 id="12-支撑-cicd-流水线落地"&gt;1.2 支撑 CI/CD 流水线落地&lt;/h3&gt;
+&lt;p&gt;Kubernetes 是现代 CI/CD 流水线的天然载体。通过与 GitLab CI、Jenkins、ArgoCD、Tekton 等工具集成，企业可以实现：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;持续集成（CI）&lt;/strong&gt;：代码提交后自动触发构建、测试，产出镜像并推送到私有镜像仓库。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;持续交付（CD）&lt;/strong&gt;：基于 GitOps 理念，通过声明式配置驱动应用在集群中的自动发布与回滚。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;多环境隔离&lt;/strong&gt;：通过 Namespace、NetworkPolicy、RBAC 等机制，在同一集群内划分开发、测试、预发、生产等多套环境，降低环境管理成本。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="13-提升业务稳定性与弹性"&gt;1.3 提升业务稳定性与弹性&lt;/h3&gt;
+&lt;p&gt;Kubernetes 内置的自愈能力（Pod 自动重启、节点故障迁移）、水平自动伸缩（HPA/VPA/KEDA）以及滚动更新策略，能够大幅提升业务服务的可用性和弹性，满足企业对 SLA 的严格要求。&lt;/p&gt;
+&lt;h3 id="14-降低运维复杂度"&gt;1.4 降低运维复杂度&lt;/h3&gt;
+&lt;p&gt;统一的控制平面使运维团队可以通过标准化的 &lt;code&gt;kubectl&lt;/code&gt; 命令或声明式 YAML 配置管理所有工作负载，结合 Helm Chart 进行应用打包与版本管理，有效降低了跨团队、跨项目的运维协作成本。&lt;/p&gt;
+&lt;h2 id="2-构建内部-k8s-集群核心流程"&gt;2. 构建内部 K8s 集群核心流程&lt;/h2&gt;
+&lt;h3 id="21-整体流程概览"&gt;2.1 整体流程概览&lt;/h3&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;基础资源准备 → 操作系统初始化 → 集群安装部署 → 网络插件配置 → 存储插件配置 → 集群验证 → 监控告警部署
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="22-基础资源准备"&gt;2.2 基础资源准备&lt;/h3&gt;
+&lt;p&gt;构建 K8s 集群首先需要准备充足的计算、存储和网络资源。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;计算资源方案对比：&lt;/strong&gt;&lt;/p&gt;</description></item><item><title>Homebrew 国内下载慢的解决之法及下载过程剖析</title><link>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</link><pubDate>Sun, 06 Jul 2025 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2025-07-06-homebrew-mirror/</guid><description>&lt;p&gt;对懂点技术的人来说， &lt;a href="https://brew.sh/"&gt;HomeBrew&lt;/a&gt; 几乎成为了 MacOS 上的必装软件，主打一个安装方便，在终端一个命令即可安装配置好。MacOS 下使用的软件大致分为两类： 一类是如 &lt;a href="https://github.com/sharkdp/fd"&gt;fd&lt;/a&gt;、&lt;a href="https://neovim.io/"&gt;neovim&lt;/a&gt; 在终端下使用的软件，另一类是如 Google Chrome 的 GUI 软件，通常可在 Apple Store 下载。 终端安软件安装方式: &lt;code&gt;brew install &amp;lt;formula&amp;gt;&lt;/code&gt;，GUI 软件安装方式: &lt;code&gt;brew install --cask &amp;lt;cask&amp;gt;&lt;/code&gt;，其中的 &lt;code&gt;&amp;lt;formula&amp;gt;&lt;/code&gt; 和 &lt;code&gt;&amp;lt;cask&amp;gt;&lt;/code&gt; 均为你想安装的软件名称， 如果不确定具体名称，可通过: &lt;code&gt;brew search &amp;lt;keyword&amp;gt;&lt;/code&gt;搜索。 在国内网络环境下，在 MacOS 上安装软件时，通常会卡在如下所示的流程：&lt;/p&gt;
 &lt;p&gt;&lt;img src="https://xautjzd.github.io/images/brew-downloading.png" alt=""&gt;&lt;/p&gt;
 &lt;p&gt;等了好久也没见动静，这是因为默认下载源是从 GitHub 数据中心下载，国内对 GitHub 有限制。&lt;/p&gt;
 &lt;h2 id="解决办法配置国内镜像源"&gt;解决办法：配置国内镜像源&lt;/h2&gt;

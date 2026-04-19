@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Terraform on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/terraform/</link><description>Recent content in Terraform on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 19 Apr 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/terraform/index.xml" rel="self" type="application/rss+xml"/><item><title>基于 Terraform 构建企业内部 kubernetes 集群</title><link>https://xautjzd.github.io/posts/2026-04-19-terraform-kubernetes-cluster/</link><pubDate>Sun, 19 Apr 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-19-terraform-kubernetes-cluster/</guid><description>&lt;h2 id="1-为什么要构建企业内部-kubernetes-集群"&gt;1. 为什么要构建企业内部 Kubernetes 集群？&lt;/h2&gt;
+&lt;p&gt;随着企业业务规模的不断扩张，微服务架构逐渐成为主流，应用的数量、版本迭代的频率以及部署的复杂度都在急剧上升。在这一背景下，建立一套稳定、高效、可扩展的企业内部 Kubernetes 集群，成为支撑企业数字化转型的核心基础设施之一。&lt;/p&gt;
+&lt;h3 id="11-构建统一的资源调度平台"&gt;1.1 构建统一的资源调度平台&lt;/h3&gt;
+&lt;p&gt;企业内部往往同时运行着多条业务线、多个团队的应用服务。Kubernetes 提供了统一的容器编排与资源调度能力，能够将计算、存储、网络资源进行统一抽象和调度，避免各团队烟囱式的资源使用模式，显著提升整体资源利用率。&lt;/p&gt;
+&lt;h3 id="12-支撑-cicd-流水线落地"&gt;1.2 支撑 CI/CD 流水线落地&lt;/h3&gt;
+&lt;p&gt;Kubernetes 是现代 CI/CD 流水线的天然载体。通过与 GitLab CI、Jenkins、ArgoCD、Tekton 等工具集成，企业可以实现：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;持续集成（CI）&lt;/strong&gt;：代码提交后自动触发构建、测试，产出镜像并推送到私有镜像仓库。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;持续交付（CD）&lt;/strong&gt;：基于 GitOps 理念，通过声明式配置驱动应用在集群中的自动发布与回滚。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;多环境隔离&lt;/strong&gt;：通过 Namespace、NetworkPolicy、RBAC 等机制，在同一集群内划分开发、测试、预发、生产等多套环境，降低环境管理成本。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="13-提升业务稳定性与弹性"&gt;1.3 提升业务稳定性与弹性&lt;/h3&gt;
+&lt;p&gt;Kubernetes 内置的自愈能力（Pod 自动重启、节点故障迁移）、水平自动伸缩（HPA/VPA/KEDA）以及滚动更新策略，能够大幅提升业务服务的可用性和弹性，满足企业对 SLA 的严格要求。&lt;/p&gt;
+&lt;h3 id="14-降低运维复杂度"&gt;1.4 降低运维复杂度&lt;/h3&gt;
+&lt;p&gt;统一的控制平面使运维团队可以通过标准化的 &lt;code&gt;kubectl&lt;/code&gt; 命令或声明式 YAML 配置管理所有工作负载，结合 Helm Chart 进行应用打包与版本管理，有效降低了跨团队、跨项目的运维协作成本。&lt;/p&gt;
+&lt;h2 id="2-构建内部-k8s-集群核心流程"&gt;2. 构建内部 K8s 集群核心流程&lt;/h2&gt;
+&lt;h3 id="21-整体流程概览"&gt;2.1 整体流程概览&lt;/h3&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;基础资源准备 → 操作系统初始化 → 集群安装部署 → 网络插件配置 → 存储插件配置 → 集群验证 → 监控告警部署
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="22-基础资源准备"&gt;2.2 基础资源准备&lt;/h3&gt;
+&lt;p&gt;构建 K8s 集群首先需要准备充足的计算、存储和网络资源。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;计算资源方案对比：&lt;/strong&gt;&lt;/p&gt;</description></item></channel></rss>

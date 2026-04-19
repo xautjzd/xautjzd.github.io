@@ -1,0 +1,777 @@
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>基于 Terraform 构建企业内部 kubernetes 集群 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="1. 为什么要构建企业内部 Kubernetes 集群？
+随着企业业务规模的不断扩张，微服务架构逐渐成为主流，应用的数量、版本迭代的频率以及部署的复杂度都在急剧上升。在这一背景下，建立一套稳定、高效、可扩展的企业内部 Kubernetes 集群，成为支撑企业数字化转型的核心基础设施之一。
+1.1 构建统一的资源调度平台
+企业内部往往同时运行着多条业务线、多个团队的应用服务。Kubernetes 提供了统一的容器编排与资源调度能力，能够将计算、存储、网络资源进行统一抽象和调度，避免各团队烟囱式的资源使用模式，显著提升整体资源利用率。
+1.2 支撑 CI/CD 流水线落地
+Kubernetes 是现代 CI/CD 流水线的天然载体。通过与 GitLab CI、Jenkins、ArgoCD、Tekton 等工具集成，企业可以实现：
+
+持续集成（CI）：代码提交后自动触发构建、测试，产出镜像并推送到私有镜像仓库。
+持续交付（CD）：基于 GitOps 理念，通过声明式配置驱动应用在集群中的自动发布与回滚。
+多环境隔离：通过 Namespace、NetworkPolicy、RBAC 等机制，在同一集群内划分开发、测试、预发、生产等多套环境，降低环境管理成本。
+
+1.3 提升业务稳定性与弹性
+Kubernetes 内置的自愈能力（Pod 自动重启、节点故障迁移）、水平自动伸缩（HPA/VPA/KEDA）以及滚动更新策略，能够大幅提升业务服务的可用性和弹性，满足企业对 SLA 的严格要求。
+1.4 降低运维复杂度
+统一的控制平面使运维团队可以通过标准化的 kubectl 命令或声明式 YAML 配置管理所有工作负载，结合 Helm Chart 进行应用打包与版本管理，有效降低了跨团队、跨项目的运维协作成本。
+2. 构建内部 K8s 集群核心流程
+2.1 整体流程概览
+基础资源准备 → 操作系统初始化 → 集群安装部署 → 网络插件配置 → 存储插件配置 → 集群验证 → 监控告警部署
+2.2 基础资源准备
+构建 K8s 集群首先需要准备充足的计算、存储和网络资源。
+计算资源方案对比："><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-04-19-terraform-kubernetes-cluster/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="基于 Terraform 构建企业内部 kubernetes 集群"><meta property="og:description" content="1. 为什么要构建企业内部 Kubernetes 集群？ 随着企业业务规模的不断扩张，微服务架构逐渐成为主流，应用的数量、版本迭代的频率以及部署的复杂度都在急剧上升。在这一背景下，建立一套稳定、高效、可扩展的企业内部 Kubernetes 集群，成为支撑企业数字化转型的核心基础设施之一。
+1.1 构建统一的资源调度平台 企业内部往往同时运行着多条业务线、多个团队的应用服务。Kubernetes 提供了统一的容器编排与资源调度能力，能够将计算、存储、网络资源进行统一抽象和调度，避免各团队烟囱式的资源使用模式，显著提升整体资源利用率。
+1.2 支撑 CI/CD 流水线落地 Kubernetes 是现代 CI/CD 流水线的天然载体。通过与 GitLab CI、Jenkins、ArgoCD、Tekton 等工具集成，企业可以实现：
+持续集成（CI）：代码提交后自动触发构建、测试，产出镜像并推送到私有镜像仓库。 持续交付（CD）：基于 GitOps 理念，通过声明式配置驱动应用在集群中的自动发布与回滚。 多环境隔离：通过 Namespace、NetworkPolicy、RBAC 等机制，在同一集群内划分开发、测试、预发、生产等多套环境，降低环境管理成本。 1.3 提升业务稳定性与弹性 Kubernetes 内置的自愈能力（Pod 自动重启、节点故障迁移）、水平自动伸缩（HPA/VPA/KEDA）以及滚动更新策略，能够大幅提升业务服务的可用性和弹性，满足企业对 SLA 的严格要求。
+1.4 降低运维复杂度 统一的控制平面使运维团队可以通过标准化的 kubectl 命令或声明式 YAML 配置管理所有工作负载，结合 Helm Chart 进行应用打包与版本管理，有效降低了跨团队、跨项目的运维协作成本。
+2. 构建内部 K8s 集群核心流程 2.1 整体流程概览 基础资源准备 → 操作系统初始化 → 集群安装部署 → 网络插件配置 → 存储插件配置 → 集群验证 → 监控告警部署 2.2 基础资源准备 构建 K8s 集群首先需要准备充足的计算、存储和网络资源。
+计算资源方案对比："><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-19T10:00:00+08:00"><meta property="article:modified_time" content="2026-04-19T10:00:00+08:00"><meta property="article:tag" content="Infrastructure"><meta property="article:tag" content="Devops"><meta property="article:tag" content="Kubernetes"><meta property="article:tag" content="Terraform"><meta name=twitter:card content="summary"><meta name=twitter:title content="基于 Terraform 构建企业内部 kubernetes 集群"><meta name=twitter:description content="1. 为什么要构建企业内部 Kubernetes 集群？ 随着企业业务规模的不断扩张，微服务架构逐渐成为主流，应用的数量、版本迭代的频率以及部署的复杂度都在急剧上升。在这一背景下，建立一套稳定、高效、可扩展的企业内部 Kubernetes 集群，成为支撑企业数字化转型的核心基础设施之一。
+1.1 构建统一的资源调度平台 企业内部往往同时运行着多条业务线、多个团队的应用服务。Kubernetes 提供了统一的容器编排与资源调度能力，能够将计算、存储、网络资源进行统一抽象和调度，避免各团队烟囱式的资源使用模式，显著提升整体资源利用率。
+1.2 支撑 CI/CD 流水线落地 Kubernetes 是现代 CI/CD 流水线的天然载体。通过与 GitLab CI、Jenkins、ArgoCD、Tekton 等工具集成，企业可以实现：
+持续集成（CI）：代码提交后自动触发构建、测试，产出镜像并推送到私有镜像仓库。 持续交付（CD）：基于 GitOps 理念，通过声明式配置驱动应用在集群中的自动发布与回滚。 多环境隔离：通过 Namespace、NetworkPolicy、RBAC 等机制，在同一集群内划分开发、测试、预发、生产等多套环境，降低环境管理成本。 1.3 提升业务稳定性与弹性 Kubernetes 内置的自愈能力（Pod 自动重启、节点故障迁移）、水平自动伸缩（HPA/VPA/KEDA）以及滚动更新策略，能够大幅提升业务服务的可用性和弹性，满足企业对 SLA 的严格要求。
+1.4 降低运维复杂度 统一的控制平面使运维团队可以通过标准化的 kubectl 命令或声明式 YAML 配置管理所有工作负载，结合 Helm Chart 进行应用打包与版本管理，有效降低了跨团队、跨项目的运维协作成本。
+2. 构建内部 K8s 集群核心流程 2.1 整体流程概览 基础资源准备 → 操作系统初始化 → 集群安装部署 → 网络插件配置 → 存储插件配置 → 集群验证 → 监控告警部署 2.2 基础资源准备 构建 K8s 集群首先需要准备充足的计算、存储和网络资源。
+计算资源方案对比："><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css><link id=darkModeStyle rel=stylesheet type=text/css href=https://xautjzd.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css disabled></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/tags>Tags</a>
+<a href=/about>About</a>
+| <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><main><nav class=breadcrumbs><a href=https://xautjzd.github.io/>Home</a>
+<span class=separator>/</span>
+<a href=https://xautjzd.github.io/posts>Posts</a>
+<span class=separator>/</span>
+<span class=current>基于 Terraform 构建企业内部 kubernetes 集群</span></nav><article><div class=post-container><div class=post-content><div class=title><h1 class=title>基于 Terraform 构建企业内部 kubernetes 集群</h1><div class=meta>Posted on Apr 19, 2026
+<span class=reading-time>· 13 min read</span></div></div><section class=body><h2 id=1-为什么要构建企业内部-kubernetes-集群>1. 为什么要构建企业内部 Kubernetes 集群？</h2><p>随着企业业务规模的不断扩张，微服务架构逐渐成为主流，应用的数量、版本迭代的频率以及部署的复杂度都在急剧上升。在这一背景下，建立一套稳定、高效、可扩展的企业内部 Kubernetes 集群，成为支撑企业数字化转型的核心基础设施之一。</p><h3 id=11-构建统一的资源调度平台>1.1 构建统一的资源调度平台</h3><p>企业内部往往同时运行着多条业务线、多个团队的应用服务。Kubernetes 提供了统一的容器编排与资源调度能力，能够将计算、存储、网络资源进行统一抽象和调度，避免各团队烟囱式的资源使用模式，显著提升整体资源利用率。</p><h3 id=12-支撑-cicd-流水线落地>1.2 支撑 CI/CD 流水线落地</h3><p>Kubernetes 是现代 CI/CD 流水线的天然载体。通过与 GitLab CI、Jenkins、ArgoCD、Tekton 等工具集成，企业可以实现：</p><ul><li><strong>持续集成（CI）</strong>：代码提交后自动触发构建、测试，产出镜像并推送到私有镜像仓库。</li><li><strong>持续交付（CD）</strong>：基于 GitOps 理念，通过声明式配置驱动应用在集群中的自动发布与回滚。</li><li><strong>多环境隔离</strong>：通过 Namespace、NetworkPolicy、RBAC 等机制，在同一集群内划分开发、测试、预发、生产等多套环境，降低环境管理成本。</li></ul><h3 id=13-提升业务稳定性与弹性>1.3 提升业务稳定性与弹性</h3><p>Kubernetes 内置的自愈能力（Pod 自动重启、节点故障迁移）、水平自动伸缩（HPA/VPA/KEDA）以及滚动更新策略，能够大幅提升业务服务的可用性和弹性，满足企业对 SLA 的严格要求。</p><h3 id=14-降低运维复杂度>1.4 降低运维复杂度</h3><p>统一的控制平面使运维团队可以通过标准化的 <code>kubectl</code> 命令或声明式 YAML 配置管理所有工作负载，结合 Helm Chart 进行应用打包与版本管理，有效降低了跨团队、跨项目的运维协作成本。</p><h2 id=2-构建内部-k8s-集群核心流程>2. 构建内部 K8s 集群核心流程</h2><h3 id=21-整体流程概览>2.1 整体流程概览</h3><pre tabindex=0><code>基础资源准备 → 操作系统初始化 → 集群安装部署 → 网络插件配置 → 存储插件配置 → 集群验证 → 监控告警部署
+</code></pre><h3 id=22-基础资源准备>2.2 基础资源准备</h3><p>构建 K8s 集群首先需要准备充足的计算、存储和网络资源。</p><p><strong>计算资源方案对比：</strong></p><table><thead><tr><th>方案</th><th>优势</th><th>劣势</th><th>适用场景</th></tr></thead><tbody><tr><td>裸金属服务器</td><td>性能最优、成本可控</td><td>运维复杂、交付周期长</td><td>大规模、对性能极致要求</td></tr><tr><td>云服务器（VM）</td><td>弹性伸缩、快速交付</td><td>存在虚拟化开销</td><td>中小规模、快速上线</td></tr><tr><td>混合云</td><td>灵活兼顾</td><td>网络打通复杂</td><td>已有 IDC 并需弹性扩展</td></tr></tbody></table><p><strong>主流云厂商选型：</strong></p><ul><li><strong>AWS</strong>：EC2 + VPC + EBS，生态最完善，全球覆盖最广</li><li><strong>阿里云</strong>：ECS + VPC + 云盘，国内合规友好</li><li><strong>Azure</strong>：VM + VNet，微软生态集成强</li><li><strong>GCP</strong>：GCE + VPC，网络性能优秀</li></ul><h3 id=23-基础资源准备方案>2.3 基础资源准备方案</h3><p>企业通常有两种主流方式来完成基础资源的创建和初始化：</p><p><strong>方案一：脚本方式（Shell/Ansible）</strong></p><p>通过 Shell 脚本或 Ansible Playbook 调用云厂商 CLI/SDK 创建资源，再通过 SSH 批量初始化操作系统配置。这种方式上手快，但缺乏状态管理，在资源规模扩大后维护成本急剧上升。</p><p><strong>方案二：Terraform（推荐）</strong></p><p>通过声明式 HCL 语言描述所需的基础设施资源，Terraform 负责将期望状态与实际状态对齐。具备完整的状态管理、依赖解析和变更预览能力，是生产环境的首选方案。</p><h2 id=3-为什么采用-terraform>3. 为什么采用 Terraform？</h2><h3 id=31-terraform-核心优势>3.1 Terraform 核心优势</h3><p><strong>① 声明式基础设施即代码（IaC）</strong></p><p>Terraform 采用 HashiCorp Configuration Language（HCL），用声明式语法描述基础设施的目标状态，而非一步步的操作指令。工程师只需关心"我要什么资源"，而非"如何创建资源"，大幅降低了认知负担。</p><p><strong>② 统一的多云支持</strong></p><p>Terraform 通过 Provider 机制支持 600+ 云服务商和 SaaS 平台（AWS、阿里云、Azure、GCP、Kubernetes、Helm 等），企业无需为每个云厂商学习不同的 SDK 或 CLI，实现真正的多云统一管理。</p><p><strong>③ 状态管理与变更预览</strong></p><p>Terraform 通过 <code>.tfstate</code> 文件追踪已部署资源的实际状态。每次变更前执行 <code>terraform plan</code> 可以清晰预览变更内容，避免误操作。结合远端 State Backend（S3 + DynamoDB），团队可以安全地协作管理同一套基础设施。</p><p><strong>④ 模块化与复用</strong></p><p>Terraform Module 机制支持将常用的资源组合（如 VPC 模块、EKS 节点组模块）封装为可复用的模块，在不同项目、不同环境间复用，保持一致性。</p><p><strong>⑤ 幂等性与自愈能力</strong></p><p>多次执行 <code>terraform apply</code> 不会产生副作用，Terraform 会自动识别已存在的资源并跳过创建，确保基础设施始终与代码描述一致。</p><h3 id=32-与其他方案的对比>3.2 与其他方案的对比</h3><table><thead><tr><th>维度</th><th>Terraform</th><th>Shell 脚本</th><th>Ansible</th><th>CloudFormation（AWS 专属）</th></tr></thead><tbody><tr><td>多云支持</td><td>✅ 原生支持</td><td>⚠️ 需自行适配</td><td>⚠️ 部分支持</td><td>❌ 仅 AWS</td></tr><tr><td>状态管理</td><td>✅ 内置</td><td>❌ 无</td><td>❌ 无</td><td>✅ 内置</td></tr><tr><td>变更预览</td><td>✅ plan</td><td>❌ 无</td><td>⚠️ 有限</td><td>✅ ChangeSet</td></tr><tr><td>学习曲线</td><td>中等</td><td>低</td><td>低</td><td>中等</td></tr><tr><td>模块复用</td><td>✅ 完善</td><td>❌ 弱</td><td>✅ Role</td><td>⚠️ 一般</td></tr><tr><td>社区生态</td><td>✅ 非常活跃</td><td>—</td><td>✅ 活跃</td><td>⚠️ 局限 AWS</td></tr><tr><td>幂等性</td><td>✅ 强</td><td>❌ 弱</td><td>✅ 较强</td><td>✅ 较强</td></tr></tbody></table><h3 id=33-terraform-的局限性>3.3 Terraform 的局限性</h3><ul><li><strong>状态文件风险</strong>：<code>.tfstate</code> 包含敏感信息，需妥善保管，并启用加密和访问控制。</li><li><strong>学习成本</strong>：HCL 语法和 Provider 文档有一定学习曲线。</li><li><strong>漂移检测</strong>：若有人手动修改了云资源，Terraform 需要通过 <code>terraform refresh</code> 或 <code>terraform plan</code> 才能感知漂移。</li></ul><p>尽管存在上述局限，Terraform 在企业级基础设施管理场景中的综合能力仍然是目前最优的选择。</p><h2 id=4-基于-terraform-构建-kubernetes-集群方案>4. 基于 Terraform 构建 Kubernetes 集群方案</h2><h3 id=41-主流方案概览>4.1 主流方案概览</h3><p>基于 Terraform 构建 K8s 集群主要有以下几种思路：</p><p><strong>① 托管 K8s 服务（EKS / AKS / GKE）</strong></p><p>直接通过 Terraform 的云厂商 Provider 创建托管集群，控制平面由云厂商负责运维。优点是运维简单、升级便捷；缺点是定制化空间有限，且存在厂商锁定风险。适合对运维能力要求不高的中小团队。</p><p><strong>② Kubespray（Ansible + Terraform）</strong></p><p>Kubespray 是 Kubernetes 官方维护的基于 Ansible 的部署工具。结合 Terraform 完成基础设施准备后，通过 Ansible Playbook 部署集群。支持高度定制化，但部署流程较复杂，调试成本高，升级路径也较为繁琐。</p><p><strong>③ RKE2（Rancher Kubernetes Engine 2）</strong></p><p>RKE2 是 Rancher 推出的生产级 Kubernetes 发行版，专注于安全性与合规性（通过 CIS Benchmark），内置 containerd、CoreDNS、Ingress 等核心组件。结合 Terraform 可以通过 <code>remote-exec</code> 或 <code>cloud-init</code> 方式在节点上自动化完成 RKE2 的安装和集群初始化，整体流程简洁、可靠。</p><h3 id=42-方案对比>4.2 方案对比</h3><table><thead><tr><th>维度</th><th>托管 K8s（EKS 等）</th><th>Kubespray</th><th>RKE2</th></tr></thead><tbody><tr><td>控制平面自管</td><td>❌</td><td>✅</td><td>✅</td></tr><tr><td>部署复杂度</td><td>低</td><td>高</td><td>中</td></tr><tr><td>定制化能力</td><td>低</td><td>高</td><td>高</td></tr><tr><td>安全合规（CIS）</td><td>需额外配置</td><td>需额外配置</td><td>✅ 内置</td></tr><tr><td>升级便捷性</td><td>高</td><td>低</td><td>中</td></tr><tr><td>厂商锁定</td><td>有</td><td>无</td><td>无</td></tr><tr><td>社区活跃度</td><td>—</td><td>高</td><td>高</td></tr><tr><td>生产可靠性</td><td>高</td><td>中</td><td>高</td></tr></tbody></table><h3 id=43-生产级别推荐rke2>4.3 生产级别推荐：RKE2</h3><p>对于需要完整自主掌控控制平面、追求安全合规、同时希望保持部署流程相对简洁的企业，<strong>RKE2 是生产环境的首选方案</strong>，原因如下：</p><ul><li><strong>开箱即用的安全加固</strong>：默认通过 CIS Kubernetes Benchmark Level 1/2 审计，满足企业合规要求。</li><li><strong>内置关键组件</strong>：containerd、CNI 占位符、CoreDNS、Ingress-nginx、metrics-server 等均已内置，无需额外安装。</li><li><strong>简洁的安装方式</strong>：通过单一安装脚本 + 配置文件即可完成 Server/Agent 节点的初始化，易于与 Terraform <code>remote-exec</code> 或 <code>cloud-init</code> 集成。</li><li><strong>活跃的商业支持</strong>：背靠 SUSE/Rancher，有完善的商业支持和长期维护承诺。</li></ul><h2 id=5-kubernetes-集群网络选型>5. Kubernetes 集群网络选型</h2><p>CNI（Container Network Interface）插件是 K8s 集群网络的核心组件，负责 Pod 间通信、网络策略执行等关键功能。目前企业级最主流的两款 CNI 插件是 <strong>Calico</strong> 和 <strong>Cilium</strong>。</p><h3 id=51-calico-与-cilium-的对比分析>5.1 Calico 与 Cilium 的对比分析</h3><p><strong>Calico</strong></p><p>Calico 是目前生产环境中使用最广泛的 CNI 插件之一，由 Tigera 公司主导开发。</p><p>优势：</p><ul><li>成熟稳定，社区案例丰富，生产验证充分</li><li>支持 BGP 原生路由模式，网络性能优秀，无需 Overlay 封装</li><li>NetworkPolicy 实现完善，支持 Kubernetes 标准及扩展的 GlobalNetworkPolicy</li><li>与 AWS VPC、阿里云 VPC 等主流云环境集成良好</li><li>运维调试工具链完善（<code>calicoctl</code>、Felix 日志等）</li><li>资源消耗相对较低，对节点内核版本要求宽松</li></ul><p>劣势：</p><ul><li>高级可观测性能力（流量追踪、L7 策略）依赖商业版 Calico Enterprise</li><li>eBPF 支持为可选模式，默认仍基于 iptables，在超大规模集群中 iptables 规则数量庞大</li></ul><p><strong>Cilium</strong></p><p>Cilium 是基于 eBPF 技术构建的新一代 CNI 插件，由 Isovalent 主导开发。</p><p>优势：</p><ul><li>原生基于 eBPF，绕过 iptables，在高并发场景下网络性能更优</li><li>内置 Hubble 可观测性平台，提供丰富的 L3/L4/L7 流量可视化</li><li>原生支持 Service Mesh 能力（Cilium Service Mesh），可替代部分 Sidecar 代理</li><li>对 NetworkPolicy 的支持更加丰富（DNS-based、FQDN policy 等）</li></ul><p>劣势：</p><ul><li>对 Linux 内核版本要求较高（推荐 5.10+），在一些老旧 OS 环境中兼容性存在风险</li><li>生产落地案例相对 Calico 少，运维人员学习曲线较陡</li><li>架构相对复杂，故障排查难度更高</li></ul><h3 id=52-选用-calico-的原因>5.2 选用 Calico 的原因</h3><p>在本次架构中，选择 <strong>Calico</strong> 作为集群 CNI 插件，主要基于以下考量：</p><ol><li><strong>生产成熟度高</strong>：Calico 在业界有大量超过 1000 节点规模集群的生产验证案例，稳定性有充分保证。</li><li><strong>AWS VPC 集成友好</strong>：Calico 的 VPC Native Routing 模式可以直接利用 AWS VPC 路由表进行 Pod 路由，无需 Overlay 封装，网络性能接近原生，且便于与 AWS 安全组联动。</li><li><strong>运维友好</strong>：团队现有运维人员对 Calico 的 iptables 模式更为熟悉，故障定位路径清晰，降低了生产运维风险。</li><li><strong>50 节点规模适配</strong>：在 50 节点规模下，iptables 规则数量尚在可控范围内，Calico 的性能表现完全满足需求，无需引入 Cilium eBPF 的额外复杂度。</li><li><strong>开源免费</strong>：Calico 开源版本功能已能满足企业 NetworkPolicy 的核心需求，无需额外采购商业授权。</li></ol><h2 id=6-基于-terraform--rke2--calico-构建-k8s-集群>6. 基于 Terraform + RKE2 + Calico 构建 K8s 集群</h2><h3 id=61-架构设计概览>6.1 架构设计概览</h3><p>关键技术选型：</p><ul><li><strong>云平台</strong>：AWS</li><li><strong>节点规模</strong>：50 个工作节点 + 3 个控制平面节点（高可用）</li><li><strong>网络方案</strong>：AWS VPC（自定义）</li><li><strong>集群发行版</strong>：RKE2 v1.30+</li><li><strong>CNI 插件</strong>：Calico（替换 RKE2 内置 Canal）</li><li><strong>操作系统</strong>：Ubuntu 24.04 LTS</li></ul><p><strong>集群节点规划：</strong></p><table><thead><tr><th>节点类型</th><th>数量</th><th>实例规格</th><th>用途</th></tr></thead><tbody><tr><td>Control Plane</td><td>3</td><td>m5.xlarge（4C 16G）</td><td>API Server、etcd、Scheduler、Controller Manager</td></tr><tr><td>Worker Node</td><td>50</td><td>m5.2xlarge（8C 32G）</td><td>业务工作负载</td></tr><tr><td>Bastion Host</td><td>1</td><td>t3.micro</td><td>运维跳板机</td></tr></tbody></table><h3 id=62-目录结构>6.2 目录结构</h3><pre tabindex=0><code>terraform-rke2-aws/
+├── main.tf                  # 根模块入口
+├── variables.tf             # 变量定义
+├── outputs.tf               # 输出定义
+├── terraform.tfvars         # 变量赋值
+├── versions.tf              # Provider 版本锁定
+├── modules/
+│   ├── vpc/                 # VPC 及网络资源
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── security_groups/     # 安全组规则
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── iam/                 # IAM 角色与实例 Profile
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── control_plane/       # 控制平面节点
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   └── worker_nodes/        # 工作节点（ASG）
+│       ├── main.tf
+│       ├── variables.tf
+│       └── outputs.tf
+├── scripts/
+│   ├── rke2-server-init.sh  # 首个 Server 节点初始化脚本
+│   ├── rke2-server-join.sh  # 追加 Server 节点加入脚本
+│   └── rke2-agent.sh        # Worker 节点加入脚本
+└── calico/
+    └── custom-resources.yaml # Calico 安装配置
+</code></pre><h3 id=63-step-1配置-terraform-provider-与-backend>6.3 Step 1：配置 Terraform Provider 与 Backend</h3><p><strong>versions.tf</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#66d9ef>terraform</span> {
+</span></span><span style=display:flex><span>  required_version <span style=color:#f92672>=</span> &#34;&gt;<span style=color:#f92672>=</span> <span style=color:#ae81ff>1</span>.<span style=color:#ae81ff>6</span>.<span style=color:#ae81ff>0</span><span style=color:#960050;background-color:#1e0010>&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>required_providers</span> {
+</span></span><span style=display:flex><span>    aws <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      source  <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;hashicorp/aws&#34;</span>
+</span></span><span style=display:flex><span>      version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;~&gt; 5.40&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    random <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      source  <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;hashicorp/random&#34;</span>
+</span></span><span style=display:flex><span>      version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;~&gt; 3.6&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    tls <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      source  <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;hashicorp/tls&#34;</span>
+</span></span><span style=display:flex><span>      version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;~&gt; 4.0&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>backend</span> <span style=color:#e6db74>&#34;s3&#34;</span> {
+</span></span><span style=display:flex><span>    bucket         <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;your-company-terraform-state&#34;</span>
+</span></span><span style=display:flex><span>    key            <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;rke2-cluster/terraform.tfstate&#34;</span>
+</span></span><span style=display:flex><span>    region         <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;ap-southeast-1&#34;</span>
+</span></span><span style=display:flex><span>    encrypt        <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>    dynamodb_table <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;terraform-state-lock&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>provider</span> <span style=color:#e6db74>&#34;aws&#34;</span> {
+</span></span><span style=display:flex><span>  region <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>aws_region</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>default_tags</span> {
+</span></span><span style=display:flex><span>    tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      Project     <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;rke2-k8s-cluster&#34;</span>
+</span></span><span style=display:flex><span>      Environment <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>environment</span>
+</span></span><span style=display:flex><span>      ManagedBy   <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Terraform&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=64-step-2构建-vpc-网络基础设施>6.4 Step 2：构建 VPC 网络基础设施</h3><p><strong>modules/vpc/main.tf</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#75715e># VPC
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_vpc&#34; &#34;main&#34;</span> {
+</span></span><span style=display:flex><span>  cidr_block           <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span><span style=color:#75715e>          # 10.0.0.0/16
+</span></span></span><span style=display:flex><span>  enable_dns_hostnames <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  enable_dns_support   <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-vpc&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># 互联网网关
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_internet_gateway&#34; &#34;main&#34;</span> {
+</span></span><span style=display:flex><span>  vpc_id <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_vpc</span>.<span style=color:#66d9ef>main</span>.<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-igw&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># 公有子网（Bastion / NLB）
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_subnet&#34; &#34;public&#34;</span> {
+</span></span><span style=display:flex><span>  count             <span style=color:#f92672>=</span> <span style=color:#66d9ef>length</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>)
+</span></span><span style=display:flex><span>  vpc_id            <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_vpc</span>.<span style=color:#66d9ef>main</span>.<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>  cidr_block        <span style=color:#f92672>=</span> <span style=color:#66d9ef>cidrsubnet</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>, <span style=color:#ae81ff>8</span>, <span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>)
+</span></span><span style=display:flex><span>  availability_zone <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  map_public_ip_on_launch <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-public-${count.index + 1}&#34;</span>
+</span></span><span style=display:flex><span>    &#34;kubernetes.io/role/elb&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># 私有子网（Control Plane / Worker Nodes）
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_subnet&#34; &#34;private&#34;</span> {
+</span></span><span style=display:flex><span>  count             <span style=color:#f92672>=</span> <span style=color:#66d9ef>length</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>)
+</span></span><span style=display:flex><span>  vpc_id            <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_vpc</span>.<span style=color:#66d9ef>main</span>.<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>  cidr_block        <span style=color:#f92672>=</span> <span style=color:#66d9ef>cidrsubnet</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>, <span style=color:#ae81ff>8</span>, <span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span> <span style=color:#960050;background-color:#1e0010>+</span> <span style=color:#ae81ff>10</span>)
+</span></span><span style=display:flex><span>  availability_zone <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-private-${count.index + 1}&#34;</span>
+</span></span><span style=display:flex><span>    &#34;kubernetes.io/role/internal-elb&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;1&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># NAT 网关（每个 AZ 一个，生产高可用要求）
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_eip&#34; &#34;nat&#34;</span> {
+</span></span><span style=display:flex><span>  count  <span style=color:#f92672>=</span> <span style=color:#66d9ef>length</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>)
+</span></span><span style=display:flex><span>  domain <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;vpc&#34;</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_nat_gateway&#34; &#34;main&#34;</span> {
+</span></span><span style=display:flex><span>  count         <span style=color:#f92672>=</span> <span style=color:#66d9ef>length</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>)
+</span></span><span style=display:flex><span>  allocation_id <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_eip</span>.<span style=color:#66d9ef>nat</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>].<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>  subnet_id     <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_subnet</span>.<span style=color:#66d9ef>public</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>].<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-nat-${count.index + 1}&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># 私有子网路由表
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_route_table&#34; &#34;private&#34;</span> {
+</span></span><span style=display:flex><span>  count  <span style=color:#f92672>=</span> <span style=color:#66d9ef>length</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>)
+</span></span><span style=display:flex><span>  vpc_id <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_vpc</span>.<span style=color:#66d9ef>main</span>.<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>route</span> {
+</span></span><span style=display:flex><span>    cidr_block     <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;0.0.0.0/0&#34;</span>
+</span></span><span style=display:flex><span>    nat_gateway_id <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_nat_gateway</span>.<span style=color:#66d9ef>main</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>].<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-private-rt-${count.index + 1}&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_route_table_association&#34; &#34;private&#34;</span> {
+</span></span><span style=display:flex><span>  count          <span style=color:#f92672>=</span> <span style=color:#66d9ef>length</span>(<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>availability_zones</span>)
+</span></span><span style=display:flex><span>  subnet_id      <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_subnet</span>.<span style=color:#66d9ef>private</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>].<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>  route_table_id <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_route_table</span>.<span style=color:#66d9ef>private</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span>].<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=65-step-3配置安全组>6.5 Step 3：配置安全组</h3><p><strong>modules/security_groups/main.tf</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#75715e># Control Plane 安全组
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_security_group&#34; &#34;control_plane&#34;</span> {
+</span></span><span style=display:flex><span>  name        <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-control-plane-sg&#34;</span>
+</span></span><span style=display:flex><span>  description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;RKE2 Control Plane Security Group&#34;</span>
+</span></span><span style=display:flex><span>  vpc_id      <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_id</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # RKE2 API Server
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>6443</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>6443</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>    description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Kubernetes API Server&#34;</span>
+</span></span><span style=display:flex><span>  }<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # RKE2 Supervisor API
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>9345</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>9345</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>    description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;RKE2 Supervisor API&#34;</span>
+</span></span><span style=display:flex><span>  }<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # etcd
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port       <span style=color:#f92672>=</span> <span style=color:#ae81ff>2379</span>
+</span></span><span style=display:flex><span>    to_port         <span style=color:#f92672>=</span> <span style=color:#ae81ff>2380</span>
+</span></span><span style=display:flex><span>    protocol        <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    self            <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>    description     <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;etcd client and peer&#34;</span>
+</span></span><span style=display:flex><span>  }<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # Calico BGP
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>179</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>179</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>    description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Calico BGP&#34;</span>
+</span></span><span style=display:flex><span>  }<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # Calico VXLAN
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>4789</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>4789</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;udp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>    description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Calico VXLAN&#34;</span>
+</span></span><span style=display:flex><span>  }<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # Kubelet
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>10250</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>10250</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>    description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Kubelet&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>egress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;-1&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#34;0.0.0.0/0&#34;</span>]
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-control-plane-sg&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># Worker Node 安全组
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_security_group&#34; &#34;worker&#34;</span> {
+</span></span><span style=display:flex><span>  name        <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker-sg&#34;</span>
+</span></span><span style=display:flex><span>  description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;RKE2 Worker Node Security Group&#34;</span>
+</span></span><span style=display:flex><span>  vpc_id      <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_id</span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # NodePort 范围
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>30000</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>32767</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>    description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;NodePort Services&#34;</span>
+</span></span><span style=display:flex><span>  }<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # Kubelet
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>10250</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>10250</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>    description <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Kubelet&#34;</span>
+</span></span><span style=display:flex><span>  }<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>  # Calico BGP &amp; VXLAN
+</span></span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>179</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>179</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;tcp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>ingress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>4789</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>4789</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;udp&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_cidr</span>]
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>egress</span> {
+</span></span><span style=display:flex><span>    from_port   <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    to_port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    protocol    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;-1&#34;</span>
+</span></span><span style=display:flex><span>    cidr_blocks <span style=color:#f92672>=</span> [<span style=color:#e6db74>&#34;0.0.0.0/0&#34;</span>]
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker-sg&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=66-step-4iam-角色配置>6.6 Step 4：IAM 角色配置</h3><p><strong>modules/iam/main.tf</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#75715e># Control Plane IAM Role
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_iam_role&#34; &#34;control_plane&#34;</span> {
+</span></span><span style=display:flex><span>  name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-control-plane-role&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  assume_role_policy <span style=color:#f92672>=</span> <span style=color:#66d9ef>jsonencode</span>({
+</span></span><span style=display:flex><span>    Version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;2012-10-17&#34;</span>
+</span></span><span style=display:flex><span>    Statement <span style=color:#f92672>=</span> [{
+</span></span><span style=display:flex><span>      Action    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sts:AssumeRole&#34;</span>
+</span></span><span style=display:flex><span>      Effect    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Allow&#34;</span>
+</span></span><span style=display:flex><span>      Principal <span style=color:#f92672>=</span> { Service <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;ec2.amazonaws.com&#34;</span> }
+</span></span><span style=display:flex><span>    }]
+</span></span><span style=display:flex><span>  })
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_iam_role_policy&#34; &#34;control_plane&#34;</span> {
+</span></span><span style=display:flex><span>  name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-control-plane-policy&#34;</span>
+</span></span><span style=display:flex><span>  role <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_iam_role</span>.<span style=color:#66d9ef>control_plane</span>.<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  policy <span style=color:#f92672>=</span> <span style=color:#66d9ef>jsonencode</span>({
+</span></span><span style=display:flex><span>    Version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;2012-10-17&#34;</span>
+</span></span><span style=display:flex><span>    Statement <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>      {
+</span></span><span style=display:flex><span>        Effect <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Allow&#34;</span>
+</span></span><span style=display:flex><span>        Action <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeInstances&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeRegions&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeRouteTables&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeSecurityGroups&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeSubnets&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeVolumes&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeVpcs&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:CreateSecurityGroup&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:CreateTags&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:CreateVolume&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:ModifyInstanceAttribute&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:AttachVolume&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DetachVolume&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;elasticloadbalancing:*&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:GetAuthorizationToken&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:BatchCheckLayerAvailability&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:GetDownloadUrlForLayer&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:GetRepositoryPolicy&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:DescribeRepositories&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:ListImages&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:BatchGetImage&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;s3:GetObject&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;s3:ListBucket&#34;</span>
+</span></span><span style=display:flex><span>        ]
+</span></span><span style=display:flex><span>        Resource <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;*&#34;</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>  })
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_iam_instance_profile&#34; &#34;control_plane&#34;</span> {
+</span></span><span style=display:flex><span>  name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-control-plane-profile&#34;</span>
+</span></span><span style=display:flex><span>  role <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_iam_role</span>.<span style=color:#66d9ef>control_plane</span>.<span style=color:#66d9ef>name</span>
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># Worker Node IAM Role（权限收窄）
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_iam_role&#34; &#34;worker&#34;</span> {
+</span></span><span style=display:flex><span>  name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker-role&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  assume_role_policy <span style=color:#f92672>=</span> <span style=color:#66d9ef>jsonencode</span>({
+</span></span><span style=display:flex><span>    Version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;2012-10-17&#34;</span>
+</span></span><span style=display:flex><span>    Statement <span style=color:#f92672>=</span> [{
+</span></span><span style=display:flex><span>      Action    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;sts:AssumeRole&#34;</span>
+</span></span><span style=display:flex><span>      Effect    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Allow&#34;</span>
+</span></span><span style=display:flex><span>      Principal <span style=color:#f92672>=</span> { Service <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;ec2.amazonaws.com&#34;</span> }
+</span></span><span style=display:flex><span>    }]
+</span></span><span style=display:flex><span>  })
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_iam_role_policy&#34; &#34;worker&#34;</span> {
+</span></span><span style=display:flex><span>  name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker-policy&#34;</span>
+</span></span><span style=display:flex><span>  role <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_iam_role</span>.<span style=color:#66d9ef>worker</span>.<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  policy <span style=color:#f92672>=</span> <span style=color:#66d9ef>jsonencode</span>({
+</span></span><span style=display:flex><span>    Version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;2012-10-17&#34;</span>
+</span></span><span style=display:flex><span>    Statement <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>      {
+</span></span><span style=display:flex><span>        Effect <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Allow&#34;</span>
+</span></span><span style=display:flex><span>        Action <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeInstances&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ec2:DescribeRegions&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:GetAuthorizationToken&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:BatchCheckLayerAvailability&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:GetDownloadUrlForLayer&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:GetRepositoryPolicy&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:DescribeRepositories&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:ListImages&#34;</span>,
+</span></span><span style=display:flex><span>          <span style=color:#e6db74>&#34;ecr:BatchGetImage&#34;</span>
+</span></span><span style=display:flex><span>        ]
+</span></span><span style=display:flex><span>        Resource <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;*&#34;</span>
+</span></span><span style=display:flex><span>      }
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>  })
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_iam_instance_profile&#34; &#34;worker&#34;</span> {
+</span></span><span style=display:flex><span>  name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker-profile&#34;</span>
+</span></span><span style=display:flex><span>  role <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_iam_role</span>.<span style=color:#66d9ef>worker</span>.<span style=color:#66d9ef>name</span>
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h3 id=67-step-5部署控制平面节点>6.7 Step 5：部署控制平面节点</h3><p><strong>modules/control_plane/main.tf</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#75715e># 生成集群 Token
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;random_password&#34; &#34;rke2_token&#34;</span> {
+</span></span><span style=display:flex><span>  length  <span style=color:#f92672>=</span> <span style=color:#ae81ff>64</span>
+</span></span><span style=display:flex><span>  special <span style=color:#f92672>=</span> <span style=color:#66d9ef>false</span>
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># 将 Token 存入 SSM Parameter Store
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_ssm_parameter&#34; &#34;rke2_token&#34;</span> {
+</span></span><span style=display:flex><span>  name  <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;/${var.cluster_name}/rke2-token&#34;</span>
+</span></span><span style=display:flex><span>  type  <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;SecureString&#34;</span>
+</span></span><span style=display:flex><span>  value <span style=color:#f92672>=</span> <span style=color:#66d9ef>random_password</span>.<span style=color:#66d9ef>rke2_token</span>.<span style=color:#66d9ef>result</span>
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># 首个 Server 节点（Init 节点）
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_instance&#34; &#34;control_plane_init&#34;</span> {
+</span></span><span style=display:flex><span>  ami                    <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>ami_id</span>
+</span></span><span style=display:flex><span>  instance_type          <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;m5.xlarge&#34;</span>
+</span></span><span style=display:flex><span>  subnet_id              <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>private_subnet_ids</span>[<span style=color:#ae81ff>0</span>]
+</span></span><span style=display:flex><span>  vpc_security_group_ids <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>control_plane_sg_id</span>]
+</span></span><span style=display:flex><span>  iam_instance_profile   <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>control_plane_instance_profile</span>
+</span></span><span style=display:flex><span>  key_name               <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>key_pair_name</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>root_block_device</span> {
+</span></span><span style=display:flex><span>    volume_size <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>
+</span></span><span style=display:flex><span>    volume_type <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;gp3&#34;</span>
+</span></span><span style=display:flex><span>    encrypted   <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  user_data <span style=color:#f92672>=</span> <span style=color:#66d9ef>base64encode</span>(<span style=color:#66d9ef>templatefile</span>(<span style=color:#e6db74>&#34;${path.module}/../../scripts/rke2-server-init.sh&#34;</span>, {
+</span></span><span style=display:flex><span>    rke2_version     <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>rke2_version</span>
+</span></span><span style=display:flex><span>    cluster_name     <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>cluster_name</span>
+</span></span><span style=display:flex><span>    rke2_token       <span style=color:#f92672>=</span> <span style=color:#66d9ef>random_password</span>.<span style=color:#66d9ef>rke2_token</span>.<span style=color:#66d9ef>result</span>
+</span></span><span style=display:flex><span>    aws_region       <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>aws_region</span>
+</span></span><span style=display:flex><span>    pod_cidr         <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>pod_cidr</span>
+</span></span><span style=display:flex><span>    service_cidr     <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>service_cidr</span>
+</span></span><span style=display:flex><span>  }))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-control-plane-init&#34;</span>
+</span></span><span style=display:flex><span>    &#34;kubernetes.io/cluster/${var.cluster_name}&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;owned&#34;</span>
+</span></span><span style=display:flex><span>    &#34;rke2-node-role&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;server&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># NLB（API Server 高可用入口）
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_lb&#34; &#34;api_server&#34;</span> {
+</span></span><span style=display:flex><span>  name               <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-api-nlb&#34;</span>
+</span></span><span style=display:flex><span>  internal           <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  load_balancer_type <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;network&#34;</span>
+</span></span><span style=display:flex><span>  subnets            <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>private_subnet_ids</span>
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_lb_target_group&#34; &#34;api_server&#34;</span> {
+</span></span><span style=display:flex><span>  name     <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-api-tg&#34;</span>
+</span></span><span style=display:flex><span>  port     <span style=color:#f92672>=</span> <span style=color:#ae81ff>6443</span>
+</span></span><span style=display:flex><span>  protocol <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;TCP&#34;</span>
+</span></span><span style=display:flex><span>  vpc_id   <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>vpc_id</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>health_check</span> {
+</span></span><span style=display:flex><span>    protocol            <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;HTTPS&#34;</span>
+</span></span><span style=display:flex><span>    path                <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;/healthz&#34;</span>
+</span></span><span style=display:flex><span>    port                <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;6443&#34;</span>
+</span></span><span style=display:flex><span>    healthy_threshold   <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>
+</span></span><span style=display:flex><span>    unhealthy_threshold <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_lb_listener&#34; &#34;api_server&#34;</span> {
+</span></span><span style=display:flex><span>  load_balancer_arn <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_lb</span>.<span style=color:#66d9ef>api_server</span>.<span style=color:#66d9ef>arn</span>
+</span></span><span style=display:flex><span>  port              <span style=color:#f92672>=</span> <span style=color:#ae81ff>6443</span>
+</span></span><span style=display:flex><span>  protocol          <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;TCP&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>default_action</span> {
+</span></span><span style=display:flex><span>    type             <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;forward&#34;</span>
+</span></span><span style=display:flex><span>    target_group_arn <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_lb_target_group</span>.<span style=color:#66d9ef>api_server</span>.<span style=color:#66d9ef>arn</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># 追加 2 个 Server 节点
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_instance&#34; &#34;control_plane_join&#34;</span> {
+</span></span><span style=display:flex><span>  count                  <span style=color:#f92672>=</span> <span style=color:#ae81ff>2</span>
+</span></span><span style=display:flex><span>  ami                    <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>ami_id</span>
+</span></span><span style=display:flex><span>  instance_type          <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;m5.xlarge&#34;</span>
+</span></span><span style=display:flex><span>  subnet_id              <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>private_subnet_ids</span>[<span style=color:#66d9ef>count</span>.<span style=color:#66d9ef>index</span> <span style=color:#960050;background-color:#1e0010>+</span> <span style=color:#ae81ff>1</span>]
+</span></span><span style=display:flex><span>  vpc_security_group_ids <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>control_plane_sg_id</span>]
+</span></span><span style=display:flex><span>  iam_instance_profile   <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>control_plane_instance_profile</span>
+</span></span><span style=display:flex><span>  key_name               <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>key_pair_name</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>root_block_device</span> {
+</span></span><span style=display:flex><span>    volume_size <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>
+</span></span><span style=display:flex><span>    volume_type <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;gp3&#34;</span>
+</span></span><span style=display:flex><span>    encrypted   <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  user_data <span style=color:#f92672>=</span> <span style=color:#66d9ef>base64encode</span>(<span style=color:#66d9ef>templatefile</span>(<span style=color:#e6db74>&#34;${path.module}/../../scripts/rke2-server-join.sh&#34;</span>, {
+</span></span><span style=display:flex><span>    rke2_version  <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>rke2_version</span>
+</span></span><span style=display:flex><span>    rke2_token    <span style=color:#f92672>=</span> <span style=color:#66d9ef>random_password</span>.<span style=color:#66d9ef>rke2_token</span>.<span style=color:#66d9ef>result</span>
+</span></span><span style=display:flex><span>    server_url    <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;https://${aws_lb.api_server.dns_name}:9345&#34;</span>
+</span></span><span style=display:flex><span>  }))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  depends_on <span style=color:#f92672>=</span> [<span style=color:#66d9ef>aws_instance</span>.<span style=color:#66d9ef>control_plane_init</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-control-plane-${count.index + 2}&#34;</span>
+</span></span><span style=display:flex><span>    &#34;kubernetes.io/cluster/${var.cluster_name}&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;owned&#34;</span>
+</span></span><span style=display:flex><span>    &#34;rke2-node-role&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;server&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><strong>scripts/rke2-server-init.sh</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e>#!/bin/bash
+</span></span></span><span style=display:flex><span>set -eux
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 系统初始化</span>
+</span></span><span style=display:flex><span>swapoff -a
+</span></span><span style=display:flex><span>sed -i <span style=color:#e6db74>&#39;/swap/d&#39;</span> /etc/fstab
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 内核参数</span>
+</span></span><span style=display:flex><span>cat &gt;&gt; /etc/sysctl.d/99-k8s.conf <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>net.bridge.bridge-nf-call-iptables  = 1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>net.bridge.bridge-nf-call-ip6tables = 1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>net.ipv4.ip_forward                 = 1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>EOF</span>
+</span></span><span style=display:flex><span>sysctl --system
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 安装 RKE2</span>
+</span></span><span style=display:flex><span>curl -sfL https://get.rke2.io | INSTALL_RKE2_VERSION<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>rke2_version<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span> sh -
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 配置 RKE2 Server</span>
+</span></span><span style=display:flex><span>mkdir -p /etc/rancher/rke2
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>cat &gt; /etc/rancher/rke2/config.yaml <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>token: &#34;${rke2_token}&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>tls-san:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - &#34;${server_lb_dns}&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>cluster-cidr: &#34;${pod_cidr}&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>service-cidr: &#34;${service_cidr}&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>cni: none
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>disable:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - rke2-canal
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>cloud-provider-name: aws
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>node-label:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - &#34;node.kubernetes.io/role=control-plane&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>EOF</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 启动 RKE2 Server</span>
+</span></span><span style=display:flex><span>systemctl enable rke2-server.service
+</span></span><span style=display:flex><span>systemctl start rke2-server.service
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 等待 kubeconfig 生成</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>until</span> <span style=color:#f92672>[</span> -f /etc/rancher/rke2/rke2.yaml <span style=color:#f92672>]</span>; <span style=color:#66d9ef>do</span> sleep 5; <span style=color:#66d9ef>done</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 配置 kubectl</span>
+</span></span><span style=display:flex><span>mkdir -p /root/.kube
+</span></span><span style=display:flex><span>cp /etc/rancher/rke2/rke2.yaml /root/.kube/config
+</span></span><span style=display:flex><span>export KUBECONFIG<span style=color:#f92672>=</span>/etc/rancher/rke2/rke2.yaml
+</span></span><span style=display:flex><span>ln -sf /var/lib/rancher/rke2/bin/kubectl /usr/local/bin/kubectl
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>echo <span style=color:#e6db74>&#34;RKE2 Server Init Completed&#34;</span>
+</span></span></code></pre></div><h3 id=68-step-6部署工作节点auto-scaling-group>6.8 Step 6：部署工作节点（Auto Scaling Group）</h3><p><strong>modules/worker_nodes/main.tf</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-hcl data-lang=hcl><span style=display:flex><span><span style=color:#75715e># 启动模板
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_launch_template&#34; &#34;worker&#34;</span> {
+</span></span><span style=display:flex><span>  name_prefix   <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker-&#34;</span>
+</span></span><span style=display:flex><span>  image_id      <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>ami_id</span>
+</span></span><span style=display:flex><span>  instance_type <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;m5.2xlarge&#34;</span>
+</span></span><span style=display:flex><span>  key_name      <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>key_pair_name</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  vpc_security_group_ids <span style=color:#f92672>=</span> [<span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>worker_sg_id</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>iam_instance_profile</span> {
+</span></span><span style=display:flex><span>    name <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>worker_instance_profile</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>block_device_mappings</span> {
+</span></span><span style=display:flex><span>    device_name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;/dev/sda1&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>ebs</span> {
+</span></span><span style=display:flex><span>      volume_size           <span style=color:#f92672>=</span> <span style=color:#ae81ff>200</span>
+</span></span><span style=display:flex><span>      volume_type           <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;gp3&#34;</span>
+</span></span><span style=display:flex><span>      encrypted             <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>      delete_on_termination <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  user_data <span style=color:#f92672>=</span> <span style=color:#66d9ef>base64encode</span>(<span style=color:#66d9ef>templatefile</span>(<span style=color:#e6db74>&#34;${path.module}/../../scripts/rke2-agent.sh&#34;</span>, {
+</span></span><span style=display:flex><span>    rke2_version <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>rke2_version</span>
+</span></span><span style=display:flex><span>    rke2_token   <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>rke2_token</span>
+</span></span><span style=display:flex><span>    server_url   <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>server_url</span>
+</span></span><span style=display:flex><span>  }))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>tag_specifications</span> {
+</span></span><span style=display:flex><span>    resource_type <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;instance&#34;</span>
+</span></span><span style=display:flex><span>    tags <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>      Name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker&#34;</span>
+</span></span><span style=display:flex><span>      &#34;kubernetes.io/cluster/${var.cluster_name}&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;owned&#34;</span>
+</span></span><span style=display:flex><span>      &#34;rke2-node-role&#34; <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;agent&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>lifecycle</span> {
+</span></span><span style=display:flex><span>    create_before_destroy <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}<span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e>
+</span></span></span><span style=display:flex><span><span style=color:#75715e># Auto Scaling Group
+</span></span></span><span style=display:flex><span><span style=color:#66d9ef>resource</span> <span style=color:#e6db74>&#34;aws_autoscaling_group&#34; &#34;worker&#34;</span> {
+</span></span><span style=display:flex><span>  name                <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker-asg&#34;</span>
+</span></span><span style=display:flex><span>  desired_capacity    <span style=color:#f92672>=</span> <span style=color:#ae81ff>50</span>
+</span></span><span style=display:flex><span>  min_size            <span style=color:#f92672>=</span> <span style=color:#ae81ff>10</span>
+</span></span><span style=display:flex><span>  max_size            <span style=color:#f92672>=</span> <span style=color:#ae81ff>60</span>
+</span></span><span style=display:flex><span>  vpc_zone_identifier <span style=color:#f92672>=</span> <span style=color:#66d9ef>var</span>.<span style=color:#66d9ef>private_subnet_ids</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>launch_template</span> {
+</span></span><span style=display:flex><span>    id      <span style=color:#f92672>=</span> <span style=color:#66d9ef>aws_launch_template</span>.<span style=color:#66d9ef>worker</span>.<span style=color:#66d9ef>id</span>
+</span></span><span style=display:flex><span>    version <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;$Latest&#34;</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  health_check_type         <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;EC2&#34;</span>
+</span></span><span style=display:flex><span>  health_check_grace_period <span style=color:#f92672>=</span> <span style=color:#ae81ff>300</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>tag</span> {
+</span></span><span style=display:flex><span>    key                 <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;Name&#34;</span>
+</span></span><span style=display:flex><span>    value               <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;${var.cluster_name}-worker&#34;</span>
+</span></span><span style=display:flex><span>    propagate_at_launch <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>  <span style=color:#66d9ef>tag</span> {
+</span></span><span style=display:flex><span>    key                 <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;kubernetes.io/cluster/${var.cluster_name}&#34;</span>
+</span></span><span style=display:flex><span>    value               <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;owned&#34;</span>
+</span></span><span style=display:flex><span>    propagate_at_launch <span style=color:#f92672>=</span> <span style=color:#66d9ef>true</span>
+</span></span><span style=display:flex><span>  }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p><strong>scripts/rke2-agent.sh</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e>#!/bin/bash
+</span></span></span><span style=display:flex><span>set -eux
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>swapoff -a
+</span></span><span style=display:flex><span>sed -i <span style=color:#e6db74>&#39;/swap/d&#39;</span> /etc/fstab
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>cat &gt;&gt; /etc/sysctl.d/99-k8s.conf <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>net.bridge.bridge-nf-call-iptables  = 1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>net.ipv4.ip_forward                 = 1
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>EOF</span>
+</span></span><span style=display:flex><span>sysctl --system
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>curl -sfL https://get.rke2.io | INSTALL_RKE2_TYPE<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;agent&#34;</span> INSTALL_RKE2_VERSION<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;</span><span style=color:#e6db74>${</span>rke2_version<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span> sh -
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>mkdir -p /etc/rancher/rke2
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>cat &gt; /etc/rancher/rke2/config.yaml <span style=color:#e6db74>&lt;&lt;EOF
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>server: &#34;${server_url}&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>token: &#34;${rke2_token}&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>cloud-provider-name: aws
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>node-label:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>  - &#34;node.kubernetes.io/role=worker&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>EOF</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>systemctl enable rke2-agent.service
+</span></span><span style=display:flex><span>systemctl start rke2-agent.service
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>echo <span style=color:#e6db74>&#34;RKE2 Agent Join Completed&#34;</span>
+</span></span></code></pre></div><h3 id=69-step-7安装-calico-cni>6.9 Step 7：安装 Calico CNI</h3><p><strong>calico/custom-resources.yaml</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>operator.tigera.io/v1</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>kind</span>: <span style=color:#ae81ff>Installation</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>default</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>spec</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>calicoNetwork</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>ipPools</span>:
+</span></span><span style=display:flex><span>    - <span style=color:#f92672>blockSize</span>: <span style=color:#ae81ff>26</span>
+</span></span><span style=display:flex><span>      <span style=color:#f92672>cidr</span>: <span style=color:#ae81ff>192.168.0.0</span><span style=color:#ae81ff>/16</span>
+</span></span><span style=display:flex><span>      <span style=color:#f92672>encapsulation</span>: <span style=color:#ae81ff>VXLAN</span>
+</span></span><span style=display:flex><span>      <span style=color:#f92672>natOutgoing</span>: <span style=color:#ae81ff>Enabled</span>
+</span></span><span style=display:flex><span>      <span style=color:#f92672>nodeSelector</span>: <span style=color:#ae81ff>all()</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>nodeAddressAutodetectionV4</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>interface</span>: <span style=color:#ae81ff>eth0</span>
+</span></span><span style=display:flex><span>---
+</span></span><span style=display:flex><span><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>operator.tigera.io/v1</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>kind</span>: <span style=color:#ae81ff>APIServer</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>default</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>spec</span>: {}
+</span></span></code></pre></div><p><strong>安装步骤（在 Control Plane 节点执行）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e># 1. 安装 Tigera Operator</span>
+</span></span><span style=display:flex><span>kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.0/manifests/tigera-operator.yaml
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 2. 应用自定义配置</span>
+</span></span><span style=display:flex><span>kubectl create -f calico/custom-resources.yaml
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 3. 等待 Calico 组件就绪</span>
+</span></span><span style=display:flex><span>kubectl wait --for<span style=color:#f92672>=</span>condition<span style=color:#f92672>=</span>Ready pods -n calico-system --all --timeout<span style=color:#f92672>=</span>300s
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 4. 验证节点状态</span>
+</span></span><span style=display:flex><span>kubectl get nodes
+</span></span></code></pre></div><h3 id=610-step-8执行-terraform-部署>6.10 Step 8：执行 Terraform 部署</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e># 初始化</span>
+</span></span><span style=display:flex><span>terraform init
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 预览变更</span>
+</span></span><span style=display:flex><span>terraform plan -var-file<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;terraform.tfvars&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 执行部署</span>
+</span></span><span style=display:flex><span>terraform apply -var-file<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;terraform.tfvars&#34;</span> -auto-approve
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 查看输出</span>
+</span></span><span style=display:flex><span>terraform output
+</span></span></code></pre></div><h3 id=611-集群验证>6.11 集群验证</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e># 检查节点状态</span>
+</span></span><span style=display:flex><span>kubectl get nodes -o wide
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 检查核心组件</span>
+</span></span><span style=display:flex><span>kubectl get pods -n kube-system
+</span></span><span style=display:flex><span>kubectl get pods -n calico-system
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 检查集群信息</span>
+</span></span><span style=display:flex><span>kubectl cluster-info
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 部署测试 Deployment</span>
+</span></span><span style=display:flex><span>kubectl create deployment nginx-test --image<span style=color:#f92672>=</span>nginx --replicas<span style=color:#f92672>=</span><span style=color:#ae81ff>3</span>
+</span></span><span style=display:flex><span>kubectl get pods -o wide
+</span></span><span style=display:flex><span>kubectl delete deployment nginx-test
+</span></span></code></pre></div><h2 id=7-如何做-k8s-集群的监控>7. 如何做 K8s 集群的监控</h2><h3 id=71-监控体系概览>7.1 监控体系概览</h3><p>完整的 K8s 集群监控体系应覆盖以下四个层次：</p><pre tabindex=0><code>基础设施层（节点 CPU/内存/磁盘/网络）
+    ↓
+K8s 组件层（API Server、etcd、Scheduler、Controller Manager）
+    ↓
+工作负载层（Pod、Deployment、DaemonSet 指标）
+    ↓
+应用业务层（服务 SLI/SLO、错误率、延迟）
+</code></pre><h3 id=72-核心监控组件栈>7.2 核心监控组件栈</h3><p><strong>推荐方案：kube-prometheus-stack（Prometheus + Grafana + Alertmanager）</strong></p><p><code>kube-prometheus-stack</code> 是目前最主流的 K8s 监控解决方案，通过 Helm 一键部署，集成了：</p><ul><li><strong>Prometheus Operator</strong>：以 CRD 方式管理 Prometheus 实例、告警规则、抓取配置</li><li><strong>Prometheus</strong>：时序指标采集与存储</li><li><strong>Grafana</strong>：可视化大盘</li><li><strong>Alertmanager</strong>：告警路由与通知（支持钉钉/Slack/PagerDuty 等）</li><li><strong>kube-state-metrics</strong>：K8s 对象状态指标（Pod 状态、Deployment 副本数等）</li><li><strong>node-exporter</strong>：宿主机层面指标（CPU、内存、磁盘、网络）</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span><span style=color:#75715e># 通过 Helm 安装 kube-prometheus-stack</span>
+</span></span><span style=display:flex><span>helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+</span></span><span style=display:flex><span>helm repo update
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --namespace monitoring <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --create-namespace <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set prometheus.prometheusSpec.retention<span style=color:#f92672>=</span>15d <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.storageClassName<span style=color:#f92672>=</span>gp3 <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set prometheus.prometheusSpec.storageSpec.volumeClaimTemplate.spec.resources.requests.storage<span style=color:#f92672>=</span>100Gi <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set grafana.adminPassword<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;your-secure-password&#34;</span> <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set alertmanager.enabled<span style=color:#f92672>=</span>true
+</span></span></code></pre></div><h3 id=73-关键监控指标>7.3 关键监控指标</h3><p><strong>节点层指标</strong></p><table><thead><tr><th>指标名</th><th>说明</th><th>告警阈值建议</th></tr></thead><tbody><tr><td><code>node_cpu_seconds_total</code></td><td>节点 CPU 使用率</td><td>> 85% 持续 5min</td></tr><tr><td><code>node_memory_MemAvailable_bytes</code></td><td>节点可用内存</td><td>&lt; 10% 持续 5min</td></tr><tr><td><code>node_filesystem_avail_bytes</code></td><td>磁盘剩余空间</td><td>&lt; 15%</td></tr><tr><td><code>node_disk_io_time_seconds_total</code></td><td>磁盘 IO 压力</td><td>ioutil > 90%</td></tr></tbody></table><p><strong>K8s 组件层指标</strong></p><table><thead><tr><th>指标名</th><th>说明</th><th>告警阈值建议</th></tr></thead><tbody><tr><td><code>apiserver_request_duration_seconds</code></td><td>API Server 延迟</td><td>P99 > 1s</td></tr><tr><td><code>apiserver_request_total</code></td><td>API Server 请求错误率</td><td>5xx 错误率 > 1%</td></tr><tr><td><code>etcd_disk_wal_fsync_duration_seconds</code></td><td>etcd WAL 写入延迟</td><td>P99 > 10ms</td></tr><tr><td><code>etcd_server_has_leader</code></td><td>etcd Leader 是否存在</td><td>= 0 立即告警</td></tr></tbody></table><p><strong>工作负载层指标</strong></p><table><thead><tr><th>指标名</th><th>说明</th><th>告警阈值建议</th></tr></thead><tbody><tr><td><code>kube_pod_status_phase</code></td><td>Pod 非 Running 状态</td><td>Pending > 10min</td></tr><tr><td><code>kube_deployment_status_replicas_unavailable</code></td><td>Deployment 不可用副本数</td><td>> 0 持续 5min</td></tr><tr><td><code>container_memory_working_set_bytes</code></td><td>容器内存使用量</td><td>接近 limit 的 90%</td></tr><tr><td><code>container_oom_events_total</code></td><td>容器 OOM 次数</td><td>> 0 立即告警</td></tr></tbody></table><h3 id=74-日志监控方案>7.4 日志监控方案</h3><p>指标监控解决"是什么问题"，日志则帮助解决"为什么出问题"。推荐采用 <strong>Loki + Promtail</strong> 方案与 Grafana 集成，实现指标与日志的统一视图：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span>helm upgrade --install loki grafana/loki-stack <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --namespace monitoring <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set promtail.enabled<span style=color:#f92672>=</span>true <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set loki.persistence.enabled<span style=color:#f92672>=</span>true <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  --set loki.persistence.size<span style=color:#f92672>=</span>50Gi
+</span></span></code></pre></div><h3 id=75-链路追踪可选>7.5 链路追踪（可选）</h3><p>对于微服务架构，建议引入分布式追踪能力，推荐 <strong>OpenTelemetry + Jaeger / Tempo</strong> 方案：</p><ul><li><strong>OpenTelemetry Collector</strong>：统一采集应用 Trace、Metric、Log</li><li><strong>Jaeger / Grafana Tempo</strong>：Trace 存储与查询</li><li><strong>Grafana</strong>：通过 Exemplar 实现 Metric → Trace 的联动跳转</li></ul><h3 id=76-告警通知配置示例>7.6 告警通知配置示例</h3><p><strong>Alertmanager 钉钉通知配置（alertmanager-config.yaml）</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-yaml data-lang=yaml><span style=display:flex><span><span style=color:#f92672>apiVersion</span>: <span style=color:#ae81ff>monitoring.coreos.com/v1alpha1</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>kind</span>: <span style=color:#ae81ff>AlertmanagerConfig</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>metadata</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>name</span>: <span style=color:#ae81ff>cluster-alerts</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>namespace</span>: <span style=color:#ae81ff>monitoring</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>spec</span>:
+</span></span><span style=display:flex><span>  <span style=color:#f92672>route</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>receiver</span>: <span style=color:#ae81ff>dingtalk-webhook</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>groupBy</span>: [<span style=color:#e6db74>&#39;alertname&#39;</span>, <span style=color:#e6db74>&#39;namespace&#39;</span>]
+</span></span><span style=display:flex><span>    <span style=color:#f92672>groupWait</span>: <span style=color:#ae81ff>30s</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>groupInterval</span>: <span style=color:#ae81ff>5m</span>
+</span></span><span style=display:flex><span>    <span style=color:#f92672>repeatInterval</span>: <span style=color:#ae81ff>4h</span>
+</span></span><span style=display:flex><span>  <span style=color:#f92672>receivers</span>:
+</span></span><span style=display:flex><span>    - <span style=color:#f92672>name</span>: <span style=color:#ae81ff>dingtalk-webhook</span>
+</span></span><span style=display:flex><span>      <span style=color:#f92672>webhookConfigs</span>:
+</span></span><span style=display:flex><span>        - <span style=color:#f92672>url</span>: <span style=color:#e6db74>&#39;http://dingtalk-webhook-adapter:8060/dingtalk/webhook/send&#39;</span>
+</span></span><span style=display:flex><span>          <span style=color:#f92672>sendResolved</span>: <span style=color:#66d9ef>true</span>
+</span></span></code></pre></div><h3 id=77-推荐-grafana-dashboard>7.7 推荐 Grafana Dashboard</h3><table><thead><tr><th>Dashboard ID</th><th>用途</th></tr></thead><tbody><tr><td>15757</td><td>Kubernetes / Views / Global（集群全局视图）</td></tr><tr><td>13332</td><td>Kubernetes Cluster Monitoring</td></tr><tr><td>1860</td><td>Node Exporter Full（节点详细监控）</td></tr><tr><td>7249</td><td>Kubernetes Cluster（工作负载视图）</td></tr><tr><td>3070</td><td>Kubernetes Persistent Volumes</td></tr></tbody></table><p>通过 Grafana 的 Import 功能直接导入以上 Dashboard，可以快速获得开箱即用的监控大盘，无需从零配置。</p><p>我之前所在的企业 PaaS 平台为了满足客户多样性需求自研了一套多云管理平台，提供了源码托管、CI/CD、资源管理等一整套体系，管控端部署在中心集群，一个客户一套边缘集群。</p></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/infrastructure>infrastructure</a></li><li><a href=/tags/devops>devops</a></li><li><a href=/tags/kubernetes>kubernetes</a></li><li><a href=/tags/terraform>terraform</a></li></ul></nav></div></div></div></article></main><style>.post-content p,.body p,.post-content,.body{text-align:justify!important;text-align-last:left;text-justify:inter-ideograph;word-wrap:break-word}.post-content li,.body li{text-align:left}.post-content a,.body a,.post-content code,.body code{word-break:break-all;hyphens:none}.post-content ol,.body ol{padding-left:2em}.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}@media(prefers-color-scheme:dark){.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}}</style><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://x.com/xautjzd/ rel=me title=X><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#x"/></svg></a><a class=border></a></div><div class=footer-info>2026 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>

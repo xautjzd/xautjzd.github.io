@@ -3,7 +3,12 @@
 <a href=/tags>Tags</a>
 <a href=/about>About</a>
 | <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
-<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><div class=home-search><input type=text id=home-search-input placeholder=搜索文章... autocomplete=off><div id=home-search-results></div></div><main class=list><div class=site-description></div><section class=list-item><h1 class=title><a href=/posts/2013-07-18-my-first-blog/>我的第一篇博客</a></h1><time>Jul 18, 2013</time><br><div class=description><p>几个月前看过Ruby基本语法，也无意中接触了Octopress，便想在GitHub pages上采用Octopress搭建一个属于自己的博客，照着官网提示开始动手实施，不过最后以失败告终。后又忙于其他工作，此事便搁浅。直至最近得空，便又开始着手此事。搭建博客工作再一次展开。
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><div class=home-search><input type=text id=home-search-input placeholder=搜索文章... autocomplete=off><div id=home-search-results></div></div><main class=list><div class=site-description></div><section class=list-item><h1 class=title><a href=/posts/2013-07-18-congfig-disqus-plugin/>Octopress配置Disqus插件</a></h1><time>Jul 18, 2013</time><br><div class=description><p>###添加Disqus插件
+看到不少人博客上都有Comments功能，便也想给自己的博客添加上。经过搜寻一番，发现大多用的都是Disqus，而且octopress其实内置了其功能，只是默认没有设置.编辑博客主目录下的config.yml文件即可：
+$vim _config.yml</p><p>找到：
+#Disqus comments
+disqus_short_name:
+disqus_show_comment_count: false</p><p>填上自己注册的disqus账号的short name，并将false改成true即可。</p><p><strong>注：Disqus一定要和yourname.github.com关联</strong></p>&mldr;</div><a class=readmore href=/posts/2013-07-18-congfig-disqus-plugin/>Read more ⟶</a></section><section class=list-item><h1 class=title><a href=/posts/2013-07-18-my-first-blog/>我的第一篇博客</a></h1><time>Jul 18, 2013</time><br><div class=description><p>几个月前看过Ruby基本语法，也无意中接触了Octopress，便想在GitHub pages上采用Octopress搭建一个属于自己的博客，照着官网提示开始动手实施，不过最后以失败告终。后又忙于其他工作，此事便搁浅。直至最近得空，便又开始着手此事。搭建博客工作再一次展开。
 详细搭建过程官方文档写的相当详细，这里不再赘述，请参考：
 <a href=octopress.org/docs/setup>官网</a><br>下面只说我搭建过程中遇到的难题：
 我每次都是运行rake deploy时出现问题，也就是博客无法push到github的repository中。
