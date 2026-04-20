@@ -1,0 +1,297 @@
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>Transformer 全面拆解：从「预测下一个词」到改变世界的技术 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='
+写给那些不满足于"注意力机制很强大"这种解释的人。
+
+本文目标：把一个"黑箱"，拆成你能 mentally simulate 的系统。
+引言：一个看似简单的问题
+你有没有想过——ChatGPT 为什么"看起来懂你"？
+当你问它"帮我写一封拒绝朋友请求的礼貌邮件"，它不仅能写出来，还能感知到"拒绝"和"礼貌"之间的张力，给出一封语气恰当、逻辑自洽的信。这不是简单的模板填充，也不是数据库检索。
+它真的理解语言吗？
+答案比你想象的既更简单，也更深刻。
+Transformer 本质上只做一件事：预测下一个 Token。
+没有世界模型，没有常识库，没有专门的语法规则。就是反复地、大规模地、在海量文本上——预测下一个词。
+然而就是这个看似朴素的任务，催生出了 GPT-4、Claude、Gemini 这些震动世界的系统。
+为什么？
+因为"完美预测下一个词"，在信息论上，等价于"完全理解语言背后的结构"。而 Transformer 架构，提供了一种前所未有的、可大规模扩展的方式去逼近这个目标。
+这篇文章，我们就来把这个"黑箱"，一层一层地拆开。
+读完之后，你不一定能写出 GPT-4，但你应该能：
+
+在脑子里模拟 token 从输入到输出的完整流程
+理解为什么 Transformer 打败了 RNN
+知道为什么模型越大越聪明，以及这条路的边界在哪里
+对"模型到底理解了什么"有自己批判性的判断
+
+不需要记公式，但需要你认真思考。
+让我们开始。
+第一部分：核心直觉
+1. Transformer 的本质：信息如何在序列中流动？
+在理解任何细节之前，先建立最重要的直觉：
+Transformer 是一台"信息路由机器"。
+给定一个 token 序列（比如一句话），Transformer 的核心任务是：让每个 token 能够"看到"并"收集"序列中其他位置的相关信息，然后据此更新自己的表示。
+这句话有三个关键词：
+
+看到：不是所有 token 都同等重要，需要有选择地关注
+收集：把分散在序列中的信息汇聚到当前位置
+更新：根据收集到的信息，修正自己对这个 token 的"理解"
+
+这个过程，在每一层 Transformer Block 里都会发生一次。一个现代 LLM 有 96 层甚至更多，也就是说，每个 token 会经历 96 次这样的"信息更新"。
+最终输出的向量，已经不再是孤立的词义，而是包含了整个上下文信息的、高度压缩的语义表示。'><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-04-20-transformer-deep-dive/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="Transformer 全面拆解：从「预测下一个词」到改变世界的技术"><meta property="og:description" content='写给那些不满足于"注意力机制很强大"这种解释的人。
+本文目标：把一个"黑箱"，拆成你能 mentally simulate 的系统。
+引言：一个看似简单的问题 你有没有想过——ChatGPT 为什么"看起来懂你"？
+当你问它"帮我写一封拒绝朋友请求的礼貌邮件"，它不仅能写出来，还能感知到"拒绝"和"礼貌"之间的张力，给出一封语气恰当、逻辑自洽的信。这不是简单的模板填充，也不是数据库检索。
+它真的理解语言吗？
+答案比你想象的既更简单，也更深刻。
+Transformer 本质上只做一件事：预测下一个 Token。
+没有世界模型，没有常识库，没有专门的语法规则。就是反复地、大规模地、在海量文本上——预测下一个词。
+然而就是这个看似朴素的任务，催生出了 GPT-4、Claude、Gemini 这些震动世界的系统。
+为什么？
+因为"完美预测下一个词"，在信息论上，等价于"完全理解语言背后的结构"。而 Transformer 架构，提供了一种前所未有的、可大规模扩展的方式去逼近这个目标。
+这篇文章，我们就来把这个"黑箱"，一层一层地拆开。
+读完之后，你不一定能写出 GPT-4，但你应该能：
+在脑子里模拟 token 从输入到输出的完整流程 理解为什么 Transformer 打败了 RNN 知道为什么模型越大越聪明，以及这条路的边界在哪里 对"模型到底理解了什么"有自己批判性的判断 不需要记公式，但需要你认真思考。
+让我们开始。
+第一部分：核心直觉 1. Transformer 的本质：信息如何在序列中流动？ 在理解任何细节之前，先建立最重要的直觉：
+Transformer 是一台"信息路由机器"。
+给定一个 token 序列（比如一句话），Transformer 的核心任务是：让每个 token 能够"看到"并"收集"序列中其他位置的相关信息，然后据此更新自己的表示。
+这句话有三个关键词：
+看到：不是所有 token 都同等重要，需要有选择地关注 收集：把分散在序列中的信息汇聚到当前位置 更新：根据收集到的信息，修正自己对这个 token 的"理解" 这个过程，在每一层 Transformer Block 里都会发生一次。一个现代 LLM 有 96 层甚至更多，也就是说，每个 token 会经历 96 次这样的"信息更新"。
+最终输出的向量，已经不再是孤立的词义，而是包含了整个上下文信息的、高度压缩的语义表示。'><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-20T14:00:00+08:00"><meta property="article:modified_time" content="2026-04-20T14:00:00+08:00"><meta property="article:tag" content="Ai"><meta property="article:tag" content="Llm"><meta name=twitter:card content="summary"><meta name=twitter:title content="Transformer 全面拆解：从「预测下一个词」到改变世界的技术"><meta name=twitter:description content='写给那些不满足于"注意力机制很强大"这种解释的人。
+本文目标：把一个"黑箱"，拆成你能 mentally simulate 的系统。
+引言：一个看似简单的问题 你有没有想过——ChatGPT 为什么"看起来懂你"？
+当你问它"帮我写一封拒绝朋友请求的礼貌邮件"，它不仅能写出来，还能感知到"拒绝"和"礼貌"之间的张力，给出一封语气恰当、逻辑自洽的信。这不是简单的模板填充，也不是数据库检索。
+它真的理解语言吗？
+答案比你想象的既更简单，也更深刻。
+Transformer 本质上只做一件事：预测下一个 Token。
+没有世界模型，没有常识库，没有专门的语法规则。就是反复地、大规模地、在海量文本上——预测下一个词。
+然而就是这个看似朴素的任务，催生出了 GPT-4、Claude、Gemini 这些震动世界的系统。
+为什么？
+因为"完美预测下一个词"，在信息论上，等价于"完全理解语言背后的结构"。而 Transformer 架构，提供了一种前所未有的、可大规模扩展的方式去逼近这个目标。
+这篇文章，我们就来把这个"黑箱"，一层一层地拆开。
+读完之后，你不一定能写出 GPT-4，但你应该能：
+在脑子里模拟 token 从输入到输出的完整流程 理解为什么 Transformer 打败了 RNN 知道为什么模型越大越聪明，以及这条路的边界在哪里 对"模型到底理解了什么"有自己批判性的判断 不需要记公式，但需要你认真思考。
+让我们开始。
+第一部分：核心直觉 1. Transformer 的本质：信息如何在序列中流动？ 在理解任何细节之前，先建立最重要的直觉：
+Transformer 是一台"信息路由机器"。
+给定一个 token 序列（比如一句话），Transformer 的核心任务是：让每个 token 能够"看到"并"收集"序列中其他位置的相关信息，然后据此更新自己的表示。
+这句话有三个关键词：
+看到：不是所有 token 都同等重要，需要有选择地关注 收集：把分散在序列中的信息汇聚到当前位置 更新：根据收集到的信息，修正自己对这个 token 的"理解" 这个过程，在每一层 Transformer Block 里都会发生一次。一个现代 LLM 有 96 层甚至更多，也就是说，每个 token 会经历 96 次这样的"信息更新"。
+最终输出的向量，已经不再是孤立的词义，而是包含了整个上下文信息的、高度压缩的语义表示。'><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css><link id=darkModeStyle rel=stylesheet type=text/css href=https://xautjzd.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css disabled></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/tags>Tags</a>
+<a href=/about>About</a>
+| <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><main><nav class=breadcrumbs><a href=https://xautjzd.github.io/>Home</a>
+<span class=separator>/</span>
+<a href=https://xautjzd.github.io/posts>Posts</a>
+<span class=separator>/</span>
+<span class=current>Transformer 全面拆解：从「预测下一个词」到改变世界的技术</span></nav><article><div class=post-container><div class=post-content><div class=title><h1 class=title>Transformer 全面拆解：从「预测下一个词」到改变世界的技术</h1><div class=meta>Posted on Apr 20, 2026
+<span class=reading-time>· 9 min read</span></div></div><section class=body><blockquote><p><strong>写给那些不满足于"注意力机制很强大"这种解释的人。</strong></p></blockquote><p>本文目标：把一个"黑箱"，拆成你能 mentally simulate 的系统。</p><h2 id=引言一个看似简单的问题>引言：一个看似简单的问题</h2><p>你有没有想过——ChatGPT 为什么"看起来懂你"？</p><p>当你问它"帮我写一封拒绝朋友请求的礼貌邮件"，它不仅能写出来，还能感知到"拒绝"和"礼貌"之间的张力，给出一封语气恰当、逻辑自洽的信。这不是简单的模板填充，也不是数据库检索。</p><p><strong>它真的理解语言吗？</strong></p><p>答案比你想象的既更简单，也更深刻。</p><p>Transformer 本质上只做一件事：<strong>预测下一个 Token</strong>。</p><p>没有世界模型，没有常识库，没有专门的语法规则。就是反复地、大规模地、在海量文本上——预测下一个词。</p><p>然而就是这个看似朴素的任务，催生出了 GPT-4、Claude、Gemini 这些震动世界的系统。</p><p><strong>为什么？</strong></p><p>因为"完美预测下一个词"，在信息论上，等价于"完全理解语言背后的结构"。而 Transformer 架构，提供了一种前所未有的、可大规模扩展的方式去逼近这个目标。</p><p>这篇文章，我们就来把这个"黑箱"，一层一层地拆开。</p><p>读完之后，你不一定能写出 GPT-4，但你应该能：</p><ul><li>在脑子里模拟 token 从输入到输出的完整流程</li><li>理解为什么 Transformer 打败了 RNN</li><li>知道为什么模型越大越聪明，以及这条路的边界在哪里</li><li>对"模型到底理解了什么"有自己批判性的判断</li></ul><p><strong>不需要记公式，但需要你认真思考。</strong></p><p>让我们开始。</p><h1 id=第一部分核心直觉>第一部分：核心直觉</h1><h2 id=1-transformer-的本质信息如何在序列中流动>1. Transformer 的本质：信息如何在序列中流动？</h2><p>在理解任何细节之前，先建立最重要的直觉：</p><p><strong>Transformer 是一台"信息路由机器"。</strong></p><p>给定一个 token 序列（比如一句话），Transformer 的核心任务是：让每个 token 能够"看到"并"收集"序列中其他位置的相关信息，然后据此更新自己的表示。</p><p>这句话有三个关键词：</p><ol><li><strong>看到</strong>：不是所有 token 都同等重要，需要有选择地关注</li><li><strong>收集</strong>：把分散在序列中的信息汇聚到当前位置</li><li><strong>更新</strong>：根据收集到的信息，修正自己对这个 token 的"理解"</li></ol><p>这个过程，在每一层 Transformer Block 里都会发生一次。一个现代 LLM 有 96 层甚至更多，也就是说，每个 token 会经历 96 次这样的"信息更新"。</p><p>最终输出的向量，已经不再是孤立的词义，而是<strong>包含了整个上下文信息的、高度压缩的语义表示</strong>。</p><h2 id=2-从-rnn-到-attention为什么旧时代崩塌>2. 从 RNN 到 Attention：为什么旧时代崩塌？</h2><p>要真正理解 Attention 的价值，必须先理解它在解决什么问题。</p><h3 id=rnnlstm-的三个致命问题>RNN/LSTM 的三个致命问题</h3><p><strong>问题一：长距离依赖（Long-range dependency）</strong></p><p>RNN 的工作方式像一个人在读书，每次只看一个词，然后把"记忆"（hidden state）传递给下一个时刻。问题是：当序列很长时，早期的信息经过多次传递，会越来越稀薄。</p><p>想象一个极端例子：</p><blockquote><p>&ldquo;我在法国长大，父母都是巴黎人，从小说法语，后来去了美国读书，毕业后在硅谷工作，现在已经十年没回去了，但我的母语仍然是______&rdquo;</p></blockquote><p>答案是"法语"，但关键信息在序列最开始。RNN 在处理到最后时，早已"忘记"了开头的上下文。LSTM 通过门控机制有所改善，但本质问题没有解决——<strong>信息必须通过一个窄瓶颈（hidden state）逐步传递</strong>。</p><p><strong>问题二：串行计算（Sequential computation）</strong></p><p>RNN 必须按顺序处理每个 token：先处理第 1 个，再处理第 2 个，依此类推。这意味着：</p><ul><li>无法并行化</li><li>在现代 GPU（擅长大规模并行计算）上效率极低</li><li>训练长序列时，时间成本线性增长</li></ul><p>这是工程上的死穴。</p><p><strong>问题三：表达瓶颈（Representation bottleneck）</strong></p><p>整个序列的语义，必须被压缩进一个固定大小的 hidden state 向量里。无论句子多长、多复杂，这个向量的维度是固定的。</p><p>这就像要你用一张明信片，描述清楚一本书的全部内容。</p><h3 id=attention-如何一刀解决>Attention 如何一刀解决</h3><p>Self-Attention 的核心思想极其优雅：</p><p><strong>与其让信息"穿越时间隧道"逐步传递，不如让每个 token 直接"看到"序列中所有其他 token，按需提取信息。</strong></p><ul><li>长距离依赖？不存在。任意两个 token 之间的距离，都是 1（直接注意力连接）。</li><li>串行计算？不存在。所有 token 的 Attention 计算可以完全并行。</li><li>表达瓶颈？不存在。每个 token 都可以直接访问完整的序列信息，不需要挤过一个固定大小的瓶颈。</li></ul><p>三个问题，一个机制，全部解决。</p><p>这就是为什么 2017 年那篇论文用了一个如此自信的标题——<em>Attention Is All You Need</em>。</p><h1 id=第二部分一张图看懂-transformer>第二部分：一张图看懂 Transformer</h1><h2 id=3-一张总图llm-在干什么>3. 一张总图：LLM 在干什么？</h2><p>让我们把整个流程用最直观的方式串联起来：</p><pre tabindex=0><code>输入文本: &#34;The cat sat on the&#34;
+        ↓
+[Tokenization]
+&#34;The&#34; / &#34;cat&#34; / &#34;sat&#34; / &#34;on&#34; / &#34;the&#34;
+        ↓
+[Embedding]
+每个 token → 一个高维向量（比如 4096 维）
+        ↓
+[Position Encoding]
+向量 + 位置信息（第1个词、第2个词...）
+        ↓
+[Transformer Block × N]
+  ┌──────────────────────┐
+  │  Multi-Head Attention │  ← 信息路由（token 之间通信）
+  │  Add &amp; LayerNorm      │
+  │  Feed-Forward Network │  ← 信息处理（每个 token 独立计算）
+  │  Add &amp; LayerNorm      │
+  └──────────────────────┘
+        ↓ (重复 N 次，N 可能是 96 或更多)
+[最后一层的输出向量]
+        ↓
+[Language Model Head]
+输出向量 → 词汇表上的概率分布（50000 个词，每个有一个概率）
+        ↓
+[采样]
+选取下一个 token（比如 &#34;mat&#34;）
+</code></pre><p>这就是完整的数据流。没有魔法，只是矩阵乘法和非线性激活函数，在极大规模下重复执行。</p><h2 id=4-为什么现代-llm-都是-decoder-only>4. 为什么现代 LLM 都是 Decoder-only？</h2><p>原始的 Transformer（2017 年）有两部分：<strong>Encoder</strong> 和 <strong>Decoder</strong>，专门用于机器翻译——Encoder 读源语言，Decoder 写目标语言。</p><p>但现代 LLM——GPT、Claude、LLaMA——都是 <strong>Decoder-only</strong> 架构。Encoder 去哪儿了？</p><p><strong>Encoder 被"淘汰"的本质原因：</strong></p><p>Encoder 的设计是双向的，也就是说，处理某个 token 时，它可以同时看到左边和右边的上下文。这对理解任务（分类、抽取）很好，但对<strong>生成任务</strong>来说，这在逻辑上是矛盾的——你在生成第 k 个词时，右边的词根本还不存在。</p><p>Decoder-only 架构使用<strong>因果掩码（Causal Mask）</strong>，强制每个 token 只能看到自己左边（之前）的内容。这使得它天然适合自回归生成：一个 token 一个 token 地往右生成。</p><p>更深层的原因是：研究者发现，<strong>Decoder-only 架构 + 足够大的规模 + 足够多的数据，在几乎所有任务上都能超越 Encoder-Decoder 架构</strong>。包括原本被认为需要 Encoder 的理解类任务。</p><p>这是 Scaling Law 带来的实证结论，不是先验设计。</p><h1 id=第三部分语言是怎么变成向量的>第三部分：语言是怎么变成向量的？</h1><h2 id=5-tokenization语言不是词而是压缩编码>5. Tokenization：语言不是词，而是压缩编码</h2><p>大多数人以为 LLM 以"词"为单位处理文本。这是错的。</p><p>LLM 处理的是 <strong>Token</strong>——一种介于字符和单词之间的语言单位。</p><p><code>"unbelievable"</code> 可能被切分成 <code>["un", "believ", "able"]</code> 三个 token。
+<code>"ChatGPT"</code> 可能是一个 token，也可能是两个，取决于训练数据。
+中文 <code>"我爱北京天安门"</code> 在某些 tokenizer 里每个字是一个 token。</p><p><strong>为什么要这样做？</strong></p><p>核心原因是<strong>信息压缩</strong>。</p><p>BPE（Byte Pair Encoding）和 SentencePiece 的算法逻辑是：找出训练语料中出现频率最高的字符组合，将其合并成一个新的 token。反复执行这个过程，直到词表达到目标大小（通常 32000 到 200000 个 token）。</p><p>效果是：常见词（&ldquo;the&rdquo;、&ldquo;is&rdquo;）被编码为单个 token，罕见词被拆成子词片段，极罕见字符退化为字节。</p><p><strong>关键认知点：Token ≠ 单词。</strong></p><p>这个认知会帮你理解很多 LLM 的"奇怪行为"：</p><ul><li>为什么 LLM 数数字母有时会数错？（因为"strawberry"可能是一个 token，模型没有"看到"里面有几个 r）</li><li>为什么某些拼写任务对 LLM 困难？（操作 token 不等于操作字符）</li><li>为什么 token 长度影响模型成本？（按 token 计费，不按词计费）</li></ul><h2 id=6-embedding语义空间是如何形成的>6. Embedding：语义空间是如何形成的？</h2><p>Token 经过 Tokenization 变成一个整数 ID（比如 4821）。但整数 ID 本身没有任何语义结构——4821 和 4822 不应该比 4821 和 9000 更"相似"。</p><p><strong>Embedding</strong> 把这个 ID 映射成一个高维向量（比如 4096 维的浮点数向量）。</p><p>这个映射本身就是一个巨大的查找表，在训练过程中不断被优化。</p><p><strong>&ldquo;词向量"其实是统计结构</strong></p><p>Embedding 的神奇之处在于：训练结束后，语义相似的词，在向量空间中的距离也相近。</p><p>这不是人为设计的，而是从大量文本的共现统计中<strong>涌现</strong>出来的。</p><p>直觉解释：如果"猫"和"狗"总是出现在相似的上下文里（&ldquo;我养了一只___"、&ldquo;宠物___"），那么预测任务会倾向于给它们分配相似的向量——因为相似的向量在后续计算中会产生相似的行为，这对减小预测误差是有利的。</p><p><strong>为什么相似词会靠近？</strong></p><p>因为 Transformer 的目标是最小化预测下一个 token 的误差。在这个目标下，语义相近的词可以"共享"更多的表示结构，这比让它们的向量天各一方更高效。优化压力，自然地将语言的语义结构编码进了几何空间。</p><h2 id=7-位置编码transformer-如何记住顺序>7. 位置编码：Transformer 如何"记住顺序&rdquo;？</h2><p>这是一个非常微妙但重要的问题。</p><p><strong>为什么 Attention 本身是"无序的&rdquo;？</strong></p><p>Self-Attention 机制在计算时，把所有 token 的向量打包成一个矩阵，然后做矩阵运算。在这个过程中，每个 token 对其他 token 的关注度，取决于它们向量之间的相似性——但完全不考虑它们的位置顺序。</p><p>换句话说，如果你把输入 token 的顺序打乱，Self-Attention 的计算结果（排列意义上）是一样的。</p><p>这意味着：如果不额外加入位置信息，<code>"猫 吃 鱼"</code> 和 <code>"鱼 吃 猫"</code> 对模型来说完全一样——这显然是灾难性的。</p><p><strong>解决方案：位置编码（Positional Encoding）</strong></p><p>最简单的方式：给每个位置生成一个固定的向量，加到 Embedding 上。模型就能感知到"这是序列里第 3 个 token&rdquo;。</p><p>原始 Transformer 用的是正弦/余弦函数生成的固定位置向量。这有效，但有局限：预设了最大序列长度，外推能力差。</p><p><strong>RoPE 为什么成为主流？</strong></p><p>RoPE（Rotary Position Embedding，旋转位置编码）是现代 LLM 的主流选择（LLaMA、Mistral、GPT-NeoX 等都用它）。</p><p>直觉解释：与其把位置信息"加"到向量上，RoPE 将其<strong>旋转</strong>向量。具体来说，两个 token 在 Attention 计算中的相对关系，通过它们向量之间的旋转角度来体现。</p><p>这样设计的好处：</p><ol><li><strong>相对位置自然涌现</strong>：模型关注的是两个 token 的相对距离，而非绝对位置</li><li><strong>外推能力强</strong>：通过频率调整（YaRN、LongRoPE 等方法），可以将上下文窗口从 4K 扩展到 128K 甚至更长</li><li><strong>与 Attention 计算无缝结合</strong>：不需要修改架构，只需在 Q、K 向量上施加旋转变换</li></ol><p>你不需要理解旋转的具体数学，只需记住直觉：<strong>RoPE 让模型在做 Attention 时，天然感知到两个 token 之间的相对距离</strong>。</p><h1 id=第四部分注意力机制>第四部分：注意力机制</h1><h2 id=8-self-attention-的直觉版本不写公式>8. Self-Attention 的直觉版本（不写公式）</h2><p>先忘掉公式，从最直观的角度理解。</p><p><strong>Query / Key / Value = 信息检索系统</strong></p><p>想象你在用搜索引擎：</p><ul><li>你输入一个<strong>搜索词（Query）</strong></li><li>数据库里每条记录有一个<strong>索引标签（Key）</strong></li><li>实际内容是<strong>Value</strong></li></ul><p>搜索的过程：将你的 Query 和每条记录的 Key 做匹配，相关的 Key 得到高分，最终返回高分记录的 Value 的加权组合。</p><p>Self-Attention 做的就是这件事，只不过：</p><ul><li>Query、Key、Value 都来自<strong>同一个序列</strong></li><li>每个 token 同时扮演三个角色：它既是查询者（Query），也是被查询者（Key + Value）</li><li>每个 token 通过自己的 Query，在序列中查找和自己相关的信息（Key 高度匹配的位置），然后提取那些位置的 Value</li></ul><p><strong>类比</strong>：</p><p>想象一个圆桌会议，每个人都在讲话。你（当前 token）需要决定：此刻，谁说的话和我最相关？你用自己的"问题"（Query）去匹配每个人的"话题标签"（Key），然后重点听那些标签最符合你问题的人说的话（Value）。</p><p>这就是 Self-Attention。</p><h2 id=9-从直觉到数学attention-到底在算什么>9. 从直觉到数学：Attention 到底在算什么？</h2><pre tabindex=0><code>Attention(Q, K, V) = softmax(QK^T / √dk) · V
+</code></pre><p>看起来复杂，但拆开来非常清晰：</p><p><strong>第一步：QK^T（计算相关性分数）</strong></p><p>Q 是一个矩阵（每行是一个 token 的 Query 向量），K 也是一个矩阵（每行是一个 token 的 Key 向量）。</p><p>QK^T 做的是：让序列中<strong>每对</strong> token 之间计算一个点积分数，得到一个 n×n 的分数矩阵。</p><p>点积越大 → 两个向量越相似 → 这两个 token 越"相关"。</p><p><strong>第二步：除以 √dk（缩放）</strong></p><p>为什么要除以一个数？</p><p>因为 dk（Key 向量的维度）通常很高（比如 128）。在高维空间里，点积的数值会随维度增大而增大，导致 softmax 的输入数值过大，使得 softmax 的输出变得极度尖锐（几乎把所有注意力集中在一个 token 上）。</p><p>除以 √dk 是一个归一化操作，把数值压回一个合理的范围，确保梯度不会消失，训练稳定进行。这是一个非常实用的工程技巧，背后的直觉就是：<strong>高维点积需要缩放才能被 softmax 正常处理</strong>。</p><p><strong>第三步：softmax（转换为概率）</strong></p><p>Softmax 把分数矩阵的每一行转换成概率分布——所有值加起来等于 1，且都是正数。</p><p>这就是"注意力权重"：token i 对 token j 的注意力权重，表示 i 在更新自己时应该从 j 那里提取多少信息。</p><p><strong>第四步：乘以 V（加权聚合）</strong></p><p>用注意力权重对 Value 矩阵做加权求和，得到每个 token 的新表示。</p><p>整个过程：<strong>用相似度加权，从序列中提取最相关的信息，融合成当前 token 的新表示</strong>。</p><h2 id=10-multi-head-attention为什么要多视角看世界>10. Multi-Head Attention：为什么要"多视角看世界"？</h2><p>单头 Attention 有一个问题：在同一次计算中，每个 token 只能用一种"注意力模式"去看其他 token。但语言的关系是多维的——语法关系、语义关系、指代关系、位置关系……</p><p><strong>Multi-Head Attention</strong> 的解法极其优雅：</p><p>把 Q、K、V 各自线性投影到 h 个更小的子空间（每个子空间叫一个 &ldquo;head&rdquo;），在每个子空间里独立做 Attention，然后把所有 head 的输出拼接起来，再投影回原始维度。</p><p><strong>每个 head 学不同模式</strong></p><p>大量的可视化研究表明，不同 head 确实专注于不同的语言关系：</p><ul><li>某些 head 关注直接相邻的 token（局部语法结构）</li><li>某些 head 追踪代词和其指代对象之间的关系（&ldquo;他&rdquo;→&ldquo;约翰&rdquo;）</li><li>某些 head 捕捉动词和其宾语之间的依存关系</li><li>某些 head 关注对称性结构（括号匹配、列举关系）</li></ul><p>没有人告诉模型要学这些，这些模式是在预测任务的压力下<strong>自动涌现</strong>的。</p><p>这是 Transformer 最令人惊叹的特性之一：<strong>它在没有语言学监督的情况下，自己发现了语言学规律</strong>。</p><h2 id=11-causal-maskllm-为什么不会偷看答案>11. Causal Mask：LLM 为什么不会"偷看答案"？</h2><p>回到前面提到的一个关键问题：LLM 是自回归的——它在生成第 k 个 token 时，右边的 token 还不存在。</p><p>但 Transformer 的 Attention 机制在没有限制的情况下，会让每个 token 都能看到序列中所有其他 token（包括右边的）。</p><p><strong>这在生成时是不允许的</strong>：如果训练时 token k 能看到 token k+1、k+2，它就"作弊"了，学到的不是真正的语言分布，而是一种取巧的映射。</p><p><strong>Causal Mask 的解法</strong>：</p><p>在 Attention 分数矩阵上，把所有"向右看"的位置（上三角）设为负无穷（-∞）。经过 softmax 后，-∞ 变成 0——也就是说，这些位置的注意力权重为 0，完全被忽略。</p><p>这样，每个 token 只能从左边（之前生成的内容）获取信息，自然地实现了<strong>时间因果性</strong>。</p><p>训练时和推理时，这个 mask 的逻辑完全一致：模型从来不"看未来"。</p><h1 id=第五部分transformer-block-内部到底发生了什么>第五部分：Transformer Block 内部到底发生了什么？</h1><h2 id=12-一个-block-的完整拆解最重要小节>12. 一个 Block 的完整拆解（最重要小节）</h2><p>这是理解 Transformer 最关键的部分。让我们把一个 Block 拆成四个步骤：</p><pre tabindex=0><code>输入 x
+  ↓
+[Multi-Head Self-Attention(x)]
+  ↓ 得到注意力输出 attn
+[x + attn]  ← 残差连接（Residual Connection）
+  ↓ 得到 x₁
+[LayerNorm(x₁)]
+  ↓ 得到 x₂
+[Feed-Forward Network(x₂)]
+  ↓ 得到 ffn
+[x₂ + ffn]  ← 残差连接
+  ↓ 得到 x₃
+[LayerNorm(x₃)]
+  ↓
+输出（作为下一个 Block 的输入）
+</code></pre><p>每个 Block 的作用：让 token 的表示向量，经过一次"信息交换 + 信息处理"后，变得更丰富、更具上下文感知能力。</p><p>96 个 Block 串联下来，最后一层的向量，已经包含了整个上下文的高度抽象语义信息。</p><h2 id=13-ffn为什么-attention-之后还要-mlp>13. FFN：为什么 Attention 之后还要 MLP？</h2><p>这是一个好问题：既然 Attention 已经做了信息聚合，为什么还需要一个 Feed-Forward Network（本质是两层 MLP）？</p><p><strong>Attention 是"通信"，FFN 是"计算"。</strong></p><ul><li>Attention 的作用：让 token 之间相互交换信息（跨位置的信息路由）</li><li>FFN 的作用：对每个 token 独立地进行非线性变换（位置无关的特征提取）</li></ul><p>一个流行的解释来自 Geva 等人 2021 年的研究：<strong>FFN 层像是一个巨大的键值存储（key-value memory store）</strong>。</p><p>直觉上，Attention 层负责确定"现在这个位置应该关注什么类型的信息"，而 FFN 层负责"根据这个类型，检索和处理相应的知识"。</p><p>这就是为什么 FFN 的中间维度通常是 Attention 维度的 4 倍甚至更多——它需要足够的容量来存储和处理大量的"隐性知识"。</p><p>有研究表明，一些具体的事实性知识（比如"巴黎是法国的首都"）可以被定位到特定 FFN 层的特定神经元。这说明 FFN 不只是在做特征变换，还在进行某种形式的"知识存储"。</p><h2 id=14-layernorm--residual训练为什么不会崩>14. LayerNorm + Residual：训练为什么不会崩？</h2><p><strong>残差连接（Residual Connection）</strong></p><p>公式：<code>output = x + f(x)</code></p><p>为什么这个简单的加法操作，对深度网络至关重要？</p><p>想象没有残差连接的 96 层网络。梯度在反向传播时，每经过一层都要乘以一个雅可比矩阵。96 次相乘之后，梯度要么变成 0（梯度消失），要么爆炸到无穷大——两种情况都会让训练完全失败。</p><p>残差连接提供了一条"梯度高速公路"：梯度可以直接通过跳跃连接流回早期层，不需要经过 f(x) 的变换。这让梯度传播变得稳定，使得 100+ 层的网络可以被正常训练。</p><p>另一个直觉：残差连接让网络学的是"残差"（需要修正的部分），而不是"全量变换"。如果某一层的变换不必要，它可以学成恒等映射（f(x) → 0），让输入直接通过。这降低了每层的学习难度。</p><p><strong>Layer Normalization</strong></p><p>LayerNorm 对每个 token 的向量做归一化（减去均值，除以标准差），使得数值保持在合理范围内。</p><p>为什么需要归一化？因为随着网络加深，向量的数值分布会漂移，导致后续层的 Attention 计算出现数值不稳定问题。LayerNorm 把分布"拉回"标准化状态，让每一层都能在稳定的数值范围内工作。</p><p>现代 LLM（如 LLaMA）通常把 LayerNorm 放在 Attention 和 FFN <strong>之前</strong>（Pre-Norm），而不是之后（Post-Norm），这进一步改善了训练稳定性。</p><h1 id=第六部分模型是怎么学会语言的>第六部分：模型是怎么学会语言的？</h1><h2 id=15-训练目标为什么预测下一个词就够了>15. 训练目标：为什么"预测下一个词"就够了？</h2><p>这是整个 LLM 领域最深刻的洞见之一，值得认真思考。</p><p><strong>信息论视角：</strong></p><p>Shannon 的信息论告诉我们，一个信息源的"熵"，等于从该信息源完美预测下一个符号所需要的平均比特数。</p><p>换句话说：<strong>如果你能完美预测下一个词，你就完全理解了这个信息源的统计结构</strong>。</p><p>语言是一个极其复杂的信息源。为了完美预测下一个词，模型需要学会：</p><ul><li>语法规则（&ldquo;is&rdquo; 后面跟动名词还是原型？）</li><li>语义关系（&ldquo;法国的首都"后面最可能是"巴黎&rdquo;）</li><li>世界知识（&ldquo;爱因斯坦发现了___&ldquo;后面是相对论相关的内容）</li><li>文体风格（学术论文的下一句和微博的下一句截然不同）</li><li>逻辑推理（前提铺垫之后，合理的结论是什么？）</li></ul><p>所有这些，都被这一个训练目标隐含地涵盖了。这就是为什么"预测下一个词"看似简单，实则是一个极其通用和强大的学习信号。</p><h2 id=16-loss-函数到底在优化什么>16. Loss 函数到底在优化什么？</h2><p>LLM 的训练损失是<strong>交叉熵（Cross-Entropy）</strong>。</p><p>不用记公式，理解直觉：</p><p>模型对每个位置输出一个概率分布，表示"下一个 token 是词表中每个词的概率&rdquo;。如果词表有 50000 个词，那就是一个 50000 维的概率向量。</p><p>训练的目标是：让<strong>真实 token</strong>（ground truth）对应的概率尽可能高，其他 token 的概率尽可能低。</p><p>交叉熵的计算方式是：取真实 token 的概率的负对数。如果真实 token 概率很高（接近 1），负对数接近 0（损失小）；如果概率很低（接近 0），负对数趋向无穷（损失大）。</p><p>整个训练就是在最小化这个损失：<strong>让模型在每个位置，对真实下一个 token 的预测概率越来越高</strong>。</p><h2 id=17-scaling-law为什么模型越大越聪明>17. Scaling Law：为什么模型越大越聪明？</h2><p>2020 年，OpenAI 发表了一篇奠基性论文，揭示了 LLM 的<strong>幂律缩放定律（Scaling Laws）</strong>：</p><blockquote><p>模型在语言建模任务上的性能（用 loss 衡量），与<strong>参数量 N</strong>、<strong>训练数据量 D</strong>、<strong>计算量 C</strong> 之间，存在可预测的幂律关系。</p></blockquote><p>直觉解释：</p><ul><li><strong>更多参数</strong>：更大的 FFN 层 = 更多可以存储的"隐性知识&rdquo;；更宽的 Attention = 更高维的语义表示空间</li><li><strong>更多数据</strong>：更丰富的语言分布统计 = 更少的泛化误差</li><li><strong>更多计算</strong>：参数被更充分地更新，收敛到更好的局部最优</li></ul><p><strong>关键洞见</strong>：这三者之间存在最优比例关系（Chinchilla 定律）。粗略来说：参数量翻倍时，训练数据量也应该翻倍，才能充分利用模型容量。早期很多模型（包括 GPT-3）其实是"过大欠训"（参数很多但训练数据相对不足）的。</p><p><strong>为什么这改变了世界？</strong></p><p>因为这意味着模型性能是<strong>可预测的</strong>、<strong>可工程化的</strong>。你不需要靠运气找到好的架构——只要把三个旋钮（参数、数据、计算）按比例调大，性能就会按规律提升。这让 LLM 的研发从"科学探索"变成了"工程建设"。</p><h1 id=第七部分推理时到底发生了什么>第七部分：推理时到底发生了什么？</h1><h2 id=18-生成过程逐步拆解token-by-token>18. 生成过程逐步拆解（token by token）</h2><p>假设输入是：<code>"The capital of France is"</code></p><p>模型怎么生成下一个词？</p><p><strong>步骤一：前向传播</strong></p><p>把输入 tokenize，每个 token 经过 Embedding + Position Encoding，然后通过所有 Transformer Block，最终得到最后一个 token（<code>"is"</code>）的输出向量。</p><p><strong>步骤二：Language Model Head</strong></p><p>把输出向量乘以词表矩阵（本质上是 Embedding 层的转置），得到词表上的 logits 向量（50000 维）。</p><p><strong>步骤三：Softmax</strong></p><p>把 logits 转换为概率分布。</p><p><strong>步骤四：采样</strong></p><p>从概率分布中选取下一个 token（比如 <code>"Paris"</code>）。</p><p><strong>步骤五：自回归循环</strong></p><p>把 <code>"Paris"</code> 拼接到输入序列末尾，重复上述过程，生成下一个 token（比如 <code>"."</code>）。</p><p>如此往复，直到生成终止 token 或达到最大长度。</p><p><strong>关键点</strong>：每次生成一个 token，都需要对整个（到目前为止的）序列做一次完整的前向传播。如果没有优化，这会极其低效。</p><h2 id=19-kv-cache为什么推理可以加速-10x>19. KV Cache：为什么推理可以加速 10x？</h2><p>上面提到，每次生成新 token 时，需要对整个序列做前向传播。但仔细想想——对于已经处理过的 token，它们的 Key 和 Value 向量（Attention 计算中用到的）其实不会改变！</p><p>（因为 Causal Mask，每个已有 token 的 Attention 结果不依赖于未来的 token）</p><p><strong>KV Cache</strong> 的原理：把每一层 Attention 计算出的 Key 和 Value 向量<strong>缓存起来</strong>，下次生成新 token 时，只需要：</p><ol><li>对新 token 计算它的 Q、K、V</li><li>用新 token 的 Q，与缓存的所有历史 K 做 Attention</li><li>用 Attention 权重，对缓存的所有历史 V 做加权求和</li></ol><p>不需要重新计算历史 token 的 K、V——这些计算量占了推理的绝大部分。</p><p><strong>效果</strong>：理论上，推理速度从 O(n²) 降到了近似 O(n)（n 是序列长度），实际加速可以达到 10x 甚至更多。</p><p><strong>代价</strong>：KV Cache 需要存储每一层、每个 token 的 K 和 V 向量，内存占用巨大。对于长上下文（128K token）的大模型，KV Cache 本身就可能占用数十 GB 内存。这是现代 LLM 推理的主要内存瓶颈。</p><h2 id=20-采样策略模型性格的来源>20. 采样策略：模型"性格"的来源</h2><p>为什么同一个模型，有时输出非常保守，有时输出天马行空？</p><p>这取决于<strong>采样策略</strong>。</p><p><strong>Greedy Decoding（贪心解码）</strong>：</p><p>每次选择概率最高的 token。</p><p>特点：确定性、可复现，但输出往往单调、重复。极端情况下会陷入循环（&ldquo;这是最好的，这是最好的，这是最好的……"）。</p><p><strong>Temperature（温度采样）</strong>：</p><p>在 softmax 之前，把 logits 除以一个"温度"参数 T。</p><ul><li>T &lt; 1（低温）：概率分布变得更尖锐，高概率 token 更容易被选中，输出更保守、更可预测</li><li>T > 1（高温）：概率分布变得更平坦，低概率 token 也有机会被选中，输出更随机、更多样</li><li>T = 1：原始分布</li></ul><p>Temperature 就是调节"模型性格"的旋钮：低温=谨慎，高温=放飞自我。</p><p><strong>Top-p（Nucleus Sampling）</strong>：</p><p>不是限制候选数量，而是限制候选集合的累积概率。</p><p>具体做法：按概率从高到低排列所有 token，找到使累积概率刚好超过 p（比如 0.9）的最小 token 集合，从这个集合中采样。</p><p>好处：动态调整候选集大小——当模型非常确定时（一个词的概率就超过了 0.9），只在极小的候选集里选；当模型不确定时（需要很多词才能累积到 0.9），有更广泛的选择空间。</p><p><strong>为什么模型有时"发散&rdquo;？</strong></p><p>高 Temperature + 不当的 top-p 设置 + 某些触发条件，可能让模型进入"高熵状态"——每步都选择了低概率 token，导致上下文越来越偏离，模型试图"圆场"时反而越跑越远。这就是"模型发散"的本质。</p><h1 id=第八部分现代-llm-的进化方向>第八部分：现代 LLM 的进化方向</h1><h2 id=21-长上下文问题为什么-transformer-很贵>21. 长上下文问题：为什么 Transformer 很贵？</h2><p>Self-Attention 的计算量和内存占用，与序列长度 n 的<strong>平方成正比</strong>——这就是著名的 O(n²) 问题。</p><p>为什么是 n²？</p><p>因为 Attention 要计算序列中<strong>每对</strong> token 之间的相关性。n 个 token 就有 n² 个 token 对，每个 token 对需要一次向量点积计算。</p><p>对于短序列（n=2048），这还可以接受。但当 n=128000（现代长上下文模型的目标），计算量是 (128000)² = 1.6 × 10¹⁰，内存占用是 128K × 128K 的矩阵——在所有层上叠加，这是无法承受的数字。</p><p>这就是 Transformer 扩展到超长上下文的核心瓶颈。</p><h2 id=22-各种优化思路>22. 各种优化思路</h2><p><strong>Sparse Attention（Longformer / BigBird）</strong></p><p>核心思想：不是让每个 token 关注所有其他 token，而是只关注：局部窗口内的 token + 少量全局 token + 随机采样的 token。</p><p>效果：把计算复杂度从 O(n²) 降到 O(n)，代价是可能错过一些远距离的重要联系。</p><p><strong>Linear Attention</strong></p><p>将 Attention 的计算重新组合，利用矩阵运算的结合律，把 O(n²) 降到 O(n)。</p><p>技术上是可行的，但现实中 Linear Attention 的表现通常不如标准 Attention——它牺牲了一定的表达能力来换取效率。这是一个活跃的研究领域。</p><p><strong>MoE（Mixture of Experts，混合专家）</strong></p><p>这是一个完全不同的思路：与其增大模型密度（让所有参数对每个 token 都激活），不如增大模型总参数量，但每次只激活其中一小部分（&ldquo;专家&rdquo;）。</p><p>比如 GPT-4 据传是 MoE 架构，总参数量约 1.8T，但每次推理只激活约 220B 的参数。</p><p>好处：用更少的计算量（FLOPs），获得更大模型的性能。</p><p>代价：路由机制复杂，训练稳定性要求高，推理时仍需加载全部参数（内存需求未减少）。</p><h2 id=23-新架构挑战者>23. 新架构挑战者</h2><p><strong>Mamba（SSM 系列）</strong></p><p>Mamba 基于状态空间模型（State Space Model），用一个"选择性"的循环机制代替 Self-Attention。</p><p>核心优势：推理时的计算复杂度是 O(n)（每步只需更新固定大小的状态），内存占用不随序列增长而增长。</p><p>对于超长上下文（百万 token 级别），Mamba 理论上有显著优势。</p><p>现实挑战：目前，Mamba 在大规模训练和性能上仍落后于同量级的 Transformer，尚未证明能够完全替代。</p><p><strong>RWKV</strong></p><p>RWKV 尝试结合 RNN 的推理效率和 Transformer 的训练并行性——训练时像 Transformer（并行），推理时像 RNN（线性）。</p><p>挑战与 Mamba 类似：在最强性能上，目前仍难以匹敌顶级 Transformer。</p><p><strong>结论</strong>：Transformer 的地位目前非常稳固。挑战者存在，但尚未证明自己。这个领域在快速演化，未来三年可能会有实质性的架构变化。</p><h1 id=第九部分模型内部到底学了什么>第九部分：模型内部到底学了什么？</h1><h2 id=24-attention-可视化模型在看哪里>24. Attention 可视化：模型在"看哪里"？</h2><p>通过提取各层 Attention 权重矩阵并可视化，研究者发现了很多有趣的模式：</p><ul><li><strong>浅层</strong>：倾向于关注相邻 token（局部依存关系，类似 n-gram）</li><li><strong>中间层</strong>：出现语法相关的模式（动词关注其论元，代词关注指代对象）</li><li><strong>深层</strong>：更抽象的语义关系，以及与任务目标相关的模式</li></ul><p>一个经典发现：在处理"The animal didn&rsquo;t cross the street because <strong>it</strong> was too tired"时，对应"it"的 Attention head 会将注意力集中在"animal"上，正确解析了指代关系。这种模式在不同模型、不同规模中都能重现，说明 Transformer 确实学到了一些语言学意义上的结构。</p><p>但要小心过度解读：Attention 权重并不直接等于"重要性"，它是信息路由的权重，不是因果解释。</p><h2 id=25-logit-lens中间层在说什么>25. Logit Lens：中间层在说什么？</h2><p>Logit Lens 是一个优雅的分析工具。</p><p>想法：把每一个中间层的输出向量，直接通过 Language Model Head 解码成 token 概率分布，看看"模型在这一层的输出，如果直接生成，会说什么"。</p><p>发现：</p><ul><li><strong>最初几层</strong>：输出的 token 几乎是随机的，没有语义</li><li><strong>中间层</strong>：开始出现合理但粗糙的预测（比如正确的语义类别）</li><li><strong>后面几层</strong>：预测越来越精准，最终与实际输出一致</li></ul><p>这说明模型是在<strong>逐层精化</strong>语义表示——不是在某一层突然"顿悟"，而是每一层都在对表示做一次小幅度的修正和改进。</p><p>这个视角支持了一个重要观点：<strong>Transformer 的深度不只是为了"更多计算"，而是为了"多轮语义精化"</strong>。</p><h2 id=26-模型有没有理解批判性讨论>26. 模型有没有"理解"？（批判性讨论）</h2><p>这是 AI 领域最有争议的问题之一。让我们用更精确的方式来讨论它。</p><p><strong>支持"有理解"的证据：</strong></p><ul><li>模型能够完成需要多步推理的任务（数学证明、代码调试）</li><li>在没有见过的领域组合上能够泛化（将医学知识和法律知识结合应用）</li><li>语义表示空间具有组合性（King - Man + Woman ≈ Queen 之类的关系）</li><li>Attention 模式对应语言学结构（见上）</li></ul><p><strong>反对"真正理解"的证据：</strong></p><ul><li><strong>分布外脆弱性</strong>：对输入做微小的语义无关修改（改变词序、添加无关短语），模型有时会给出完全不同的答案</li><li><strong>逻辑一致性问题</strong>：模型对同一问题的不同表述，有时给出矛盾的答案</li><li><strong>无世界模型</strong>：模型没有独立于语言的感知和行动能力，所有"理解"都是语言内的统计关系</li><li><strong>幻觉问题</strong>：模型会自信地生成错误信息，这表明它并不"知道自己知道什么"</li></ul><p><strong>更准确的描述：</strong></p><p>LLM 学到的是一种<strong>语言的统计结构映射</strong>——它能非常精准地模拟"一个博学之人在各种情境下会说什么"。这种模拟在很多情况下和"理解"在功能上等价，但在机制上有本质不同。</p><p>用 John Searle 的"中文房间"思想实验来说：LLM 可能是一个极其精密的"中文房间"。但这个"房间"足够大时，&ldquo;理解"和"完美的功能性模拟"之间的实践区别，也许比我们以为的要小。</p><p>这个问题没有确定答案，而且可能无法用现有的哲学框架解答。</p><h1 id=第十部分实践>第十部分：实践</h1><h2 id=27-用-pytorch-写一个最小-transformer>27. 用 PyTorch 写一个最小 Transformer</h2><p>只保留核心逻辑，去掉所有工程噪音：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch.nn <span style=color:#66d9ef>as</span> nn
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch.nn.functional <span style=color:#66d9ef>as</span> F
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> math
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MultiHeadAttention</span>(nn<span style=color:#f92672>.</span>Module):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, d_model, n_heads):
+</span></span><span style=display:flex><span>        super()<span style=color:#f92672>.</span><span style=color:#a6e22e>__init__</span>()
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>assert</span> d_model <span style=color:#f92672>%</span> n_heads <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>d_k <span style=color:#f92672>=</span> d_model <span style=color:#f92672>//</span> n_heads
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>n_heads <span style=color:#f92672>=</span> n_heads
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Q, K, V 投影矩阵</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>W_q <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Linear(d_model, d_model, bias<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>W_k <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Linear(d_model, d_model, bias<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>W_v <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Linear(d_model, d_model, bias<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>W_o <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Linear(d_model, d_model, bias<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>forward</span>(self, x, mask<span style=color:#f92672>=</span><span style=color:#66d9ef>None</span>):
+</span></span><span style=display:flex><span>        B, T, C <span style=color:#f92672>=</span> x<span style=color:#f92672>.</span>shape  <span style=color:#75715e># batch, seq_len, d_model</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 投影并分成多个头</span>
+</span></span><span style=display:flex><span>        Q <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>W_q(x)<span style=color:#f92672>.</span>view(B, T, self<span style=color:#f92672>.</span>n_heads, self<span style=color:#f92672>.</span>d_k)<span style=color:#f92672>.</span>transpose(<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>)
+</span></span><span style=display:flex><span>        K <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>W_k(x)<span style=color:#f92672>.</span>view(B, T, self<span style=color:#f92672>.</span>n_heads, self<span style=color:#f92672>.</span>d_k)<span style=color:#f92672>.</span>transpose(<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>)
+</span></span><span style=display:flex><span>        V <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>W_v(x)<span style=color:#f92672>.</span>view(B, T, self<span style=color:#f92672>.</span>n_heads, self<span style=color:#f92672>.</span>d_k)<span style=color:#f92672>.</span>transpose(<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>)
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 现在 Q/K/V 的形状: (B, n_heads, T, d_k)</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Attention 计算</span>
+</span></span><span style=display:flex><span>        scores <span style=color:#f92672>=</span> Q <span style=color:#f92672>@</span> K<span style=color:#f92672>.</span>transpose(<span style=color:#f92672>-</span><span style=color:#ae81ff>2</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>) <span style=color:#f92672>/</span> math<span style=color:#f92672>.</span>sqrt(self<span style=color:#f92672>.</span>d_k)  <span style=color:#75715e># (B, n_heads, T, T)</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Causal mask（只看左边）</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> mask <span style=color:#f92672>is</span> <span style=color:#f92672>not</span> <span style=color:#66d9ef>None</span>:
+</span></span><span style=display:flex><span>            scores <span style=color:#f92672>=</span> scores<span style=color:#f92672>.</span>masked_fill(mask <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>, float(<span style=color:#e6db74>&#39;-inf&#39;</span>))
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        attn <span style=color:#f92672>=</span> F<span style=color:#f92672>.</span>softmax(scores, dim<span style=color:#f92672>=-</span><span style=color:#ae81ff>1</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 加权聚合</span>
+</span></span><span style=display:flex><span>        out <span style=color:#f92672>=</span> attn <span style=color:#f92672>@</span> V  <span style=color:#75715e># (B, n_heads, T, d_k)</span>
+</span></span><span style=display:flex><span>        out <span style=color:#f92672>=</span> out<span style=color:#f92672>.</span>transpose(<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>)<span style=color:#f92672>.</span>contiguous()<span style=color:#f92672>.</span>view(B, T, C)  <span style=color:#75715e># 拼接所有头</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>W_o(out)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>TransformerBlock</span>(nn<span style=color:#f92672>.</span>Module):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, d_model, n_heads, d_ff):
+</span></span><span style=display:flex><span>        super()<span style=color:#f92672>.</span><span style=color:#a6e22e>__init__</span>()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>attn <span style=color:#f92672>=</span> MultiHeadAttention(d_model, n_heads)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>ffn <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Sequential(
+</span></span><span style=display:flex><span>            nn<span style=color:#f92672>.</span>Linear(d_model, d_ff),
+</span></span><span style=display:flex><span>            nn<span style=color:#f92672>.</span>GELU(),
+</span></span><span style=display:flex><span>            nn<span style=color:#f92672>.</span>Linear(d_ff, d_model)
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>norm1 <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>LayerNorm(d_model)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>norm2 <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>LayerNorm(d_model)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>forward</span>(self, x, mask<span style=color:#f92672>=</span><span style=color:#66d9ef>None</span>):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Pre-Norm + 残差连接</span>
+</span></span><span style=display:flex><span>        x <span style=color:#f92672>=</span> x <span style=color:#f92672>+</span> self<span style=color:#f92672>.</span>attn(self<span style=color:#f92672>.</span>norm1(x), mask)
+</span></span><span style=display:flex><span>        x <span style=color:#f92672>=</span> x <span style=color:#f92672>+</span> self<span style=color:#f92672>.</span>ffn(self<span style=color:#f92672>.</span>norm2(x))
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> x
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MiniGPT</span>(nn<span style=color:#f92672>.</span>Module):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, vocab_size, d_model<span style=color:#f92672>=</span><span style=color:#ae81ff>256</span>, n_heads<span style=color:#f92672>=</span><span style=color:#ae81ff>8</span>, n_layers<span style=color:#f92672>=</span><span style=color:#ae81ff>6</span>, 
+</span></span><span style=display:flex><span>                 d_ff<span style=color:#f92672>=</span><span style=color:#ae81ff>1024</span>, max_seq_len<span style=color:#f92672>=</span><span style=color:#ae81ff>512</span>):
+</span></span><span style=display:flex><span>        super()<span style=color:#f92672>.</span><span style=color:#a6e22e>__init__</span>()
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>embedding <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Embedding(vocab_size, d_model)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>pos_embedding <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Embedding(max_seq_len, d_model)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>blocks <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>ModuleList([
+</span></span><span style=display:flex><span>            TransformerBlock(d_model, n_heads, d_ff) <span style=color:#66d9ef>for</span> _ <span style=color:#f92672>in</span> range(n_layers)
+</span></span><span style=display:flex><span>        ])
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>norm <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>LayerNorm(d_model)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>lm_head <span style=color:#f92672>=</span> nn<span style=color:#f92672>.</span>Linear(d_model, vocab_size, bias<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 构建 Causal Mask</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>register_buffer(
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#39;mask&#39;</span>, 
+</span></span><span style=display:flex><span>            torch<span style=color:#f92672>.</span>tril(torch<span style=color:#f92672>.</span>ones(max_seq_len, max_seq_len))<span style=color:#f92672>.</span>view(<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>1</span>, max_seq_len, max_seq_len)
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>forward</span>(self, idx):
+</span></span><span style=display:flex><span>        B, T <span style=color:#f92672>=</span> idx<span style=color:#f92672>.</span>shape
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># Token + 位置 Embedding</span>
+</span></span><span style=display:flex><span>        x <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>embedding(idx) <span style=color:#f92672>+</span> self<span style=color:#f92672>.</span>pos_embedding(torch<span style=color:#f92672>.</span>arange(T, device<span style=color:#f92672>=</span>idx<span style=color:#f92672>.</span>device))
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 通过所有 Transformer Block</span>
+</span></span><span style=display:flex><span>        mask <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>mask[:, :, :T, :T]
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> block <span style=color:#f92672>in</span> self<span style=color:#f92672>.</span>blocks:
+</span></span><span style=display:flex><span>            x <span style=color:#f92672>=</span> block(x, mask)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        x <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>norm(x)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 输出 logits</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>lm_head(x)  <span style=color:#75715e># (B, T, vocab_size)</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 使用示例</span>
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> MiniGPT(vocab_size<span style=color:#f92672>=</span><span style=color:#ae81ff>50257</span>)  <span style=color:#75715e># GPT-2 词表大小</span>
+</span></span><span style=display:flex><span>x <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>randint(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>50257</span>, (<span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>128</span>))  <span style=color:#75715e># batch=2, seq_len=128</span>
+</span></span><span style=display:flex><span>logits <span style=color:#f92672>=</span> model(x)
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;输出形状: </span><span style=color:#e6db74>{</span>logits<span style=color:#f92672>.</span>shape<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)  <span style=color:#75715e># torch.Size([2, 128, 50257])</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 计算语言建模 Loss</span>
+</span></span><span style=display:flex><span>targets <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>randint(<span style=color:#ae81ff>0</span>, <span style=color:#ae81ff>50257</span>, (<span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>128</span>))
+</span></span><span style=display:flex><span>loss <span style=color:#f92672>=</span> F<span style=color:#f92672>.</span>cross_entropy(logits<span style=color:#f92672>.</span>view(<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>50257</span>), targets<span style=color:#f92672>.</span>view(<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>))
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;Loss: </span><span style=color:#e6db74>{</span>loss<span style=color:#f92672>.</span>item()<span style=color:#e6db74>:</span><span style=color:#e6db74>.4f</span><span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span></code></pre></div><p><strong>代码量不到 80 行，但包含了 Transformer 的所有核心组件</strong>：Multi-Head Attention、Causal Mask、Feed-Forward、LayerNorm、Residual Connection、自回归语言模型头。</p><h2 id=28-用-hugging-face-拆一个-gpt>28. 用 Hugging Face 拆一个 GPT</h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> transformers <span style=color:#f92672>import</span> GPT2Model, GPT2Tokenizer
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 加载模型和 tokenizer</span>
+</span></span><span style=display:flex><span>tokenizer <span style=color:#f92672>=</span> GPT2Tokenizer<span style=color:#f92672>.</span>from_pretrained(<span style=color:#e6db74>&#39;gpt2&#39;</span>)
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> GPT2Model<span style=color:#f92672>.</span>from_pretrained(<span style=color:#e6db74>&#39;gpt2&#39;</span>, output_attentions<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>, output_hidden_states<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
+</span></span><span style=display:flex><span>model<span style=color:#f92672>.</span>eval()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 准备输入</span>
+</span></span><span style=display:flex><span>text <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;The capital of France is&#34;</span>
+</span></span><span style=display:flex><span>inputs <span style=color:#f92672>=</span> tokenizer(text, return_tensors<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;pt&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 前向传播</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> torch<span style=color:#f92672>.</span>no_grad():
+</span></span><span style=display:flex><span>    outputs <span style=color:#f92672>=</span> model(<span style=color:#f92672>**</span>inputs)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 分析输出结构</span>
+</span></span><span style=display:flex><span>hidden_states <span style=color:#f92672>=</span> outputs<span style=color:#f92672>.</span>hidden_states  <span style=color:#75715e># 所有层的隐状态</span>
+</span></span><span style=display:flex><span>attentions <span style=color:#f92672>=</span> outputs<span style=color:#f92672>.</span>attentions        <span style=color:#75715e># 所有层的注意力权重</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;层数: </span><span style=color:#e6db74>{</span>len(hidden_states)<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)           <span style=color:#75715e># 13 (embedding + 12 layers)</span>
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;每层形状: </span><span style=color:#e6db74>{</span>hidden_states[<span style=color:#ae81ff>0</span>]<span style=color:#f92672>.</span>shape<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)   <span style=color:#75715e># (1, seq_len, 768)</span>
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;Attention 头数: </span><span style=color:#e6db74>{</span>attentions[<span style=color:#ae81ff>0</span>]<span style=color:#f92672>.</span>shape[<span style=color:#ae81ff>1</span>]<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)  <span style=color:#75715e># 12</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 可视化最后一层的 Attention</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> matplotlib.pyplot <span style=color:#66d9ef>as</span> plt
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> seaborn <span style=color:#66d9ef>as</span> sns
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tokens <span style=color:#f92672>=</span> tokenizer<span style=color:#f92672>.</span>convert_ids_to_tokens(inputs[<span style=color:#e6db74>&#39;input_ids&#39;</span>][<span style=color:#ae81ff>0</span>])
+</span></span><span style=display:flex><span>last_layer_attn <span style=color:#f92672>=</span> attentions[<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>][<span style=color:#ae81ff>0</span>]<span style=color:#f92672>.</span>mean(dim<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)  <span style=color:#75715e># 对所有 head 取平均</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>plt<span style=color:#f92672>.</span>figure(figsize<span style=color:#f92672>=</span>(<span style=color:#ae81ff>8</span>, <span style=color:#ae81ff>6</span>))
+</span></span><span style=display:flex><span>sns<span style=color:#f92672>.</span>heatmap(
+</span></span><span style=display:flex><span>    last_layer_attn<span style=color:#f92672>.</span>numpy(),
+</span></span><span style=display:flex><span>    xticklabels<span style=color:#f92672>=</span>tokens,
+</span></span><span style=display:flex><span>    yticklabels<span style=color:#f92672>=</span>tokens,
+</span></span><span style=display:flex><span>    cmap<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;Blues&#39;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>plt<span style=color:#f92672>.</span>title(<span style=color:#e6db74>&#34;Last Layer Attention (Head Average)&#34;</span>)
+</span></span><span style=display:flex><span>plt<span style=color:#f92672>.</span>tight_layout()
+</span></span><span style=display:flex><span>plt<span style=color:#f92672>.</span>show()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 用 Logit Lens 分析中间层</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> transformers <span style=color:#f92672>import</span> GPT2LMHeadModel
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>lm_model <span style=color:#f92672>=</span> GPT2LMHeadModel<span style=color:#f92672>.</span>from_pretrained(<span style=color:#e6db74>&#39;gpt2&#39;</span>, output_hidden_states<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
+</span></span><span style=display:flex><span>lm_model<span style=color:#f92672>.</span>eval()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> torch<span style=color:#f92672>.</span>no_grad():
+</span></span><span style=display:flex><span>    lm_outputs <span style=color:#f92672>=</span> lm_model(<span style=color:#f92672>**</span>inputs)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 把每个中间层的 hidden state 解码成 token</span>
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>=== Logit Lens 分析 ===&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> layer_idx, hidden <span style=color:#f92672>in</span> enumerate(lm_outputs<span style=color:#f92672>.</span>hidden_states):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 直接用 LM head 解码中间层</span>
+</span></span><span style=display:flex><span>    logits <span style=color:#f92672>=</span> lm_model<span style=color:#f92672>.</span>lm_head(lm_model<span style=color:#f92672>.</span>transformer<span style=color:#f92672>.</span>ln_f(hidden))
+</span></span><span style=display:flex><span>    pred_token <span style=color:#f92672>=</span> tokenizer<span style=color:#f92672>.</span>decode(logits[<span style=color:#ae81ff>0</span>, <span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]<span style=color:#f92672>.</span>argmax())
+</span></span><span style=display:flex><span>    print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;Layer </span><span style=color:#e6db74>{</span>layer_idx<span style=color:#e6db74>:</span><span style=color:#e6db74>2d</span><span style=color:#e6db74>}</span><span style=color:#e6db74>: 预测下一词 = &#39;</span><span style=color:#e6db74>{</span>pred_token<span style=color:#e6db74>}</span><span style=color:#e6db74>&#39;&#34;</span>)
+</span></span></code></pre></div><p>运行这段代码，你会看到：</p><ul><li><strong>Layer 0-2</strong>：预测几乎是随机的（比如 &ldquo;Paris&rdquo; 可能是 &ldquo;London&rdquo; 或 " a&rdquo;）</li><li><strong>Layer 5-8</strong>：开始出现语义上合理的预测（地名、国家相关词）</li><li><strong>Layer 10-12</strong>：越来越接近正确答案 &ldquo;Paris&rdquo;</li></ul><p>这就是"逐层语义精化"的直观证明。</p><h1 id=结语transformer-为什么改变世界>结语：Transformer 为什么改变世界？</h1><h2 id=29-它真正的突破是什么>29. 它真正的突破是什么？</h2><p>Transformer 的诞生，表面上是一个更好的 NLP 模型。但它真正的突破，在于两件事：</p><p><strong>第一：可扩展性（Scalability）</strong></p><p>Transformer 的设计，在工程上极其适合扩展：</p><ul><li>Self-Attention 和 FFN 可以完全并行化，完美匹配 GPU 的计算范式</li><li>层数、宽度、头数可以独立增加，性能预测性好（Scaling Law）</li><li>训练目标（预测下一个 token）可以从互联网上无限获取训练数据</li></ul><p>这意味着：只要投入更多的计算资源，性能就会可预测地提升。这是一种"工业化"的 AI 研发范式，让大公司的工程能力成为了核心竞争力。</p><p><strong>第二：通用表示学习（Universal Representation Learning）</strong></p><p>Transformer 在预测下一个 token 的过程中，被迫学习了语言中几乎所有的结构——语法、语义、逻辑、世界知识、推理模式……</p><p>这些表示不是针对某个特定任务设计的，而是通用的。同一个预训练模型，通过 fine-tuning（甚至仅仅通过 prompting），可以应用到翻译、摘要、代码生成、数学推理、对话、创作……</p><p>这就是"基础模型"（Foundation Model）概念的核心：一个大规模预训练模型，是整个 AI 应用栈的基础设施，而不是一个特定任务的解决方案。</p><h2 id=30-它的局限--下一步>30. 它的局限 & 下一步</h2><p>诚实地说，Transformer 并非没有根本性的局限。</p><p><strong>长上下文的代价</strong></p><p>O(n²) 的 Attention 计算，使得超长上下文（百万 token 级别）在计算上极其昂贵。目前的各种优化（Sparse Attention、FlashAttention、RoPE 外推等）只是在工程上缓解，没有从根本上解决问题。当上下文窗口扩展到极限时，模型的"注意力稀释"问题（无法同时关注超长上下文中所有重要信息）也是一个悬而未决的挑战。</p><p><strong>推理成本</strong></p><p>运行一个顶级 LLM 的边际成本，远超一次搜索引擎查询。当 AI 被嵌入到日常工作流的每一个环节，推理成本将成为一个严肃的经济和能源问题。</p><p><strong>真正的推理能力</strong></p><p>目前的 LLM 在复杂多步推理上仍不稳定。CoT（Chain of Thought）提示大幅改善了表现，但这更像是让模型"工作步骤可见从而减少错误"，而非真正实现了可靠的符号推理。o1/o3 等模型的出现（通过在推理时花更多计算）是一个有趣的方向，但可能也只是更复杂的 token 预测，而非架构上的突破。</p><p><strong>是否会被替代？</strong></p><p>Mamba、RWKV、线性 Attention 等架构在特定场景下展示了潜力，但到目前为止，没有一个能在相同规模下全面超越 Transformer。更可能的未来是<strong>混合架构</strong>——将 Transformer 的表达能力与循环模型的推理效率结合起来。</p><h2 id=最后的思考>最后的思考</h2><p>我们开头问了一个问题：ChatGPT 真的理解语言吗？</p><p>读到这里，你应该有了自己的判断。</p><p>它学到的不是人类意义上的"理解"，而是一种深度的统计结构映射——从人类书写的海量文本中，提炼出语言的形式规律、知识模式和推理框架，压缩进数百亿个参数里。</p><p>这种压缩，在功能上极其强大，以至于在很多任务上可以模拟出"理解"的效果。但这与人类的认知有根本的不同——人类的理解是具身的、因果的、有意图的；LLM 的理解是统计的、关联的、无意图的。</p><p><strong>Transformer 改变世界，不是因为它创造了人工智能，而是因为它创造了一种前所未有的、能够大规模编码和利用人类知识的技术路径。</strong></p><p>这条路通向哪里，仍然是一个开放的问题。</p><p>但理解这条路是如何走出来的，是我们每个技术人的必修课。</p></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/ai>ai</a></li><li><a href=/tags/llm>llm</a></li></ul></nav></div><div class=related-posts><h3>Related Posts</h3><ul><li><a href=/posts/2026-04-20-how-to-fine-tuning-llm/>LLM 微调实战指南：从原理到落地的完整路径</a>
+<span class=meta>2026-04-20</span></li></ul></div></div></div></article></main><style>.post-content p,.body p,.post-content,.body{text-align:justify!important;text-align-last:left;text-justify:inter-ideograph;word-wrap:break-word}.post-content li,.body li{text-align:left}.post-content a,.body a,.post-content code,.body code{word-break:break-all;hyphens:none}.post-content ol,.body ol{padding-left:2em}.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}@media(prefers-color-scheme:dark){.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}}</style><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://x.com/xautjzd/ rel=me title=X><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#x"/></svg></a><a class=border></a></div><div class=footer-info>2026 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>
