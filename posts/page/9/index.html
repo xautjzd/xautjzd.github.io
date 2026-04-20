@@ -3,7 +3,11 @@
 <a href=/tags>Tags</a>
 <a href=/about>About</a>
 | <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
-<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><h1 class=page-title>所有文章</h1><div class=year-section><h2 class=year-title>2013</h2><ul class=posts><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-config-category-plugin/>配置文章分类插件</a><div class=post-summary>Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><h1 class=page-title>所有文章</h1><div class=year-section><h2 class=year-title>2013</h2><ul class=posts><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-19-ruby-variable/>Ruby基础</a><div class=post-summary>##变量分类
+局部变量 一般以小写字母或下划线开头，当多个单词组成一个变量时，单词间用_分隔。局部变量一般用在代码快里面
+全局变量 全局变量在整个ruby程序中都可以访问，无论他们在哪被定义。全局变量以$开头。eg:
+$global_variable = 10
+实例变量 实例变量的范围则是类的实例， …</div></div><span class=meta>2013-07-19</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-config-category-plugin/>配置文章分类插件</a><div class=post-summary>Octopress搭建的博客默认没有文章分类，这肯定让人很不爽，但这个号称Hacker的博客肯定有这功能，便网上搜寻了答案，最终得以解决。方法如下：
 ###1. 添加category_list插件
 代码如下：
 module Jekyll class CategoryListTag &lt; …</div></div><span class=meta>2013-07-18</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-my-first-blog/>我的第一篇博客</a><div class=post-summary>几个月前看过Ruby基本语法，也无意中接触了Octopress，便想在GitHub pages上采用Octopress搭建一个属于自己的博客，照着官网提示开始动手实施，不过最后以失败告终。后又忙于其他工作，此事便搁浅。直至最近得空，便又开始着手此事。搭建博客工作再一次展开。 详细搭建过程官方文档写的 …</div></div><span class=meta>2013-07-18</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-congfig-disqus-plugin/>Octopress配置Disqus插件</a><div class=post-summary>###添加Disqus插件 看到不少人博客上都有Comments功能，便也想给自己的博客添加上。经过搜寻一番，发现大多用的都是Disqus，而且octopress其实内置了其功能，只是默认没有设置.编辑博客主目录下的config.yml文件即可： $vim _config.yml

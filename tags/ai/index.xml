@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ai on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/ai/</link><description>Recent content in Ai on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Mon, 20 Apr 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>LLM 微调实战指南：从原理到落地的完整路径</title><link>https://xautjzd.github.io/posts/2026-04-20-how-to-fine-tuning-llm/</link><pubDate>Mon, 20 Apr 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-20-how-to-fine-tuning-llm/</guid><description>&lt;h2 id="一是否需要微调"&gt;一、是否需要微调？&lt;/h2&gt;
+&lt;p&gt;很多工程师一遇到大模型效果不好，第一反应是&amp;quot;我们去微调一下&amp;quot;。这个直觉并不总是错的，但它跳过了一个至关重要的问题：&lt;strong&gt;微调真的是你现在需要的吗？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;微调不是万能药。它有成本（数据、算力、人力、维护），有风险（过拟合、灾难性遗忘、对齐破坏），有边界（不能弥补知识截止日期的缺陷，不能替代架构层面的问题）。在你投入资源之前，先把决策做对，比把微调做对更重要。&lt;/p&gt;
+&lt;h3 id="11-预训练pre-training模型的能力边界"&gt;1.1 预训练(Pre-training)模型的能力边界&lt;/h3&gt;
+&lt;p&gt;预训练大语言模型（LLM）是在海量文本上通过 Next Token Prediction 训练出来的，它内化了：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;语言能力&lt;/strong&gt;：语法、语义&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;世界知识&lt;/strong&gt;：训练数据截止日前的大量事实&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;推理能力&lt;/strong&gt;：链式推理、类比、归纳&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;泛化能力&lt;/strong&gt;：zero-shot / few-shot 泛化&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;但它的边界同样清晰：&lt;/p&gt;
+&lt;table&gt;
+ &lt;thead&gt;
+ &lt;tr&gt;
+ &lt;th&gt;类型&lt;/th&gt;
+ &lt;th&gt;描述&lt;/th&gt;
+ &lt;th&gt;能否靠 Prompt 解决？&lt;/th&gt;
+ &lt;/tr&gt;
+ &lt;/thead&gt;
+ &lt;tbody&gt;
+ &lt;tr&gt;
+ &lt;td&gt;知识截止&lt;/td&gt;
+ &lt;td&gt;不知道训练后发生的事&lt;/td&gt;
+ &lt;td&gt;需要 RAG 或工具调用&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td&gt;领域深度不足&lt;/td&gt;
+ &lt;td&gt;医疗/法律细分知识密度低&lt;/td&gt;
+ &lt;td&gt;部分可以，复杂情况需微调&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td&gt;语言风格统一&lt;/td&gt;
+ &lt;td&gt;品牌语气、客服话术&lt;/td&gt;
+ &lt;td&gt;Prompt 可以但难以持续一致&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td&gt;私有数据注入&lt;/td&gt;
+ &lt;td&gt;公司内部文档&lt;/td&gt;
+ &lt;td&gt;需要 RAG 或微调&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;tr&gt;
+ &lt;td&gt;高并发低延迟&lt;/td&gt;
+ &lt;td&gt;推理成本敏感&lt;/td&gt;
+ &lt;td&gt;需要小模型微调&lt;/td&gt;
+ &lt;/tr&gt;
+ &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;核心判断原则&lt;/strong&gt;：如果你的问题本质是&amp;quot;模型不知道某件事&amp;quot;，RAG 是更优先的选择；如果是&amp;quot;模型知道但表达/行为方式不对&amp;quot;，微调才是你要的。&lt;/p&gt;
+&lt;h3 id="12-三种主流方案对比prompt-engineering-vs-rag-vs-fine-tuning"&gt;1.2 三种主流方案对比：Prompt Engineering vs RAG vs Fine-tuning&lt;/h3&gt;
+&lt;p&gt;这三种方案不是竞争关系，而是递进关系。实践中应该先穷尽轻量方案，再考虑重量级方案。&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;Prompt Engineering → RAG → Fine-tuning
+ 最轻量 最重量
+ 最快速 最慢速
+ 最易维护 最难维护
+ 效果有上限 效果上限最高
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;strong&gt;Prompt Engineering&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;零成本，快速迭代&lt;/li&gt;
+&lt;li&gt;无需数据，无需训练&lt;/li&gt;
+&lt;li&gt;受 context window 限制&lt;/li&gt;
+&lt;li&gt;无法改变模型底层行为&lt;/li&gt;
+&lt;li&gt;可被用户 jailbreak&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;RAG（检索增强生成）&lt;/strong&gt;&lt;/p&gt;</description></item></channel></rss>
