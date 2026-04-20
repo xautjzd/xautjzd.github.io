@@ -2,6 +2,7 @@
 title: 基于 Terraform 构建企业内部 kubernetes 集群
 date: "2026-04-19T10:00:00+08:00"
 tags: ["infrastructure", "devops", "kubernetes", "terraform"]
+toc: true
 ---
 
 ## 1. 为什么要构建企业内部 Kubernetes 集群？
