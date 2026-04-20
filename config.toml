@@ -20,6 +20,11 @@ pygmentscodefencesguesssyntax = true
 [markup.goldmark.renderer]
 unsafe = true
 
+# TOC 只显示二级标题 (##)
+[markup.tableOfContents]
+startLevel = 2
+endLevel = 2
+
 # Enable JSON output for search
 [outputs]
 home = ["HTML", "RSS", "JSON"]
