@@ -151,6 +151,7 @@
   padding: 16px;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -262,6 +263,21 @@
 
 /* 移动端适配 */
 @media screen and (max-width: 900px) {
+  .content {
+    max-width: 100%;
+  }
+
+  .post-container {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .post-content {
+    flex: 1;
+    max-width: 100%;
+    width: 100%;
+  }
+
   .toc-sidebar {
     display: none;
     position: fixed;
@@ -287,6 +303,7 @@
     position: static;
     max-height: none;
     background: transparent;
+    overscroll-behavior: contain;
   }
 
   .toc-toggle {
@@ -402,13 +419,17 @@
   function initScrollSpy() {
     const headings = document.querySelectorAll('.body h1[id], .body h2[id], .body h3[id], .body h4[id]');
     const tocLinks = document.querySelectorAll('.toc-sidebar a[href^="#"]');
+    const tocWrapper = document.querySelector('.toc-wrapper');
 
-    if (headings.length === 0 || tocLinks.length === 0) return;
+    if (headings.length === 0 || tocLinks.length === 0 || !tocWrapper) return;
 
     let currentActive = null;
+    let isClickScrolling = false;
     const offsetTop = 100;
 
     function updateActiveLink() {
+      if (isClickScrolling) return;
+
       const scrollPos = window.scrollY + offsetTop;
       let activeHeading = null;
 
@@ -426,7 +447,6 @@
           link.classList.remove('active');
           if (link.getAttribute('href') === '#' + activeHeading.id) {
             link.classList.add('active');
-            // 自动滚动当前高亮项到TOC可视区域
             link.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
           }
         });
@@ -454,12 +474,31 @@
         const href = this.getAttribute('href');
         if (href && href.startsWith('#')) {
           e.preventDefault();
-          // 使用 getElementById 避免 CSS 选择器对中文 ID 的转义问题
           const id = href.slice(1);
           const target = document.getElementById(id);
           if (target) {
-            const y = target.getBoundingClientRect().top + window.pageYOffset - 80;
-            window.scrollTo({ top: y, behavior: 'smooth' });
+            // 标记正在点击跳转中，禁用滚动监听
+            isClickScrolling = true;
+
+            // 更新当前激活状态
+            currentActive = target;
+
+            // 获取元素在文档中的绝对位置
+            const rect = target.getBoundingClientRect();
+            const scrollTop = window.pageYOffset + rect.top - 80;
+
+            // 先更新 TOC 高亮和滚动位置
+            tocLinks.forEach(l => l.classList.remove('active'));
+            this.classList.add('active');
+            this.scrollIntoView({ behavior: 'auto', block: 'center' });
+
+            // 滚动主内容到目标位置
+            window.scrollTo({ top: Math.max(0, scrollTop), behavior: 'smooth' });
+
+            // 跳转完成后恢复滚动监听
+            setTimeout(() => {
+              isClickScrolling = false;
+            }, 600);
 
             // 移动端点击后关闭目录
             if (window.innerWidth <= 900) {
