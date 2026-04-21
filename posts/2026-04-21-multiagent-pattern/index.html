@@ -1,0 +1,854 @@
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>MultiAgent 协作模式全解析：从单体 Agent 到分布式 AI 系统 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='
+当你的 Agent 开始在复杂任务面前"力不从心"，不是模型不够强，而是架构不够好。这篇文章，我们彻底讲透多智能体系统的六大经典模式。
+
+1. 引言：为什么单体 Agent 不够用了？
+单体 Agent 的边界与天花板
+2023 年，大多数人对 AI Agent 的想象是这样的：一个超级 LLM，接收用户输入，调用几个工具，输出结果。这个模型简洁优雅，在简单任务上表现出色。
+但当你试图用它完成"分析竞争对手的产品策略、撰写一份 20 页的深度报告"时，问题开始暴露：
+
+上下文窗口是有限的。即便 GPT-4o 支持 128K tokens，一个需要反复迭代、持续积累上下文的长任务，终究会遇到天花板。
+并行处理能力缺失。单体 Agent 是串行思考的，它不能同时调研五个竞争对手，只能一个一个来。
+错误传播不可控。在一个长链任务中，第三步出错，后续所有步骤都在错误的基础上继续——没有隔离，没有检查点。
+专业性存在边界。一个通才 Agent 写代码不如专门调了代码数据集的 Agent，做财务分析不如经过金融语料微调的 Agent。
+
+单体 Agent 的本质是"一个大脑包揽一切"。 这在人类组织中早已被证明是低效的，为什么在 AI 系统里还要走这条老路？
+从"一个大脑"到"分工协作"的架构必然性
+人类解决复杂问题的方式从来都不是依赖一个全知全能的个体。我们建立团队、设立角色、划定职责边界、通过沟通协作完成超越个人能力上限的任务。
+多智能体系统（Multi-Agent Systems）正是这一思想在 AI 领域的工程化实践：
+
+专业化：每个 Agent 聚焦特定能力域，深而不广
+并行化：多个 Agent 可以同时工作，突破串行处理的速度瓶颈
+可组合性：不同 Agent 组合成不同的"工作流"，灵活应对多种场景
+可观测性：系统的每个节点状态清晰可见，便于调试和优化
+
+这不是趋势，这是复杂系统演化的必然结果。
+2. 核心概念：Workflow vs Agent
+在深入模式之前，必须厘清一个经常被混用的概念对：Workflow 和 Agent。混淆这两者，会导致架构决策的根本性偏差。
+Workflow（工作流）：预定义代码路径，确定性执行
+Workflow 是一种由代码硬编码的控制流。执行路径在编写时就已确定，输入 A 经过步骤 1、2、3 得到输出 B，这条路径是固定的、可预期的、可重复的。'><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-04-21-multiagent-pattern/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="MultiAgent 协作模式全解析：从单体 Agent 到分布式 AI 系统"><meta property="og:description" content='当你的 Agent 开始在复杂任务面前"力不从心"，不是模型不够强，而是架构不够好。这篇文章，我们彻底讲透多智能体系统的六大经典模式。
+1. 引言：为什么单体 Agent 不够用了？ 单体 Agent 的边界与天花板 2023 年，大多数人对 AI Agent 的想象是这样的：一个超级 LLM，接收用户输入，调用几个工具，输出结果。这个模型简洁优雅，在简单任务上表现出色。
+但当你试图用它完成"分析竞争对手的产品策略、撰写一份 20 页的深度报告"时，问题开始暴露：
+上下文窗口是有限的。即便 GPT-4o 支持 128K tokens，一个需要反复迭代、持续积累上下文的长任务，终究会遇到天花板。 并行处理能力缺失。单体 Agent 是串行思考的，它不能同时调研五个竞争对手，只能一个一个来。 错误传播不可控。在一个长链任务中，第三步出错，后续所有步骤都在错误的基础上继续——没有隔离，没有检查点。 专业性存在边界。一个通才 Agent 写代码不如专门调了代码数据集的 Agent，做财务分析不如经过金融语料微调的 Agent。 单体 Agent 的本质是"一个大脑包揽一切"。 这在人类组织中早已被证明是低效的，为什么在 AI 系统里还要走这条老路？
+从"一个大脑"到"分工协作"的架构必然性 人类解决复杂问题的方式从来都不是依赖一个全知全能的个体。我们建立团队、设立角色、划定职责边界、通过沟通协作完成超越个人能力上限的任务。
+多智能体系统（Multi-Agent Systems）正是这一思想在 AI 领域的工程化实践：
+专业化：每个 Agent 聚焦特定能力域，深而不广 并行化：多个 Agent 可以同时工作，突破串行处理的速度瓶颈 可组合性：不同 Agent 组合成不同的"工作流"，灵活应对多种场景 可观测性：系统的每个节点状态清晰可见，便于调试和优化 这不是趋势，这是复杂系统演化的必然结果。
+2. 核心概念：Workflow vs Agent 在深入模式之前，必须厘清一个经常被混用的概念对：Workflow 和 Agent。混淆这两者，会导致架构决策的根本性偏差。
+Workflow（工作流）：预定义代码路径，确定性执行 Workflow 是一种由代码硬编码的控制流。执行路径在编写时就已确定，输入 A 经过步骤 1、2、3 得到输出 B，这条路径是固定的、可预期的、可重复的。'><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-21T16:00:00+08:00"><meta property="article:modified_time" content="2026-04-21T16:00:00+08:00"><meta property="article:tag" content="Ai"><meta property="article:tag" content="Llm"><meta name=twitter:card content="summary"><meta name=twitter:title content="MultiAgent 协作模式全解析：从单体 Agent 到分布式 AI 系统"><meta name=twitter:description content='当你的 Agent 开始在复杂任务面前"力不从心"，不是模型不够强，而是架构不够好。这篇文章，我们彻底讲透多智能体系统的六大经典模式。
+1. 引言：为什么单体 Agent 不够用了？ 单体 Agent 的边界与天花板 2023 年，大多数人对 AI Agent 的想象是这样的：一个超级 LLM，接收用户输入，调用几个工具，输出结果。这个模型简洁优雅，在简单任务上表现出色。
+但当你试图用它完成"分析竞争对手的产品策略、撰写一份 20 页的深度报告"时，问题开始暴露：
+上下文窗口是有限的。即便 GPT-4o 支持 128K tokens，一个需要反复迭代、持续积累上下文的长任务，终究会遇到天花板。 并行处理能力缺失。单体 Agent 是串行思考的，它不能同时调研五个竞争对手，只能一个一个来。 错误传播不可控。在一个长链任务中，第三步出错，后续所有步骤都在错误的基础上继续——没有隔离，没有检查点。 专业性存在边界。一个通才 Agent 写代码不如专门调了代码数据集的 Agent，做财务分析不如经过金融语料微调的 Agent。 单体 Agent 的本质是"一个大脑包揽一切"。 这在人类组织中早已被证明是低效的，为什么在 AI 系统里还要走这条老路？
+从"一个大脑"到"分工协作"的架构必然性 人类解决复杂问题的方式从来都不是依赖一个全知全能的个体。我们建立团队、设立角色、划定职责边界、通过沟通协作完成超越个人能力上限的任务。
+多智能体系统（Multi-Agent Systems）正是这一思想在 AI 领域的工程化实践：
+专业化：每个 Agent 聚焦特定能力域，深而不广 并行化：多个 Agent 可以同时工作，突破串行处理的速度瓶颈 可组合性：不同 Agent 组合成不同的"工作流"，灵活应对多种场景 可观测性：系统的每个节点状态清晰可见，便于调试和优化 这不是趋势，这是复杂系统演化的必然结果。
+2. 核心概念：Workflow vs Agent 在深入模式之前，必须厘清一个经常被混用的概念对：Workflow 和 Agent。混淆这两者，会导致架构决策的根本性偏差。
+Workflow（工作流）：预定义代码路径，确定性执行 Workflow 是一种由代码硬编码的控制流。执行路径在编写时就已确定，输入 A 经过步骤 1、2、3 得到输出 B，这条路径是固定的、可预期的、可重复的。'><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css><link id=darkModeStyle rel=stylesheet type=text/css href=https://xautjzd.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css disabled></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/tags>Tags</a>
+<a href=/about>About</a>
+| <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><main><nav class=breadcrumbs><a href=https://xautjzd.github.io/>Home</a>
+<span class=separator>/</span>
+<a href=https://xautjzd.github.io/posts>Posts</a>
+<span class=separator>/</span>
+<span class=current>MultiAgent 协作模式全解析：从单体 Agent 到分布式 AI 系统</span></nav><article><div class=post-container><div class=post-content><div class=title><h1 class=title>MultiAgent 协作模式全解析：从单体 Agent 到分布式 AI 系统</h1><div class=meta>Posted on Apr 21, 2026
+<span class=reading-time>· 11 min read</span></div></div><section class=body><blockquote><p>当你的 Agent 开始在复杂任务面前"力不从心"，不是模型不够强，而是架构不够好。这篇文章，我们彻底讲透多智能体系统的六大经典模式。</p></blockquote><h2 id=1-引言为什么单体-agent-不够用了>1. 引言：为什么单体 Agent 不够用了？</h2><h3 id=单体-agent-的边界与天花板>单体 Agent 的边界与天花板</h3><p>2023 年，大多数人对 AI Agent 的想象是这样的：一个超级 LLM，接收用户输入，调用几个工具，输出结果。这个模型简洁优雅，在简单任务上表现出色。</p><p>但当你试图用它完成"分析竞争对手的产品策略、撰写一份 20 页的深度报告"时，问题开始暴露：</p><ul><li><strong>上下文窗口是有限的</strong>。即便 GPT-4o 支持 128K tokens，一个需要反复迭代、持续积累上下文的长任务，终究会遇到天花板。</li><li><strong>并行处理能力缺失</strong>。单体 Agent 是串行思考的，它不能同时调研五个竞争对手，只能一个一个来。</li><li><strong>错误传播不可控</strong>。在一个长链任务中，第三步出错，后续所有步骤都在错误的基础上继续——没有隔离，没有检查点。</li><li><strong>专业性存在边界</strong>。一个通才 Agent 写代码不如专门调了代码数据集的 Agent，做财务分析不如经过金融语料微调的 Agent。</li></ul><p><strong>单体 Agent 的本质是"一个大脑包揽一切"。</strong> 这在人类组织中早已被证明是低效的，为什么在 AI 系统里还要走这条老路？</p><h3 id=从一个大脑到分工协作的架构必然性>从"一个大脑"到"分工协作"的架构必然性</h3><p>人类解决复杂问题的方式从来都不是依赖一个全知全能的个体。我们建立团队、设立角色、划定职责边界、通过沟通协作完成超越个人能力上限的任务。</p><p>多智能体系统（Multi-Agent Systems）正是这一思想在 AI 领域的工程化实践：</p><ul><li><strong>专业化</strong>：每个 Agent 聚焦特定能力域，深而不广</li><li><strong>并行化</strong>：多个 Agent 可以同时工作，突破串行处理的速度瓶颈</li><li><strong>可组合性</strong>：不同 Agent 组合成不同的"工作流"，灵活应对多种场景</li><li><strong>可观测性</strong>：系统的每个节点状态清晰可见，便于调试和优化</li></ul><p>这不是趋势，这是复杂系统演化的必然结果。</p><h2 id=2-核心概念workflow-vs-agent>2. 核心概念：Workflow vs Agent</h2><p>在深入模式之前，必须厘清一个经常被混用的概念对：<strong>Workflow</strong> 和 <strong>Agent</strong>。混淆这两者，会导致架构决策的根本性偏差。</p><h3 id=workflow工作流预定义代码路径确定性执行>Workflow（工作流）：预定义代码路径，确定性执行</h3><p>Workflow 是一种<strong>由代码硬编码的控制流</strong>。执行路径在编写时就已确定，输入 A 经过步骤 1、2、3 得到输出 B，这条路径是固定的、可预期的、可重复的。</p><pre tabindex=0><code>Input → Step1 → Step2 → Step3 → Output
+         ↓
+    （LLM 只是其中一个处理节点）
+</code></pre><p>Workflow 的核心优势是<strong>确定性</strong>。你知道它会怎么运行，你可以为它写测试，你可以精确地控制它的行为。</p><h3 id=agent智能体动态规划基于环境反馈自主决策>Agent（智能体）：动态规划，基于环境反馈自主决策</h3><p>Agent 是一种<strong>由 LLM 驱动控制流</strong>的系统。Agent 接收目标，自主决定采取什么行动，观察结果，再决定下一步——这个循环持续到任务完成。</p><pre tabindex=0><code>Goal → [LLM decides: which tool? what args?] → Execute → Observe → [LLM decides again...]
+</code></pre><p>Agent 的核心优势是<strong>灵活性</strong>。面对未预见的情况，它能自主调整策略，处理 Workflow 难以穷举的边缘情况。</p><h3 id=关键差异控制流由代码编排-vs-由-llm-驱动>关键差异：控制流由代码编排 vs. 由 LLM 驱动</h3><table><thead><tr><th>维度</th><th>Workflow</th><th>Agent</th></tr></thead><tbody><tr><td>控制流</td><td>代码决定</td><td>LLM 决定</td></tr><tr><td>确定性</td><td>高</td><td>低</td></tr><tr><td>灵活性</td><td>低</td><td>高</td></tr><tr><td>可调试性</td><td>容易</td><td>困难</td></tr><tr><td>适用场景</td><td>结构化、可预期的任务</td><td>开放式、动态的任务</td></tr><tr><td>成本</td><td>可预测</td><td>波动较大</td></tr></tbody></table><blockquote><p><strong>工程哲学</strong>：能用 Workflow 解决的问题，不要过度引入 Agent 的自主性。自主性是把双刃剑——它带来灵活性，也带来不可预测性。<strong>在确定性和灵活性之间找到正确的平衡点，是多智能体架构设计的核心命题。</strong></p></blockquote><h2 id=3-多智能体系统的三大通信原语>3. 多智能体系统的三大通信原语</h2><p>在多个 Agent 需要协作时，它们通过什么方式"说话"？理解通信原语是理解所有协作模式的基础。</p><h3 id=共享状态-shared-session-state被动式数据传递>共享状态 (Shared Session State)：被动式数据传递</h3><p>最简单的通信方式。Agent A 将数据写入共享状态（如一个 key-value store），Agent B 从中读取。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># Agent A 写入</span>
+</span></span><span style=display:flex><span>session_state[<span style=color:#e6db74>&#34;analysis_result&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;竞品A的核心优势在于...&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Agent B 读取</span>
+</span></span><span style=display:flex><span>result <span style=color:#f92672>=</span> session_state<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;analysis_result&#34;</span>)
+</span></span></code></pre></div><p><strong>特点</strong>：解耦、异步、无需直接调用。适合传递中间结果，但需要明确定义 key 的命名规范，避免写冲突。</p><h3 id=llm-驱动委派-llm-driven-delegation动态路由与-agent-transfer>LLM 驱动委派 (LLM-Driven Delegation)：动态路由与 Agent Transfer</h3><p>由 LLM 在运行时决定"把这个任务交给谁"。Orchestrator Agent 分析输入，动态路由到合适的 Sub-Agent。</p><pre tabindex=0><code>User: &#34;帮我分析这段 Python 代码是否有安全漏洞&#34;
+Orchestrator LLM: [分析] → &#34;这是代码安全问题&#34; → Transfer to SecurityCodeAgent
+</code></pre><p><strong>特点</strong>：高度灵活，可以处理多分类场景。但依赖 LLM 的路由判断，存在误判风险，需要良好的 Prompt 设计来提升路由准确率。</p><h3 id=显式调用-explicit-invocation--agenttool同步工具化调用>显式调用 (Explicit Invocation / AgentTool)：同步工具化调用</h3><p>将一个 Agent 封装成另一个 Agent 可以调用的"工具"。调用者等待被调用 Agent 完成并返回结果。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># Sub-agent 被包装为 Tool</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>DataAnalysisAgentTool</span>(Tool):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>run</span>(self, data: str) <span style=color:#f92672>-&gt;</span> str:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> data_analysis_agent<span style=color:#f92672>.</span>run(data)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Orchestrator 像调用普通工具一样调用它</span>
+</span></span><span style=display:flex><span>orchestrator<span style=color:#f92672>.</span>tools <span style=color:#f92672>=</span> [DataAnalysisAgentTool(), <span style=color:#f92672>...</span>]
+</span></span></code></pre></div><p><strong>特点</strong>：同步、可预期、结果清晰。相比 LLM-Driven Delegation，更适合需要确定性调用关系的场景。</p><h2 id=4-六大经典协作模式详解>4. 六大经典协作模式详解</h2><h3 id=41-prompt-chaining>4.1 Prompt Chaining</h3><h4 id=模式定义>模式定义</h4><p>串行处理流水线。任务被分解为若干有序步骤，前一步骤的输出作为后一步骤的输入。整个流程像工厂流水线一样顺序推进。</p><pre tabindex=0><code>[Input] → [Step1: 提取关键信息] → [Step2: 翻译] → [Step3: 格式化] → [Output]
+              output_key=&#34;extracted&#34;    input=extracted   input=translated
+</code></pre><h4 id=适用场景>适用场景</h4><ul><li><strong>翻译流水线</strong>：原文 → 直译 → 润色 → 文化本地化</li><li><strong>内容校验</strong>：生成内容 → 事实核查 → 合规检查 → 最终输出</li><li><strong>分步生成</strong>：提纲 → 章节草稿 → 润色 → 排版</li></ul><p><strong>核心判断标准</strong>：任务能否被明确分解为有清晰先后依赖关系的子步骤？如果是，Prompt Chaining 是最简洁可靠的选择。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>示例：三步内容生成流水线
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>步骤1: 生成文章大纲
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>步骤2: 基于大纲生成正文
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>步骤3: 润色优化
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.agents <span style=color:#f92672>import</span> SequentialAgent, LlmAgent
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.sessions <span style=color:#f92672>import</span> InMemorySessionService
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.runners <span style=color:#f92672>import</span> Runner
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.genai <span style=color:#f92672>import</span> types
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 步骤1: 大纲生成 Agent</span>
+</span></span><span style=display:flex><span>outline_agent <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;OutlineAgent&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位专业的内容策划师。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    用户会给你一个主题，请生成一份结构清晰的文章大纲（3-5个主要章节）。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出格式：仅输出大纲内容，每个章节标题单独一行。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;article_outline&#34;</span>  <span style=color:#75715e># 输出写入 session state</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 步骤2: 正文生成 Agent</span>
+</span></span><span style=display:flex><span>draft_agent <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;DraftAgent&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位专业的文章撰写师。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    请基于 session state 中 &#39;article_outline&#39; 的大纲，撰写完整的文章正文。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    要求：每个章节至少200字，语言流畅自然。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;article_draft&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 步骤3: 润色 Agent</span>
+</span></span><span style=display:flex><span>polish_agent <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;PolishAgent&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位资深文字编辑。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    请对 session state 中 &#39;article_draft&#39; 的文章进行润色：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    1. 改善句子流畅度
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    2. 增强表达的专业性
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    3. 确保段落衔接自然
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出润色后的最终版本。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;final_article&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 组合为 SequentialAgent</span>
+</span></span><span style=display:flex><span>pipeline <span style=color:#f92672>=</span> SequentialAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ContentPipeline&#34;</span>,
+</span></span><span style=display:flex><span>    sub_agents<span style=color:#f92672>=</span>[outline_agent, draft_agent, polish_agent]
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 运行</span>
+</span></span><span style=display:flex><span>session_service <span style=color:#f92672>=</span> InMemorySessionService()
+</span></span><span style=display:flex><span>runner <span style=color:#f92672>=</span> Runner(agent<span style=color:#f92672>=</span>pipeline, session_service<span style=color:#f92672>=</span>session_service, app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;content_app&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>session <span style=color:#f92672>=</span> session_service<span style=color:#f92672>.</span>create_session(app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;content_app&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;user_1&#34;</span>)
+</span></span><span style=display:flex><span>response <span style=color:#f92672>=</span> runner<span style=color:#f92672>.</span>run(
+</span></span><span style=display:flex><span>    user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;user_1&#34;</span>,
+</span></span><span style=display:flex><span>    session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id,
+</span></span><span style=display:flex><span>    new_message<span style=color:#f92672>=</span>types<span style=color:#f92672>.</span>Content(parts<span style=color:#f92672>=</span>[types<span style=color:#f92672>.</span>Part(text<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;多智能体系统的未来发展&#34;</span>)])
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>&#34;=== 生成结果 ===&#34;</span>)
+</span></span><span style=display:flex><span>print(session_service<span style=color:#f92672>.</span>get_session(
+</span></span><span style=display:flex><span>    app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;content_app&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;user_1&#34;</span>, session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id
+</span></span><span style=display:flex><span>)<span style=color:#f92672>.</span>state<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;final_article&#34;</span>))
+</span></span></code></pre></div><h3 id=42-parallelizationfan-out-gather>4.2 Parallelization(Fan-Out Gather)</h3><h4 id=模式定义-1>模式定义</h4><p>将任务分发给多个 Agent 同时处理，最后聚合所有结果。从"一个 Agent 串行处理 N 件事"变成"N 个 Agent 并行处理"，速度提升理论上与 Agent 数量成正比。</p><pre tabindex=0><code>                ┌─→ [Agent_A: 分析维度1] ─┐
+[Input] → Split ├─→ [Agent_B: 分析维度2] ─┤→ Aggregate → [Output]
+                └─→ [Agent_C: 分析维度3] ─┘
+</code></pre><h4 id=适用场景-1>适用场景</h4><ul><li><strong>多源信息检索</strong>：同时搜索 Google、Wikipedia、内部知识库</li><li><strong>多维度评估</strong>：从性能、安全、可维护性三个角度同时评审代码</li><li><strong>投票机制</strong>：三个 LLM 独立给出答案，取多数票减少偏差</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>示例：三维度并行产品评估
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>同时从「用户体验」「技术可行性」「商业价值」三个维度评估产品方案
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.agents <span style=color:#f92672>import</span> ParallelAgent, LlmAgent, SequentialAgent
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.sessions <span style=color:#f92672>import</span> InMemorySessionService
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.runners <span style=color:#f92672>import</span> Runner
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.genai <span style=color:#f92672>import</span> types
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 三个并行的专家 Agent</span>
+</span></span><span style=display:flex><span>ux_expert <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;UXExpert&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位资深用户体验专家。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    请从用户体验角度评估以下产品方案（100字以内）：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    评估维度：易用性、学习曲线、用户满意度预期。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出格式：[UX评分: X/10] 评估内容&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ux_assessment&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tech_expert <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;TechExpert&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位资深技术架构师。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    请从技术可行性角度评估以下产品方案（100字以内）：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    评估维度：实现难度、技术风险、架构合理性。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出格式：[技术评分: X/10] 评估内容&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;tech_assessment&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>business_expert <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;BusinessExpert&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位商业分析师。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    请从商业价值角度评估以下产品方案（100字以内）：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    评估维度：市场潜力、盈利模式、竞争优势。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出格式：[商业评分: X/10] 评估内容&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;business_assessment&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 结果聚合 Agent</span>
+</span></span><span style=display:flex><span>aggregator <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;Aggregator&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位产品总监。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    请综合以下三份评估报告（来自 session state 的 ux_assessment、
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    tech_assessment、business_assessment），给出综合评估结论和建议。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出：综合评分、主要风险、关键建议（各不超过3条）&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;final_assessment&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 并行评估 + 串行聚合</span>
+</span></span><span style=display:flex><span>evaluation_pipeline <span style=color:#f92672>=</span> SequentialAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;EvaluationPipeline&#34;</span>,
+</span></span><span style=display:flex><span>    sub_agents<span style=color:#f92672>=</span>[
+</span></span><span style=display:flex><span>        ParallelAgent(
+</span></span><span style=display:flex><span>            name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ParallelEvaluation&#34;</span>,
+</span></span><span style=display:flex><span>            sub_agents<span style=color:#f92672>=</span>[ux_expert, tech_expert, business_expert]
+</span></span><span style=display:flex><span>        ),
+</span></span><span style=display:flex><span>        aggregator
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 运行</span>
+</span></span><span style=display:flex><span>session_service <span style=color:#f92672>=</span> InMemorySessionService()
+</span></span><span style=display:flex><span>runner <span style=color:#f92672>=</span> Runner(
+</span></span><span style=display:flex><span>    agent<span style=color:#f92672>=</span>evaluation_pipeline,
+</span></span><span style=display:flex><span>    session_service<span style=color:#f92672>=</span>session_service,
+</span></span><span style=display:flex><span>    app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;eval_app&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>session <span style=color:#f92672>=</span> session_service<span style=color:#f92672>.</span>create_session(app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;eval_app&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;user_1&#34;</span>)
+</span></span><span style=display:flex><span>product_proposal <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>产品方案：AI 驱动的个人财务管理助手
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>- 自动分类记账，学习用户消费习惯
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>- 智能预算建议，提前预警超支风险
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>- 投资组合优化建议（非执行）
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>- 目标用户：25-40岁城市白领
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>runner<span style=color:#f92672>.</span>run(
+</span></span><span style=display:flex><span>    user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;user_1&#34;</span>,
+</span></span><span style=display:flex><span>    session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id,
+</span></span><span style=display:flex><span>    new_message<span style=color:#f92672>=</span>types<span style=color:#f92672>.</span>Content(parts<span style=color:#f92672>=</span>[types<span style=color:#f92672>.</span>Part(text<span style=color:#f92672>=</span>product_proposal)])
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>session_data <span style=color:#f92672>=</span> session_service<span style=color:#f92672>.</span>get_session(
+</span></span><span style=display:flex><span>    app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;eval_app&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;user_1&#34;</span>, session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>&#34;=== 综合评估结果 ===&#34;</span>)
+</span></span><span style=display:flex><span>print(session_data<span style=color:#f92672>.</span>state<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;final_assessment&#34;</span>))
+</span></span></code></pre></div><h3 id=43-routing>4.3 Routing</h3><h4 id=模式定义-2>模式定义</h4><p>根据输入的类型或意图，将请求分发到专门处理该类型的 Agent。核心是一个"分诊台"——不是所有问题都要排同一个队。</p><pre tabindex=0><code>                      ┌─→ [TechSupportAgent]
+[Input] → [Router] ───┼─→ [BillingAgent]
+                      └─→ [GeneralInfoAgent]
+</code></pre><h4 id=适用场景-2>适用场景</h4><ul><li><strong>客服分诊</strong>：技术问题 → 技术支持，账单问题 → 财务，投诉 → 客户成功</li><li><strong>多领域问答</strong>：法律问题 → 法律 Agent，医疗问题 → 医疗 Agent</li><li><strong>意图路由</strong>：写代码 → CodeAgent，写文案 → CopywritingAgent</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>示例：智能客服分诊系统
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>基于用户意图路由到不同专业 Agent
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.agents <span style=color:#f92672>import</span> LlmAgent
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.sessions <span style=color:#f92672>import</span> InMemorySessionService
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.runners <span style=color:#f92672>import</span> Runner
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.genai <span style=color:#f92672>import</span> types
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 专业 Agent</span>
+</span></span><span style=display:flex><span>tech_agent <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;TechSupportAgent&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是技术支持专家。请解答用户的技术问题，
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    提供具体的操作步骤和解决方案。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>billing_agent <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;BillingAgent&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是财务客服专员。请处理用户的账单、退款、
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    订阅相关问题，提供准确的账单说明。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>general_agent <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;GeneralInfoAgent&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是通用客服代表。回答用户关于产品功能、
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    政策和一般性问题。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 路由 Coordinator</span>
+</span></span><span style=display:flex><span>coordinator <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;CustomerServiceCoordinator&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是智能客服调度中心。分析用户问题并路由到合适的专员：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - 技术问题（安装、Bug、功能异常）→ TechSupportAgent
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - 账单问题（付款、退款、订阅）→ BillingAgent
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - 其他问题 → GeneralInfoAgent
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    使用 transfer_to_agent 工具完成路由，不要自己回答用户问题。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    sub_agents<span style=color:#f92672>=</span>[tech_agent, billing_agent, general_agent]
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><h3 id=44-orchestrator-worker>4.4 Orchestrator-Worker</h3><h4 id=模式定义-3>模式定义</h4><p>这是多智能体系统中最强大、也最常用的模式。中心 Orchestrator Agent 负责：</p><ol><li>理解复杂任务目标</li><li>动态分解为子任务</li><li>并行分发给专业 Worker Agent</li><li>综合所有结果生成最终输出</li></ol><pre tabindex=0><code>                    ┌─→ [Worker A: 子任务1] ─┐
+[Goal] → [Orchestrator: 任务分解] ├─→ [Worker B: 子任务2] ─┤→ [Synthesizer] → Output
+                    └─→ [Worker C: 子任务3] ─┘
+</code></pre><p>与 Parallelization 的关键区别：<strong>分解本身是动态的，由 LLM 决定如何拆分</strong>，而非预定义。</p><h4 id=适用场景-3>适用场景</h4><ul><li><strong>复杂报告生成</strong>：调研报告需要数据收集、竞品分析、市场预测等多个并行工作流</li><li><strong>多步骤研究</strong>：研究课题的不同方面可以并行推进</li><li><strong>代码审查</strong>：安全审查、性能分析、代码风格检查可以同时进行</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>示例：深度竞品分析系统
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>Orchestrator 动态决定分析维度，Workers 并行执行
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.agents <span style=color:#f92672>import</span> LlmAgent
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.tools <span style=color:#f92672>import</span> agent_tool
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.sessions <span style=color:#f92672>import</span> InMemorySessionService
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.runners <span style=color:#f92672>import</span> Runner
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.genai <span style=color:#f92672>import</span> types
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Worker Agents（被封装为 AgentTool）</span>
+</span></span><span style=display:flex><span>product_feature_analyst <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ProductFeatureAnalyst&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是产品功能分析专家。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    分析给定产品/公司的核心功能特性、差异化竞争点。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出结构化的功能分析报告。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>pricing_analyst <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;PricingAnalyst&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是定价策略专家。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    分析给定产品/公司的定价模型、价格梯度、目标客群定价策略。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出定价策略分析。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>market_position_analyst <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;MarketPositionAnalyst&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是市场定位专家。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    分析给定产品/公司在市场中的定位、品牌认知、用户口碑。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出市场定位分析。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tech_stack_analyst <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;TechStackAnalyst&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是技术分析专家。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    分析给定产品/公司的技术架构、AI能力、技术护城河。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出技术栈分析。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 将 Workers 封装为工具</span>
+</span></span><span style=display:flex><span>feature_tool <span style=color:#f92672>=</span> agent_tool<span style=color:#f92672>.</span>AgentTool(agent<span style=color:#f92672>=</span>product_feature_analyst)
+</span></span><span style=display:flex><span>pricing_tool <span style=color:#f92672>=</span> agent_tool<span style=color:#f92672>.</span>AgentTool(agent<span style=color:#f92672>=</span>pricing_analyst)
+</span></span><span style=display:flex><span>market_tool <span style=color:#f92672>=</span> agent_tool<span style=color:#f92672>.</span>AgentTool(agent<span style=color:#f92672>=</span>market_position_analyst)
+</span></span><span style=display:flex><span>tech_tool <span style=color:#f92672>=</span> agent_tool<span style=color:#f92672>.</span>AgentTool(agent<span style=color:#f92672>=</span>tech_stack_analyst)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Orchestrator Agent</span>
+</span></span><span style=display:flex><span>orchestrator <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;CompetitiveIntelligenceOrchestrator&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是竞争情报分析调度专家。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    当用户要求分析某个竞争对手时，你需要：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    1. 调用以下工具并行收集各维度分析（一次性全部调用以提高效率）：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       - ProductFeatureAnalyst: 产品功能分析
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       - PricingAnalyst: 定价策略分析
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       - MarketPositionAnalyst: 市场定位分析
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       - TechStackAnalyst: 技术栈分析
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    2. 综合所有分析，生成完整的竞品报告，包括：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       - 执行摘要（核心发现，3条）
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       - 四维分析详情
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>       - 对我方的战略建议（2-3条）
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    报告要有深度，避免泛泛而谈。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    tools<span style=color:#f92672>=</span>[feature_tool, pricing_tool, market_tool, tech_tool]
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 运行</span>
+</span></span><span style=display:flex><span>session_service <span style=color:#f92672>=</span> InMemorySessionService()
+</span></span><span style=display:flex><span>runner <span style=color:#f92672>=</span> Runner(agent<span style=color:#f92672>=</span>orchestrator, session_service<span style=color:#f92672>=</span>session_service, app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ci_app&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>session <span style=color:#f92672>=</span> session_service<span style=color:#f92672>.</span>create_session(app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ci_app&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;analyst_1&#34;</span>)
+</span></span><span style=display:flex><span>runner<span style=color:#f92672>.</span>run(
+</span></span><span style=display:flex><span>    user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;analyst_1&#34;</span>,
+</span></span><span style=display:flex><span>    session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id,
+</span></span><span style=display:flex><span>    new_message<span style=color:#f92672>=</span>types<span style=color:#f92672>.</span>Content(parts<span style=color:#f92672>=</span>[types<span style=color:#f92672>.</span>Part(
+</span></span><span style=display:flex><span>        text<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;请对 Notion AI 进行全面的竞品分析&#34;</span>
+</span></span><span style=display:flex><span>    )])
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><h3 id=45-evaluator-optimizer>4.5 Evaluator-Optimizer</h3><h4 id=模式定义-4>模式定义</h4><p>生成器（Generator）和评估器（Evaluator/Critic）形成<strong>反馈循环</strong>，持续迭代直到输出满足质量标准。这是将 AI 输出质量从"够用"提升到"优秀"的关键模式。</p><pre tabindex=0><code>[Input] → Generator → [Draft]
+              ↑              ↓
+         [Revise]    Evaluator/Critic
+              ↑              ↓
+         ← ← ← [Pass? No → Feedback]
+                     ↓ Yes
+                  [Output]
+</code></pre><h4 id=适用场景-4>适用场景</h4><ul><li><strong>代码生成</strong>：生成代码 → 测试执行 → 修复 Bug → 再测试</li><li><strong>文案精修</strong>：初稿 → 专业点评 → 修改 → 再点评（直到评分达标）</li><li><strong>质量达标控制</strong>：任何有明确质量标准的生成任务</li></ul><p><strong>关键机制：Generator-Critic 双角色交互</strong></p><p>这不仅仅是"自我修改"。Generator 和 Critic 应该有<strong>不同的 Prompt</strong>，甚至可以使用不同的模型。Critic 的职责是挑剔、严格、发现不足；Generator 的职责是创作、改进。角色分离避免了"自我美化"的偏见。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>示例：代码质量迭代优化
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>Generator 生成代码，Critic 评审，循环优化直到满分
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.agents <span style=color:#f92672>import</span> LoopAgent, LlmAgent
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.sessions <span style=color:#f92672>import</span> InMemorySessionService
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.runners <span style=color:#f92672>import</span> Runner
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.genai <span style=color:#f92672>import</span> types
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Generator Agent</span>
+</span></span><span style=display:flex><span>code_generator <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;CodeGenerator&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位 Python 工程师。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    如果 session state 中没有 &#39;code_draft&#39;，
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    根据用户需求生成初始代码实现。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    如果存在 &#39;critic_feedback&#39;，
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    根据反馈改进 &#39;code_draft&#39; 中的代码。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出：只输出 Python 代码，不要解释。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    将代码存入 output_key &#39;code_draft&#39;。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;code_draft&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># Critic/Evaluator Agent  </span>
+</span></span><span style=display:flex><span>code_critic <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;CodeCritic&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位严格的代码审查专家。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    审查 session state 中 &#39;code_draft&#39; 的代码，从以下维度评分（各25分）：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    1. 正确性：逻辑是否无误
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    2. 可读性：命名、注释、结构
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    3. 健壮性：错误处理、边界情况
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    4. 性能：算法效率
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    输出格式（严格遵守）：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    总分: XX/100
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    问题清单:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - [具体问题1]
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - [具体问题2]
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    如果总分 &gt;= 85，在最后一行输出：APPROVED
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    将你的评审结果存入 output_key &#39;critic_feedback&#39;。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    将 &#39;APPROVED&#39; 或 &#39;NEEDS_REVISION&#39; 存入 output_key &#39;review_status&#39;。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    output_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;critic_feedback&#34;</span>  <span style=color:#75715e># 注：实际需要自定义 tool 写多个 key</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 终止条件检查 Agent</span>
+</span></span><span style=display:flex><span>termination_checker <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;TerminationChecker&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;检查 session state 中 &#39;critic_feedback&#39; 是否包含 &#39;APPROVED&#39;。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    如果包含 APPROVED，调用 escalate() 终止循环。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    否则，不做任何操作，让循环继续。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 循环 Agent（最多5轮迭代）</span>
+</span></span><span style=display:flex><span>optimization_loop <span style=color:#f92672>=</span> LoopAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;CodeOptimizationLoop&#34;</span>,
+</span></span><span style=display:flex><span>    sub_agents<span style=color:#f92672>=</span>[code_generator, code_critic, termination_checker],
+</span></span><span style=display:flex><span>    max_iterations<span style=color:#f92672>=</span><span style=color:#ae81ff>5</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 运行</span>
+</span></span><span style=display:flex><span>session_service <span style=color:#f92672>=</span> InMemorySessionService()
+</span></span><span style=display:flex><span>runner <span style=color:#f92672>=</span> Runner(
+</span></span><span style=display:flex><span>    agent<span style=color:#f92672>=</span>optimization_loop,
+</span></span><span style=display:flex><span>    session_service<span style=color:#f92672>=</span>session_service,
+</span></span><span style=display:flex><span>    app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;code_optimizer&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>session <span style=color:#f92672>=</span> session_service<span style=color:#f92672>.</span>create_session(
+</span></span><span style=display:flex><span>    app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;code_optimizer&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;dev_1&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>runner<span style=color:#f92672>.</span>run(
+</span></span><span style=display:flex><span>    user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;dev_1&#34;</span>,
+</span></span><span style=display:flex><span>    session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id,
+</span></span><span style=display:flex><span>    new_message<span style=color:#f92672>=</span>types<span style=color:#f92672>.</span>Content(parts<span style=color:#f92672>=</span>[types<span style=color:#f92672>.</span>Part(
+</span></span><span style=display:flex><span>        text<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;实现一个 LRU Cache 类，支持 get(key) 和 put(key, value) 操作，
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        容量满时自动淘汰最久未使用的元素。时间复杂度要求 O(1)。&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    )])
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>final_state <span style=color:#f92672>=</span> session_service<span style=color:#f92672>.</span>get_session(
+</span></span><span style=display:flex><span>    app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;code_optimizer&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;dev_1&#34;</span>, session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id
+</span></span><span style=display:flex><span>)<span style=color:#f92672>.</span>state
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>&#34;=== 最终代码 ===&#34;</span>)
+</span></span><span style=display:flex><span>print(final_state<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;code_draft&#34;</span>))
+</span></span><span style=display:flex><span>print(<span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>=== 评审结果 ===&#34;</span>)
+</span></span><span style=display:flex><span>print(final_state<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;critic_feedback&#34;</span>))
+</span></span></code></pre></div><h3 id=46-human-in-the-loop>4.6 Human-in-the-Loop</h3><h4 id=模式定义-5>模式定义</h4><p>在 Agent 决策流中的<strong>关键节点</strong>引入人工审核。AI 提议，人决定。这不是对 AI 的不信任，而是在不确定性高、风险大、或规则复杂的场景下，设置合理的"安全阀"。</p><pre tabindex=0><code>[Agent 分析] → [高风险操作?] → YES → [暂停，等待人工审核]
+                                              ↓ 批准/拒绝
+                              NO → [继续执行] ← ← ← ← ← ←
+</code></pre><h4 id=适用场景-5>适用场景</h4><ul><li><strong>高风险操作</strong>：删除数据、发送批量邮件、执行生产环境变更</li><li><strong>审批流程</strong>：合同签署、预算申请、权限变更</li><li><strong>复杂判断</strong>：医疗诊断建议、法律风险评估、重大投资决策</li></ul><h4 id=基于策略引擎的确认机制>基于策略引擎的确认机制</h4><p><strong>进阶模式</strong>：不是所有操作都需要人工确认——这会导致"确认疲劳"。更好的做法是引入 <strong>Policy Engine</strong>，根据预定义规则自动决定哪些操作需要人工介入。</p><pre tabindex=0><code>操作请求 → PolicyEngine.evaluate(action) → 
+    LOW_RISK: 自动执行
+    MEDIUM_RISK: 记录日志，执行
+    HIGH_RISK: 暂停，人工审核
+    CRITICAL: 强制拒绝
+</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>Human-in-the-Loop 示例：策略引擎驱动的智能审批系统
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>低风险操作自动执行，高风险操作暂停等待人工确认
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> asyncio
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> dataclasses <span style=color:#f92672>import</span> dataclass
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> enum <span style=color:#f92672>import</span> Enum
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> typing <span style=color:#f92672>import</span> Any, Optional
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.agents <span style=color:#f92672>import</span> LlmAgent
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.tools <span style=color:#f92672>import</span> FunctionTool
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.sessions <span style=color:#f92672>import</span> InMemorySessionService
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.runners <span style=color:#f92672>import</span> Runner
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> google.genai <span style=color:#f92672>import</span> types
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ===== 策略引擎 =====</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RiskLevel</span>(Enum):
+</span></span><span style=display:flex><span>    LOW <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;low&#34;</span>
+</span></span><span style=display:flex><span>    MEDIUM <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;medium&#34;</span>
+</span></span><span style=display:flex><span>    HIGH <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;high&#34;</span>
+</span></span><span style=display:flex><span>    CRITICAL <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;critical&#34;</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@dataclass</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>PolicyDecision</span>:
+</span></span><span style=display:flex><span>    risk_level: RiskLevel
+</span></span><span style=display:flex><span>    requires_approval: bool
+</span></span><span style=display:flex><span>    reason: str
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>PolicyEngine</span>:
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;基于规则的风险评估引擎&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    RULES <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;delete&#34;</span>: RiskLevel<span style=color:#f92672>.</span>HIGH,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;send_email_batch&#34;</span>: RiskLevel<span style=color:#f92672>.</span>HIGH,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;update_production&#34;</span>: RiskLevel<span style=color:#f92672>.</span>CRITICAL,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;read_data&#34;</span>: RiskLevel<span style=color:#f92672>.</span>LOW,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;generate_report&#34;</span>: RiskLevel<span style=color:#f92672>.</span>LOW,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;send_notification&#34;</span>: RiskLevel<span style=color:#f92672>.</span>MEDIUM,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;update_config&#34;</span>: RiskLevel<span style=color:#f92672>.</span>MEDIUM,
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@classmethod</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>evaluate</span>(cls, action: str, context: dict) <span style=color:#f92672>-&gt;</span> PolicyDecision:
+</span></span><span style=display:flex><span>        base_risk <span style=color:#f92672>=</span> cls<span style=color:#f92672>.</span>RULES<span style=color:#f92672>.</span>get(action, RiskLevel<span style=color:#f92672>.</span>MEDIUM)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 上下文调整：影响人数越多，风险越高</span>
+</span></span><span style=display:flex><span>        affected_users <span style=color:#f92672>=</span> context<span style=color:#f92672>.</span>get(<span style=color:#e6db74>&#34;affected_users&#34;</span>, <span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> affected_users <span style=color:#f92672>&gt;</span> <span style=color:#ae81ff>1000</span> <span style=color:#f92672>and</span> base_risk <span style=color:#f92672>==</span> RiskLevel<span style=color:#f92672>.</span>MEDIUM:
+</span></span><span style=display:flex><span>            base_risk <span style=color:#f92672>=</span> RiskLevel<span style=color:#f92672>.</span>HIGH
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        requires_approval <span style=color:#f92672>=</span> base_risk <span style=color:#f92672>in</span> [RiskLevel<span style=color:#f92672>.</span>HIGH, RiskLevel<span style=color:#f92672>.</span>CRITICAL]
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> PolicyDecision(
+</span></span><span style=display:flex><span>            risk_level<span style=color:#f92672>=</span>base_risk,
+</span></span><span style=display:flex><span>            requires_approval<span style=color:#f92672>=</span>requires_approval,
+</span></span><span style=display:flex><span>            reason<span style=color:#f92672>=</span><span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;操作&#39;</span><span style=color:#e6db74>{</span>action<span style=color:#e6db74>}</span><span style=color:#e6db74>&#39;风险等级: </span><span style=color:#e6db74>{</span>base_risk<span style=color:#f92672>.</span>value<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ===== 人工确认模拟器 =====</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>HumanApprovalGateway</span>:
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    生产环境中，这里对接企业审批系统（钉钉、飞书、Slack）
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    演示环境使用命令行交互
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@staticmethod</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>request_approval</span>(
+</span></span><span style=display:flex><span>        action: str,
+</span></span><span style=display:flex><span>        details: dict,
+</span></span><span style=display:flex><span>        risk_level: str
+</span></span><span style=display:flex><span>    ) <span style=color:#f92672>-&gt;</span> bool:
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>{</span><span style=color:#e6db74>&#39;=&#39;</span><span style=color:#f92672>*</span><span style=color:#ae81ff>50</span><span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;需要人工审核&#34;</span>)
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;操作: </span><span style=color:#e6db74>{</span>action<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;风险等级: </span><span style=color:#e6db74>{</span>risk_level<span style=color:#f92672>.</span>upper()<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;详情: </span><span style=color:#e6db74>{</span>details<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{</span><span style=color:#e6db74>&#39;=&#39;</span><span style=color:#f92672>*</span><span style=color:#ae81ff>50</span><span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        response <span style=color:#f92672>=</span> input(<span style=color:#e6db74>&#34;批准此操作? (yes/no): &#34;</span>)<span style=color:#f92672>.</span>strip()<span style=color:#f92672>.</span>lower()
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> response <span style=color:#f92672>in</span> [<span style=color:#e6db74>&#34;yes&#34;</span>, <span style=color:#e6db74>&#34;y&#34;</span>, <span style=color:#e6db74>&#34;是&#34;</span>, <span style=color:#e6db74>&#34;批准&#34;</span>]
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ===== 工具定义 =====</span>
+</span></span><span style=display:flex><span>approval_gateway <span style=color:#f92672>=</span> HumanApprovalGateway()
+</span></span><span style=display:flex><span>policy_engine <span style=color:#f92672>=</span> PolicyEngine()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>execute_action</span>(
+</span></span><span style=display:flex><span>    action: str,
+</span></span><span style=display:flex><span>    parameters: dict,
+</span></span><span style=display:flex><span>    description: str
+</span></span><span style=display:flex><span>) <span style=color:#f92672>-&gt;</span> dict:
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    通用操作执行工具，内置策略引擎和人工审核
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    Args:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        action: 操作类型（如 delete, send_email_batch, read_data）
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        parameters: 操作参数
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        description: 操作的人可读描述
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    Returns:
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>        执行结果
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    &#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 策略评估</span>
+</span></span><span style=display:flex><span>    decision <span style=color:#f92672>=</span> policy_engine<span style=color:#f92672>.</span>evaluate(action, parameters)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> decision<span style=color:#f92672>.</span>risk_level <span style=color:#f92672>==</span> RiskLevel<span style=color:#f92672>.</span>CRITICAL:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> {
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;status&#34;</span>: <span style=color:#e6db74>&#34;blocked&#34;</span>,
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;reason&#34;</span>: <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;操作被策略引擎强制拒绝: </span><span style=color:#e6db74>{</span>decision<span style=color:#f92672>.</span>reason<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> decision<span style=color:#f92672>.</span>requires_approval:
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 请求人工审核</span>
+</span></span><span style=display:flex><span>        approved <span style=color:#f92672>=</span> <span style=color:#66d9ef>await</span> approval_gateway<span style=color:#f92672>.</span>request_approval(
+</span></span><span style=display:flex><span>            action<span style=color:#f92672>=</span>action,
+</span></span><span style=display:flex><span>            details<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;description&#34;</span>: description, <span style=color:#e6db74>&#34;parameters&#34;</span>: parameters},
+</span></span><span style=display:flex><span>            risk_level<span style=color:#f92672>=</span>decision<span style=color:#f92672>.</span>risk_level<span style=color:#f92672>.</span>value
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> <span style=color:#f92672>not</span> approved:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> {
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;status&#34;</span>: <span style=color:#e6db74>&#34;rejected&#34;</span>,
+</span></span><span style=display:flex><span>                <span style=color:#e6db74>&#34;reason&#34;</span>: <span style=color:#e6db74>&#34;操作被人工审核拒绝&#34;</span>
+</span></span><span style=display:flex><span>            }
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 模拟执行（实际场景中调用真实 API）</span>
+</span></span><span style=display:flex><span>    print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;执行操作: </span><span style=color:#e6db74>{</span>description<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> {
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;status&#34;</span>: <span style=color:#e6db74>&#34;success&#34;</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;action&#34;</span>: action,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;message&#34;</span>: <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;操作&#39;</span><span style=color:#e6db74>{</span>description<span style=color:#e6db74>}</span><span style=color:#e6db74>&#39;已成功执行&#34;</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;auto_approved&#34;</span>: <span style=color:#f92672>not</span> decision<span style=color:#f92672>.</span>requires_approval
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ===== Agent 配置 =====</span>
+</span></span><span style=display:flex><span>secure_agent <span style=color:#f92672>=</span> LlmAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;SecureOperationsAgent&#34;</span>,
+</span></span><span style=display:flex><span>    model<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;gemini-2.0-flash&#34;</span>,
+</span></span><span style=display:flex><span>    instruction<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;&#34;&#34;你是一位企业 IT 运营助手。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    当用户要求执行操作时，使用 execute_action 工具来完成。
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    操作类型参考：
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - read_data: 读取数据
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - generate_report: 生成报告
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - send_notification: 发送通知
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - update_config: 更新配置
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - delete: 删除数据
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - send_email_batch: 批量发送邮件
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    - update_production: 更新生产环境
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    
+</span></span></span><span style=display:flex><span><span style=color:#e6db74>    始终提供清晰的 description 说明操作目的和影响范围。&#34;&#34;&#34;</span>,
+</span></span><span style=display:flex><span>    tools<span style=color:#f92672>=</span>[FunctionTool(execute_action)]
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ===== 运行示例 =====</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>main</span>():
+</span></span><span style=display:flex><span>    session_service <span style=color:#f92672>=</span> InMemorySessionService()
+</span></span><span style=display:flex><span>    runner <span style=color:#f92672>=</span> Runner(
+</span></span><span style=display:flex><span>        agent<span style=color:#f92672>=</span>secure_agent,
+</span></span><span style=display:flex><span>        session_service<span style=color:#f92672>=</span>session_service,
+</span></span><span style=display:flex><span>        app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;secure_ops&#34;</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    session <span style=color:#f92672>=</span> session_service<span style=color:#f92672>.</span>create_session(
+</span></span><span style=display:flex><span>        app_name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;secure_ops&#34;</span>, user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ops_1&#34;</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 测试不同风险级别的操作</span>
+</span></span><span style=display:flex><span>    test_requests <span style=color:#f92672>=</span> [
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;生成过去30天的用户活跃度报告&#34;</span>,  <span style=color:#75715e># LOW risk，自动执行</span>
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;向2000名用户发送产品更新通知邮件&#34;</span>,  <span style=color:#75715e># HIGH risk，需要审核</span>
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> request <span style=color:#f92672>in</span> test_requests:
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>{</span><span style=color:#e6db74>&#39;=&#39;</span><span style=color:#f92672>*</span><span style=color:#ae81ff>60</span><span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;用户请求: </span><span style=color:#e6db74>{</span>request<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>for</span> event <span style=color:#f92672>in</span> runner<span style=color:#f92672>.</span>run_async(
+</span></span><span style=display:flex><span>            user_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ops_1&#34;</span>,
+</span></span><span style=display:flex><span>            session_id<span style=color:#f92672>=</span>session<span style=color:#f92672>.</span>id,
+</span></span><span style=display:flex><span>            new_message<span style=color:#f92672>=</span>types<span style=color:#f92672>.</span>Content(parts<span style=color:#f92672>=</span>[types<span style=color:#f92672>.</span>Part(text<span style=color:#f92672>=</span>request)])
+</span></span><span style=display:flex><span>        ):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>if</span> event<span style=color:#f92672>.</span>is_final_response():
+</span></span><span style=display:flex><span>                print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;Agent 回复: </span><span style=color:#e6db74>{</span>event<span style=color:#f92672>.</span>content<span style=color:#f92672>.</span>parts[<span style=color:#ae81ff>0</span>]<span style=color:#f92672>.</span>text<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>asyncio<span style=color:#f92672>.</span>run(main())
+</span></span></code></pre></div><h2 id=5-高级模式组合与嵌套>5. 高级模式：组合与嵌套</h2><p>单一模式解决单一类别的问题。<strong>真实世界的复杂任务需要模式的组合与嵌套。</strong></p><h3 id=模式叠加sequential-内嵌-parallel--loop>模式叠加：Sequential 内嵌 Parallel + Loop</h3><p>以"高质量深度研究报告生成"为例：</p><pre tabindex=0><code>SequentialAgent (整体流水线)
+├── ParallelAgent (多源并行信息收集)
+│   ├── WebSearchAgent
+│   ├── DatabaseQueryAgent  
+│   └── ExpertInterviewAgent
+├── LoopAgent (迭代优化报告质量)
+│   ├── ReportDraftAgent
+│   └── QualityCriticAgent (循环直到评分 &gt;= 90)
+└── HumanReviewAgent (最终发布前人工审核)
+</code></pre><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> google.adk.agents <span style=color:#f92672>import</span> SequentialAgent, ParallelAgent, LoopAgent, LlmAgent
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 构建嵌套多智能体系统</span>
+</span></span><span style=display:flex><span>research_pipeline <span style=color:#f92672>=</span> SequentialAgent(
+</span></span><span style=display:flex><span>    name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ResearchPipeline&#34;</span>,
+</span></span><span style=display:flex><span>    sub_agents<span style=color:#f92672>=</span>[
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 第1阶段：并行信息收集</span>
+</span></span><span style=display:flex><span>        ParallelAgent(
+</span></span><span style=display:flex><span>            name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;InformationGathering&#34;</span>,
+</span></span><span style=display:flex><span>            sub_agents<span style=color:#f92672>=</span>[web_search_agent, db_query_agent, expert_agent]
+</span></span><span style=display:flex><span>        ),
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 第2阶段：信息综合</span>
+</span></span><span style=display:flex><span>        synthesis_agent,
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 第3阶段：迭代优化</span>
+</span></span><span style=display:flex><span>        LoopAgent(
+</span></span><span style=display:flex><span>            name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;QualityOptimization&#34;</span>,
+</span></span><span style=display:flex><span>            sub_agents<span style=color:#f92672>=</span>[draft_agent, critic_agent],
+</span></span><span style=display:flex><span>            max_iterations<span style=color:#f92672>=</span><span style=color:#ae81ff>3</span>
+</span></span><span style=display:flex><span>        ),
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 第4阶段：人工审核（仅对外发布报告）</span>
+</span></span><span style=display:flex><span>        human_review_agent
+</span></span><span style=display:flex><span>    ]
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><h3 id=多层代理树hierarchical-task-decomposition>多层代理树：Hierarchical Task Decomposition</h3><p>对于极其复杂的任务，可以构建多层 Orchestrator 树：</p><pre tabindex=0><code>Root Orchestrator
+├── Research Orchestrator
+│   ├── Domain Expert A
+│   ├── Domain Expert B
+│   └── Data Analyst
+├── Writing Orchestrator
+│   ├── Section Writer A
+│   ├── Section Writer B
+│   └── Editor
+└── Review Orchestrator
+    ├── Fact Checker
+    ├── Legal Reviewer
+    └── Brand Reviewer
+</code></pre><p><strong>设计原则</strong>：</p><ul><li><strong>每层 Orchestrator 只管辖直接下级</strong>，避免跨层调度引入的复杂性</li><li><strong>叶子节点是纯粹的执行者</strong>，不做决策</li><li><strong>信息向上汇聚</strong>，决策向下分发</li></ul><h3 id=从固定工作流到半自主协作的渐进式设计>从固定工作流到半自主协作的渐进式设计</h3><p>不要一上来就设计最复杂的多智能体系统。实践经验表明，最佳路径是<strong>渐进演化</strong>：</p><pre tabindex=0><code>阶段1: 单体 Agent → 验证核心能力
+阶段2: Prompt Chaining → 分解串行步骤
+阶段3: 引入 Routing → 处理多类型输入
+阶段4: Orchestrator-Worker → 复杂任务并行化
+阶段5: 加入 Evaluator-Optimizer → 提升输出质量
+阶段6: Human-in-the-Loop → 高风险场景加入人工干预
+</code></pre><p>每个阶段都要有完整的评估，确认收益大于复杂性增加的成本，再进入下一阶段。</p><h2 id=6-选型指南如何选择合适的模式>6. 选型指南：如何选择合适的模式？</h2><table><thead><tr><th>模式</th><th>确定性</th><th>并发度</th><th>适用复杂度</th><th>人工介入</th><th>适用场景关键词</th></tr></thead><tbody><tr><td>Prompt Chaining</td><td>高</td><td>低</td><td>低</td><td>可选</td><td>流水线、顺序依赖、步骤清晰</td></tr><tr><td>Parallelization</td><td>中</td><td>高</td><td>中</td><td>可选</td><td>多维评估、多源检索、投票</td></tr><tr><td>Routing</td><td>中</td><td>低</td><td>中</td><td>可选</td><td>分类分发、意图识别、专科处理</td></tr><tr><td>Orchestrator-Worker</td><td>低</td><td>高</td><td>高</td><td>可选</td><td>复杂任务、动态分解、综合报告</td></tr><tr><td>Evaluator-Optimizer</td><td>低</td><td>中</td><td>高</td><td>可选</td><td>质量迭代、反馈循环、达标控制</td></tr><tr><td>Human-in-the-Loop</td><td>中</td><td>低</td><td>高</td><td>必须</td><td>高风险操作、审批流程、合规要求</td></tr></tbody></table><p><strong>决策树</strong>：</p><pre tabindex=0><code>任务是否可以明确分解为有序步骤？
+├── 是 → Prompt Chaining
+└── 否 → 任务是否需要多类型处理？
+         ├── 是（输入分类）→ Routing
+         └── 否 → 任务是否涉及多个独立子任务？
+                  ├── 是（可并行）→ Parallelization 或 Orchestrator-Worker
+                  │   └── 分解逻辑是否动态？→ 是 → Orchestrator-Worker
+                  └── 是（质量要求高）→ Evaluator-Optimizer
+                       └── 是否有高风险操作？→ 是 → Human-in-the-Loop
+</code></pre><h2 id=7-工程实践构建健壮的多智能体系统>7. 工程实践：构建健壮的多智能体系统</h2><h3 id=状态管理最佳实践session-state-设计>状态管理最佳实践（Session State 设计）</h3><p>Session State 是多智能体系统的"共享内存"。糟糕的状态设计会导致 Agent 间通信混乱、数据污染、难以调试。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 糟糕的状态设计</span>
+</span></span><span style=display:flex><span>session<span style=color:#f92672>.</span>state[<span style=color:#e6db74>&#34;data&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;...&#34;</span>  <span style=color:#75715e># key 太模糊</span>
+</span></span><span style=display:flex><span>session<span style=color:#f92672>.</span>state[<span style=color:#e6db74>&#34;result&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;...&#34;</span>  <span style=color:#75715e># 会被多个 Agent 覆盖</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 良好的状态设计</span>
+</span></span><span style=display:flex><span>session<span style=color:#f92672>.</span>state[<span style=color:#e6db74>&#34;pipeline:step1:raw_data&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;...&#34;</span>      <span style=color:#75715e># 命名空间隔离</span>
+</span></span><span style=display:flex><span>session<span style=color:#f92672>.</span>state[<span style=color:#e6db74>&#34;pipeline:step2:analysis&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;...&#34;</span>      <span style=color:#75715e># 阶段清晰</span>
+</span></span><span style=display:flex><span>session<span style=color:#f92672>.</span>state[<span style=color:#e6db74>&#34;pipeline:final:report&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;...&#34;</span>        <span style=color:#75715e># 最终输出标记</span>
+</span></span><span style=display:flex><span>session<span style=color:#f92672>.</span>state[<span style=color:#e6db74>&#34;pipeline:metadata:iteration_count&#34;</span>] <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>  <span style=color:#75715e># 元数据分离</span>
+</span></span></code></pre></div><p><strong>状态设计原则</strong>：</p><ul><li><strong>使用命名空间</strong>：<code>{pipeline_name}:{stage}:{key}</code> 格式</li><li><strong>不可变历史</strong>：已完成步骤的状态不应被覆盖（追加 <code>_v2</code> 而非覆盖）</li><li><strong>明确所有权</strong>：每个 key 只有一个 Agent 负责写入</li><li><strong>区分输入/输出</strong>：读写分离，避免 Agent 误读自己的上一次输出</li></ul><h3 id=错误处理与超时控制>错误处理与超时控制</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> asyncio
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> typing <span style=color:#f92672>import</span> Optional
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>RobustAgentRunner</span>:
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;健壮的 Agent 运行器，包含超时、重试、熔断&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, agent, max_retries: int <span style=color:#f92672>=</span> <span style=color:#ae81ff>3</span>, timeout_seconds: int <span style=color:#f92672>=</span> <span style=color:#ae81ff>60</span>):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>agent <span style=color:#f92672>=</span> agent
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>max_retries <span style=color:#f92672>=</span> max_retries
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>timeout <span style=color:#f92672>=</span> timeout_seconds
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>run_with_resilience</span>(
+</span></span><span style=display:flex><span>        self, 
+</span></span><span style=display:flex><span>        input_data: str,
+</span></span><span style=display:flex><span>        fallback_response: Optional[str] <span style=color:#f92672>=</span> <span style=color:#66d9ef>None</span>
+</span></span><span style=display:flex><span>    ) <span style=color:#f92672>-&gt;</span> str:
+</span></span><span style=display:flex><span>        last_error <span style=color:#f92672>=</span> <span style=color:#66d9ef>None</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> attempt <span style=color:#f92672>in</span> range(self<span style=color:#f92672>.</span>max_retries):
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>                result <span style=color:#f92672>=</span> <span style=color:#66d9ef>await</span> asyncio<span style=color:#f92672>.</span>wait_for(
+</span></span><span style=display:flex><span>                    self<span style=color:#f92672>.</span>agent<span style=color:#f92672>.</span>run_async(input_data),
+</span></span><span style=display:flex><span>                    timeout<span style=color:#f92672>=</span>self<span style=color:#f92672>.</span>timeout
+</span></span><span style=display:flex><span>                )
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>return</span> result
+</span></span><span style=display:flex><span>                
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>except</span> asyncio<span style=color:#f92672>.</span>TimeoutError:
+</span></span><span style=display:flex><span>                last_error <span style=color:#f92672>=</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;超时（</span><span style=color:#e6db74>{</span>self<span style=color:#f92672>.</span>timeout<span style=color:#e6db74>}</span><span style=color:#e6db74>s），尝试 </span><span style=color:#e6db74>{</span>attempt <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span><span style=color:#e6db74>}</span><span style=color:#e6db74>/</span><span style=color:#e6db74>{</span>self<span style=color:#f92672>.</span>max_retries<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>                print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{</span>last_error<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>await</span> asyncio<span style=color:#f92672>.</span>sleep(<span style=color:#ae81ff>2</span> <span style=color:#f92672>**</span> attempt)  <span style=color:#75715e># 指数退避</span>
+</span></span><span style=display:flex><span>                
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e:
+</span></span><span style=display:flex><span>                last_error <span style=color:#f92672>=</span> <span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;错误: </span><span style=color:#e6db74>{</span>str(e)<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>
+</span></span><span style=display:flex><span>                print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;</span><span style=color:#e6db74>{</span>last_error<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>                
+</span></span><span style=display:flex><span>                <span style=color:#75715e># 非可重试错误直接返回</span>
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> <span style=color:#e6db74>&#34;INVALID_ARGUMENT&#34;</span> <span style=color:#f92672>in</span> str(e):
+</span></span><span style=display:flex><span>                    <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 所有重试失败</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> fallback_response:
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>return</span> fallback_response
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>raise</span> <span style=color:#a6e22e>RuntimeError</span>(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;Agent 执行失败（</span><span style=color:#e6db74>{</span>self<span style=color:#f92672>.</span>max_retries<span style=color:#e6db74>}</span><span style=color:#e6db74>次重试后）: </span><span style=color:#e6db74>{</span>last_error<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span></code></pre></div><h3 id=调试与可观测性tracing--streaming>调试与可观测性（Tracing & Streaming）</h3><p>多智能体系统的调试难度远超单体 Agent，因为问题可能出现在任意节点间的交互中。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># ADK 内置的事件流可观测性</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>run_with_full_observability</span>(runner, user_id, session_id, message):
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;&#34;&#34;带完整事件追踪的 Agent 运行&#34;&#34;&#34;</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    event_log <span style=color:#f92672>=</span> []
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>for</span> event <span style=color:#f92672>in</span> runner<span style=color:#f92672>.</span>run_async(
+</span></span><span style=display:flex><span>        user_id<span style=color:#f92672>=</span>user_id,
+</span></span><span style=display:flex><span>        session_id<span style=color:#f92672>=</span>session_id,
+</span></span><span style=display:flex><span>        new_message<span style=color:#f92672>=</span>message
+</span></span><span style=display:flex><span>    ):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 记录每个事件</span>
+</span></span><span style=display:flex><span>        event_info <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;type&#34;</span>: event<span style=color:#f92672>.</span>type,
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;agent&#34;</span>: getattr(event, <span style=color:#e6db74>&#34;author&#34;</span>, <span style=color:#e6db74>&#34;unknown&#34;</span>),
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;timestamp&#34;</span>: asyncio<span style=color:#f92672>.</span>get_event_loop()<span style=color:#f92672>.</span>time()
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> event<span style=color:#f92672>.</span>content:
+</span></span><span style=display:flex><span>            <span style=color:#75715e># 工具调用事件</span>
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>for</span> part <span style=color:#f92672>in</span> event<span style=color:#f92672>.</span>content<span style=color:#f92672>.</span>parts:
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>if</span> hasattr(part, <span style=color:#e6db74>&#34;function_call&#34;</span>):
+</span></span><span style=display:flex><span>                    event_info[<span style=color:#e6db74>&#34;tool_call&#34;</span>] <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>                        <span style=color:#e6db74>&#34;name&#34;</span>: part<span style=color:#f92672>.</span>function_call<span style=color:#f92672>.</span>name,
+</span></span><span style=display:flex><span>                        <span style=color:#e6db74>&#34;args&#34;</span>: dict(part<span style=color:#f92672>.</span>function_call<span style=color:#f92672>.</span>args)
+</span></span><span style=display:flex><span>                    }
+</span></span><span style=display:flex><span>                    print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;🔧 [</span><span style=color:#e6db74>{</span>event_info[<span style=color:#e6db74>&#39;agent&#39;</span>]<span style=color:#e6db74>}</span><span style=color:#e6db74>] 调用工具: </span><span style=color:#e6db74>{</span>part<span style=color:#f92672>.</span>function_call<span style=color:#f92672>.</span>name<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>                
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>elif</span> hasattr(part, <span style=color:#e6db74>&#34;function_response&#34;</span>):
+</span></span><span style=display:flex><span>                    event_info[<span style=color:#e6db74>&#34;tool_response&#34;</span>] <span style=color:#f92672>=</span> str(part<span style=color:#f92672>.</span>function_response<span style=color:#f92672>.</span>response)[:<span style=color:#ae81ff>200</span>]
+</span></span><span style=display:flex><span>                    print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;工具响应: </span><span style=color:#e6db74>{</span>str(part<span style=color:#f92672>.</span>function_response<span style=color:#f92672>.</span>response)[:<span style=color:#ae81ff>100</span>]<span style=color:#e6db74>}</span><span style=color:#e6db74>...&#34;</span>)
+</span></span><span style=display:flex><span>                
+</span></span><span style=display:flex><span>                <span style=color:#66d9ef>elif</span> hasattr(part, <span style=color:#e6db74>&#34;text&#34;</span>) <span style=color:#f92672>and</span> part<span style=color:#f92672>.</span>text:
+</span></span><span style=display:flex><span>                    print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;[</span><span style=color:#e6db74>{</span>event_info[<span style=color:#e6db74>&#39;agent&#39;</span>]<span style=color:#e6db74>}</span><span style=color:#e6db74>]: </span><span style=color:#e6db74>{</span>part<span style=color:#f92672>.</span>text[:<span style=color:#ae81ff>200</span>]<span style=color:#e6db74>}</span><span style=color:#e6db74>&#34;</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        event_log<span style=color:#f92672>.</span>append(event_info)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> event<span style=color:#f92672>.</span>is_final_response():
+</span></span><span style=display:flex><span>            print(<span style=color:#e6db74>f</span><span style=color:#e6db74>&#34;</span><span style=color:#ae81ff>\n</span><span style=color:#e6db74>任务完成，共 </span><span style=color:#e6db74>{</span>len(event_log)<span style=color:#e6db74>}</span><span style=color:#e6db74> 个事件&#34;</span>)
+</span></span><span style=display:flex><span>            <span style=color:#66d9ef>break</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> event_log
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 使用 LangSmith 或 Langfuse 进行生产级追踪</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># pip install langfuse</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> langfuse <span style=color:#f92672>import</span> Langfuse
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>langfuse <span style=color:#f92672>=</span> Langfuse(
+</span></span><span style=display:flex><span>    secret_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;your-secret-key&#34;</span>,
+</span></span><span style=display:flex><span>    public_key<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;your-public-key&#34;</span>, 
+</span></span><span style=display:flex><span>    host<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;https://cloud.langfuse.com&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>trace <span style=color:#f92672>=</span> langfuse<span style=color:#f92672>.</span>trace(name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;multi_agent_pipeline&#34;</span>)
+</span></span><span style=display:flex><span>span <span style=color:#f92672>=</span> trace<span style=color:#f92672>.</span>span(name<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;orchestrator_agent&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#75715e># ... 在 Agent 调用前后记录 span</span>
+</span></span></code></pre></div><h3 id=从原型到生产的关键考量>从原型到生产的关键考量</h3><p><strong>原型阶段（1-2周）</strong></p><ul><li>使用内存型 Session（<code>InMemorySessionService</code>）快速验证逻辑</li><li>用简单的 print 语句追踪状态流转</li><li>固定使用一个测试用例，反复调整 Prompt</li></ul><p><strong>测试阶段（2-4周）</strong></p><ul><li>引入持久化 Session（数据库）</li><li>建立 Golden Dataset：50-100 个有标准答案的测试用例</li><li>对每种模式分别测试：正常路径、边界情况、错误情况</li></ul><p><strong>生产阶段</strong></p><ul><li><strong>成本监控</strong>：多智能体系统的 token 消耗是单体 Agent 的 N 倍，必须设置成本预警</li><li><strong>延迟 SLA</strong>：明确每个关键路径的最大容忍延迟，对超时任务降级处理</li><li><strong>人工 fallback</strong>：任何 Agent 失败时，要有降级到人工处理的通道</li><li><strong>A/B 测试</strong>：新模式上线前，用小流量对比旧实现的质量和效率</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 生产级配置示例</span>
+</span></span><span style=display:flex><span>PRODUCTION_CONFIG <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;max_retries&#34;</span>: <span style=color:#ae81ff>3</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;timeout_per_agent&#34;</span>: <span style=color:#ae81ff>30</span>,  <span style=color:#75715e># seconds</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;max_pipeline_time&#34;</span>: <span style=color:#ae81ff>300</span>,  <span style=color:#75715e># 5 minutes</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;cost_limit_per_request&#34;</span>: <span style=color:#ae81ff>0.50</span>,  <span style=color:#75715e># USD</span>
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;fallback_enabled&#34;</span>: <span style=color:#66d9ef>True</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;human_escalation_threshold&#34;</span>: <span style=color:#e6db74>&#34;CRITICAL&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;observability&#34;</span>: {
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;tracing&#34;</span>: <span style=color:#66d9ef>True</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;metrics&#34;</span>: <span style=color:#66d9ef>True</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;log_level&#34;</span>: <span style=color:#e6db74>&#34;INFO&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=8-结语多智能体架构的未来>8. 结语：多智能体架构的未来</h2><h3 id=从-pattern-到-platform-的演进>从 Pattern 到 Platform 的演进</h3><p>我们今天讨论的六种模式，是当前多智能体系统设计的"最佳实践语言"。就像微服务架构的模式（Service Mesh、Circuit Breaker、Sidecar）一样，这些模式最终会被平台化——框架会自动处理通信、状态管理、错误处理，开发者只需声明"我需要一个 Orchestrator-Worker 结构"，而无需手写每一行调度代码。</p><p>ADK、LangGraph、AutoGen、CrewAI 都在朝这个方向演进。未来的多智能体平台，将像 Kubernetes 之于容器化应用一样，成为 AI 应用部署的基础设施层。</p><h3 id=自主协作与可控性的平衡艺术>自主协作与可控性的平衡艺术</h3><p>多智能体系统面临的终极矛盾：<strong>越自主，越强大；越自主，越危险。</strong></p><p>完全自主的系统可以处理任何复杂任务，但你永远不知道它会走哪条路。完全确定的系统可以预测每一个输出，但它处理不了你没有预见到的情况。</p><p>真正健壮的多智能体系统，是<strong>在合适的层次设置合适的控制点</strong>：</p><ul><li><strong>操作层</strong>：低风险操作，完全自主</li><li><strong>策略层</strong>：中风险操作，基于规则引擎自动决策</li><li><strong>战略层</strong>：高风险操作，人工介入</li><li><strong>架构层</strong>：系统整体设计，人工把控</li></ul><p>这不是一个技术问题，而是一个工程哲学问题：<strong>你愿意在哪个层面信任 AI，在哪个层面保留人类的最终决定权？</strong></p><p>在这个问题上，没有普适的答案。但有一条原则是确定的：<strong>不要因为系统能做某件事，就让它去做。先问为什么要让它做，以及如果它做错了，你能承担什么。</strong></p><p>多智能体架构的未来，不是构建"全自动的 AI 帝国"，而是构建<strong>人机协同的智慧系统</strong>——让 AI 处理它擅长的规模化、并行化、模式匹配任务；让人类保留对目标、价值观和边界条件的最终定义权。</p><h2 id=参考资源>参考资源</h2><ul><li><a href=https://adk.dev/agents/multi-agents/#human-in-the-loop-pattern>Google Agent Development Kit (ADK) 官方文档</a></li><li><a href=https://docs.langchain.com/oss/python/langgraph/workflows-agents#agents>LangGraph 多智能体文档</a></li><li><a href=https://www.anthropic.com/research/building-effective-agents>Anthropic Multi-Agent Patterns</a></li><li><a href=https://microsoft.github.io/autogen/>AutoGen 框架</a></li></ul></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/ai>ai</a></li><li><a href=/tags/llm>llm</a></li></ul></nav></div><div class=related-posts><h3>Related Posts</h3><ul><li><a href=/posts/2026-04-20-transformer-deep-dive/>Transformer 全面拆解：从「预测下一个词」到改变世界的技术</a>
+<span class=meta>2026-04-20</span></li><li><a href=/posts/2026-04-20-how-to-fine-tuning-llm/>LLM 微调实战指南：从原理到落地的完整路径</a>
+<span class=meta>2026-04-20</span></li></ul></div></div><aside class=toc-sidebar><div class=toc-wrapper><div class=toc-header><svg class="toc-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+<span>目录</span></div><nav id=TableOfContents><ul><li><a href=#1-引言为什么单体-agent-不够用了>1. 引言：为什么单体 Agent 不够用了？</a></li><li><a href=#2-核心概念workflow-vs-agent>2. 核心概念：Workflow vs Agent</a></li><li><a href=#3-多智能体系统的三大通信原语>3. 多智能体系统的三大通信原语</a></li><li><a href=#4-六大经典协作模式详解>4. 六大经典协作模式详解</a></li><li><a href=#5-高级模式组合与嵌套>5. 高级模式：组合与嵌套</a></li><li><a href=#6-选型指南如何选择合适的模式>6. 选型指南：如何选择合适的模式？</a></li><li><a href=#7-工程实践构建健壮的多智能体系统>7. 工程实践：构建健壮的多智能体系统</a></li><li><a href=#8-结语多智能体架构的未来>8. 结语：多智能体架构的未来</a></li><li><a href=#参考资源>参考资源</a></li></ul></nav></div></aside><button class=toc-toggle onclick=toggleToc() aria-label=切换目录>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg></button></div></article></main><style>.content{max-width:1100px}.post-content p,.body p,.post-content,.body{text-align:justify!important;text-align-last:left;text-justify:inter-ideograph;word-wrap:break-word}.post-content li,.body li{text-align:left}.post-content a,.body a,.post-content code,.body code{word-break:break-all;hyphens:none}.post-content ol,.body ol{padding-left:2em}.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}.post-container{display:flex;gap:40px;align-items:flex-start;justify-content:center}.post-content{flex:0 0 800px;max-width:800px;min-width:0}.toc-sidebar{flex:0 0 240px;min-width:200px;max-width:280px;align-self:stretch}.toc-wrapper{position:sticky;top:20px;background:#f8f8f8;border-radius:8px;padding:16px;max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}.toc-wrapper::-webkit-scrollbar{display:none}.toc-header{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e0e0e0}.toc-icon{flex-shrink:0}.toc-sidebar #TableOfContents{font-size:13px;line-height:1.6}.toc-sidebar #TableOfContents ul{list-style:none;padding-left:0;margin:0}.toc-sidebar #TableOfContents ul ul{padding-left:12px;margin-top:4px}.toc-sidebar #TableOfContents li{margin:4px 0;text-indent:0}.toc-sidebar #TableOfContents li::before{content:none}.toc-sidebar #TableOfContents a{display:block;padding:4px 8px;border-radius:4px;border-bottom:none;text-decoration:none;color:#555;transition:all .2s ease}.toc-sidebar #TableOfContents a:hover{background-color:rgba(0,0,0,5%);color:#333}.toc-sidebar #TableOfContents a.active{background-color:var(--maincolor,red);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{font-weight:500;color:#333}.toc-sidebar #TableOfContents ul ul li a{font-size:12px;color:#666}.toc-toggle{display:none;position:fixed;right:20px;bottom:100px;z-index:1000;width:48px;height:48px;border-radius:50%;background:var(--maincolor,red);color:#fff;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);align-items:center;justify-content:center;transition:transform .2s ease}.toc-toggle:hover{transform:scale(1.1)}.toc-toggle svg{max-height:none}@media screen and (max-width:900px){.content{max-width:100%}.post-container{flex-direction:column;gap:20px}.post-content{flex:1;max-width:100%;width:100%}.toc-sidebar{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;max-width:80vw;z-index:999;background:rgba(255,255,255,.98);flex:none;min-width:auto;padding:20px;box-shadow:-2px 0 10px rgba(0,0,0,.2);overflow-y:auto}.toc-sidebar.open{display:block}.toc-wrapper{position:static;max-height:none;background:0 0;overscroll-behavior:contain}.toc-toggle{display:flex}.toc-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:998}.toc-overlay.open{display:block}}@media(prefers-color-scheme:dark){.toc-wrapper{background:#2a2a2a}.toc-header{color:#e0e0e0;border-bottom-color:#444}.toc-sidebar #TableOfContents a{color:#bbb}.toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.toc-sidebar #TableOfContents ul ul li a{color:#aaa}@media screen and (max-width:900px){.toc-sidebar{background:rgba(30,30,30,.98)}}}.dark .toc-wrapper{background:#2a2a2a}.dark .toc-header{color:#e0e0e0;border-bottom-color:#444}.dark .toc-sidebar #TableOfContents a{color:#bbb}.dark .toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.dark .toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.dark .toc-sidebar #TableOfContents ul ul li a{color:#aaa}.dark .toc-sidebar #TableOfContents a.active{background-color:var(--darkMaincolor,#50fa7b);color:#232333}</style><script>(function(){window.toggleToc=function(){const t=document.querySelector(".toc-sidebar");let e=document.querySelector(".toc-overlay");e||(e=document.createElement("div"),e.className="toc-overlay",e.onclick=toggleToc,document.body.appendChild(e)),t.classList.toggle("open"),e.classList.toggle("open"),document.body.style.overflow=t.classList.contains("open")?"hidden":""};function e(){const e=document.querySelectorAll(".body h1[id], .body h2[id], .body h3[id], .body h4[id]"),t=document.querySelectorAll('.toc-sidebar a[href^="#"]'),a=document.querySelector(".toc-wrapper");if(e.length===0||t.length===0||!a)return;let n=null,s=!1;const r=100;function i(){if(s)return;const i=window.scrollY+r;let o=null;for(let t=e.length-1;t>=0;t--)if(e[t].offsetTop<=i){o=e[t];break}o&&n!==o&&(n=o,t.forEach(e=>{e.classList.remove("active"),e.getAttribute("href")==="#"+o.id&&(e.classList.add("active"),e.scrollIntoView({behavior:"smooth",block:"nearest"}))}))}let o=!1;window.addEventListener("scroll",function(){o||(window.requestAnimationFrame(function(){i(),o=!1}),o=!0)},{passive:!0}),i(),t.forEach(e=>{e.addEventListener("click",function(e){const o=this.getAttribute("href");if(o&&o.startsWith("#")){e.preventDefault();const a=o.slice(1),i=document.getElementById(a);if(i){s=!0,n=i;const e=i.getBoundingClientRect(),o=window.pageYOffset+e.top-80;t.forEach(e=>e.classList.remove("active")),this.classList.add("active"),this.scrollIntoView({behavior:"auto",block:"center"}),window.scrollTo({top:Math.max(0,o),behavior:"smooth"}),setTimeout(()=>{s=!1},600),window.innerWidth<=900&&toggleToc()}}})})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",e):e()})()</script><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://x.com/xautjzd/ rel=me title=X><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#x"/></svg></a><a class=border></a></div><div class=footer-info>2026 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>
