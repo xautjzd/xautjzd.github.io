@@ -1,0 +1,160 @@
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>Agent 真正的分水岭，不是“会回答”，而是“会稳定做事”：一文讲透推理框架与工程落地 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='
+大多数人构建 Agent 失败，不是因为用的模型不够强，而是因为根本没想清楚"怎么让它持续、可靠地把一件事做完"。
+
+一、你遇到的那堵墙，叫"会回答"与"会做事"之间的鸿沟
+很多团队第一次做 Agent 的过程是这样的：
+用一个强模型，写几条 system prompt，加上几个工具调用，demo 跑起来了，看起来相当聪明——能搜索、能写代码、能总结。然后上线，开始出问题。任务中途卡住，工具调用失败没有恢复，执行路径陷入循环，最终状态不知道在哪里。
+这不是模型不够强。换成更贵的模型，问题依然存在。
+根本原因是：聊天和做事是两件截然不同的事。
+聊天是无状态的一问一答。做事是有状态的、多步骤的、需要在不确定中持续推进的过程。中间有工具、有失败、有依赖、有反馈、有分支。光靠"更智能地生成下一个 token"，不足以撑起这个过程。
+这就是推理框架存在的意义。它不是让模型"更聪明"，而是给模型提供持续完成任务的结构：怎么拆解问题，怎么规划步骤，怎么调用工具，怎么判断结果，怎么在失败后恢复。
+二、推理框架解决的不是"智力"问题，而是"工程"问题
+我们先把几个主流推理框架过一遍，但不是为了背概念——而是搞清楚它们各自在解决什么具体的工程问题。
+CoT：把复杂问题拆成中间步骤
+Chain-of-Thought 的核心洞察很简单：语言模型在"一步到位"时容易出错，但如果强迫它逐步推导，准确率会显著提升。
+工程上怎么理解？CoT 本质上是把一次高风险的大跳跃，拆成多次低风险的小推断。每一步都是可审查、可调试的。
+适合的场景：推理密集型的单次任务——数学、逻辑、分析、判断。它是基础，几乎所有复杂推理框架都内嵌了 CoT。
+不适合的场景：多轮工具调用、需要外部反馈的动态任务。CoT 是"想清楚再说"，不是"边做边想"。
+ReAct：推理与行动交替，专为工具调用设计
+这是目前工程落地最广的框架之一。结构是 Thought → Action → Observation → Thought → Action……循环往复，直到任务完成。
+它解决的核心问题：工具调用不是瞬间完成的，外部世界的反馈（Observation）会影响下一步的推理（Thought）。ReAct 把这个"感知-思考-行动"的循环显式地建模出来。
+工程上需要注意的：
+
+Observation 的格式化很重要。把工具返回的原始数据整形成模型能有效利用的格式，直接影响后续推理质量。
+需要设计循环终止条件，否则容易陷入无限 Action 循环。
+Token 消耗随步数线性增长，长任务要考虑上下文压缩。
+
+Self-Consistency：同一问题跑多次，投票选最稳的答案
+一次推理可能抽到错误路径。多跑几次、多数路径投票，能显著提升结论的稳定性。
+工程上的代价很明显：token 消耗成倍增加，延迟上升。所以不是什么场景都该用——只有当错误代价远大于资源代价时才值得开。高风险判断、分类决策、关键路由，用得上。普通问答，不要上。
+Plan-and-Solve：先想好再动手
+模型在执行复杂任务时，有一个常见失败模式：漏步。生成过程中"忘了"某个必要环节，结果到最后发现流程不完整。
+Plan-and-Solve 的做法是先生成一个显式计划，再逐步执行。计划是可见的、可检查的。
+工程价值：让任务的整体结构在执行之前就被显式化。这意味着你可以在执行前做校验，比如检查计划步骤是否覆盖了约束条件、是否有明显遗漏。
+注意：计划和执行之间存在"计划漂移"问题——执行过程中遇到新信息，计划可能需要动态调整。系统设计时要考虑计划的可修订性。
+ToT：把推理当成搜索问题
+Tree-of-Thoughts 把推理路径建模为树结构，在每个节点评估多个候选方向，选择最有价值的分支继续探索。
+这在理论上非常优雅——它把推理变成了一个有价值评估的搜索过程。
+但工程代价极高：每个节点要生成多个候选并评估，计算量爆炸式增长。ToT 在工程实践中应该只用于极高价值、可以容忍高成本的决策点，比如复杂规划的关键分叉处，而不是整个任务都走 ToT。
+实际落地建议：局部 ToT——大多数步骤用 ReAct，遇到关键分叉点时切换到 ToT 做多候选评估。'><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-04-22-agent-reasoning-framework/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="Agent 真正的分水岭，不是“会回答”，而是“会稳定做事”：一文讲透推理框架与工程落地"><meta property="og:description" content='大多数人构建 Agent 失败，不是因为用的模型不够强，而是因为根本没想清楚"怎么让它持续、可靠地把一件事做完"。
+一、你遇到的那堵墙，叫"会回答"与"会做事"之间的鸿沟 很多团队第一次做 Agent 的过程是这样的：
+用一个强模型，写几条 system prompt，加上几个工具调用，demo 跑起来了，看起来相当聪明——能搜索、能写代码、能总结。然后上线，开始出问题。任务中途卡住，工具调用失败没有恢复，执行路径陷入循环，最终状态不知道在哪里。
+这不是模型不够强。换成更贵的模型，问题依然存在。
+根本原因是：聊天和做事是两件截然不同的事。
+聊天是无状态的一问一答。做事是有状态的、多步骤的、需要在不确定中持续推进的过程。中间有工具、有失败、有依赖、有反馈、有分支。光靠"更智能地生成下一个 token"，不足以撑起这个过程。
+这就是推理框架存在的意义。它不是让模型"更聪明"，而是给模型提供持续完成任务的结构：怎么拆解问题，怎么规划步骤，怎么调用工具，怎么判断结果，怎么在失败后恢复。
+二、推理框架解决的不是"智力"问题，而是"工程"问题 我们先把几个主流推理框架过一遍，但不是为了背概念——而是搞清楚它们各自在解决什么具体的工程问题。
+CoT：把复杂问题拆成中间步骤 Chain-of-Thought 的核心洞察很简单：语言模型在"一步到位"时容易出错，但如果强迫它逐步推导，准确率会显著提升。
+工程上怎么理解？CoT 本质上是把一次高风险的大跳跃，拆成多次低风险的小推断。每一步都是可审查、可调试的。
+适合的场景：推理密集型的单次任务——数学、逻辑、分析、判断。它是基础，几乎所有复杂推理框架都内嵌了 CoT。
+不适合的场景：多轮工具调用、需要外部反馈的动态任务。CoT 是"想清楚再说"，不是"边做边想"。
+ReAct：推理与行动交替，专为工具调用设计 这是目前工程落地最广的框架之一。结构是 Thought → Action → Observation → Thought → Action……循环往复，直到任务完成。
+它解决的核心问题：工具调用不是瞬间完成的，外部世界的反馈（Observation）会影响下一步的推理（Thought）。ReAct 把这个"感知-思考-行动"的循环显式地建模出来。
+工程上需要注意的：
+Observation 的格式化很重要。把工具返回的原始数据整形成模型能有效利用的格式，直接影响后续推理质量。 需要设计循环终止条件，否则容易陷入无限 Action 循环。 Token 消耗随步数线性增长，长任务要考虑上下文压缩。 Self-Consistency：同一问题跑多次，投票选最稳的答案 一次推理可能抽到错误路径。多跑几次、多数路径投票，能显著提升结论的稳定性。
+工程上的代价很明显：token 消耗成倍增加，延迟上升。所以不是什么场景都该用——只有当错误代价远大于资源代价时才值得开。高风险判断、分类决策、关键路由，用得上。普通问答，不要上。
+Plan-and-Solve：先想好再动手 模型在执行复杂任务时，有一个常见失败模式：漏步。生成过程中"忘了"某个必要环节，结果到最后发现流程不完整。
+Plan-and-Solve 的做法是先生成一个显式计划，再逐步执行。计划是可见的、可检查的。
+工程价值：让任务的整体结构在执行之前就被显式化。这意味着你可以在执行前做校验，比如检查计划步骤是否覆盖了约束条件、是否有明显遗漏。
+注意：计划和执行之间存在"计划漂移"问题——执行过程中遇到新信息，计划可能需要动态调整。系统设计时要考虑计划的可修订性。
+ToT：把推理当成搜索问题 Tree-of-Thoughts 把推理路径建模为树结构，在每个节点评估多个候选方向，选择最有价值的分支继续探索。
+这在理论上非常优雅——它把推理变成了一个有价值评估的搜索过程。
+但工程代价极高：每个节点要生成多个候选并评估，计算量爆炸式增长。ToT 在工程实践中应该只用于极高价值、可以容忍高成本的决策点，比如复杂规划的关键分叉处，而不是整个任务都走 ToT。
+实际落地建议：局部 ToT——大多数步骤用 ReAct，遇到关键分叉点时切换到 ToT 做多候选评估。'><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-04-22T10:00:00+08:00"><meta property="article:modified_time" content="2026-04-22T10:00:00+08:00"><meta property="article:tag" content="Ai"><meta property="article:tag" content="Llm"><meta name=twitter:card content="summary"><meta name=twitter:title content="Agent 真正的分水岭，不是“会回答”，而是“会稳定做事”：一文讲透推理框架与工程落地"><meta name=twitter:description content='大多数人构建 Agent 失败，不是因为用的模型不够强，而是因为根本没想清楚"怎么让它持续、可靠地把一件事做完"。
+一、你遇到的那堵墙，叫"会回答"与"会做事"之间的鸿沟 很多团队第一次做 Agent 的过程是这样的：
+用一个强模型，写几条 system prompt，加上几个工具调用，demo 跑起来了，看起来相当聪明——能搜索、能写代码、能总结。然后上线，开始出问题。任务中途卡住，工具调用失败没有恢复，执行路径陷入循环，最终状态不知道在哪里。
+这不是模型不够强。换成更贵的模型，问题依然存在。
+根本原因是：聊天和做事是两件截然不同的事。
+聊天是无状态的一问一答。做事是有状态的、多步骤的、需要在不确定中持续推进的过程。中间有工具、有失败、有依赖、有反馈、有分支。光靠"更智能地生成下一个 token"，不足以撑起这个过程。
+这就是推理框架存在的意义。它不是让模型"更聪明"，而是给模型提供持续完成任务的结构：怎么拆解问题，怎么规划步骤，怎么调用工具，怎么判断结果，怎么在失败后恢复。
+二、推理框架解决的不是"智力"问题，而是"工程"问题 我们先把几个主流推理框架过一遍，但不是为了背概念——而是搞清楚它们各自在解决什么具体的工程问题。
+CoT：把复杂问题拆成中间步骤 Chain-of-Thought 的核心洞察很简单：语言模型在"一步到位"时容易出错，但如果强迫它逐步推导，准确率会显著提升。
+工程上怎么理解？CoT 本质上是把一次高风险的大跳跃，拆成多次低风险的小推断。每一步都是可审查、可调试的。
+适合的场景：推理密集型的单次任务——数学、逻辑、分析、判断。它是基础，几乎所有复杂推理框架都内嵌了 CoT。
+不适合的场景：多轮工具调用、需要外部反馈的动态任务。CoT 是"想清楚再说"，不是"边做边想"。
+ReAct：推理与行动交替，专为工具调用设计 这是目前工程落地最广的框架之一。结构是 Thought → Action → Observation → Thought → Action……循环往复，直到任务完成。
+它解决的核心问题：工具调用不是瞬间完成的，外部世界的反馈（Observation）会影响下一步的推理（Thought）。ReAct 把这个"感知-思考-行动"的循环显式地建模出来。
+工程上需要注意的：
+Observation 的格式化很重要。把工具返回的原始数据整形成模型能有效利用的格式，直接影响后续推理质量。 需要设计循环终止条件，否则容易陷入无限 Action 循环。 Token 消耗随步数线性增长，长任务要考虑上下文压缩。 Self-Consistency：同一问题跑多次，投票选最稳的答案 一次推理可能抽到错误路径。多跑几次、多数路径投票，能显著提升结论的稳定性。
+工程上的代价很明显：token 消耗成倍增加，延迟上升。所以不是什么场景都该用——只有当错误代价远大于资源代价时才值得开。高风险判断、分类决策、关键路由，用得上。普通问答，不要上。
+Plan-and-Solve：先想好再动手 模型在执行复杂任务时，有一个常见失败模式：漏步。生成过程中"忘了"某个必要环节，结果到最后发现流程不完整。
+Plan-and-Solve 的做法是先生成一个显式计划，再逐步执行。计划是可见的、可检查的。
+工程价值：让任务的整体结构在执行之前就被显式化。这意味着你可以在执行前做校验，比如检查计划步骤是否覆盖了约束条件、是否有明显遗漏。
+注意：计划和执行之间存在"计划漂移"问题——执行过程中遇到新信息，计划可能需要动态调整。系统设计时要考虑计划的可修订性。
+ToT：把推理当成搜索问题 Tree-of-Thoughts 把推理路径建模为树结构，在每个节点评估多个候选方向，选择最有价值的分支继续探索。
+这在理论上非常优雅——它把推理变成了一个有价值评估的搜索过程。
+但工程代价极高：每个节点要生成多个候选并评估，计算量爆炸式增长。ToT 在工程实践中应该只用于极高价值、可以容忍高成本的决策点，比如复杂规划的关键分叉处，而不是整个任务都走 ToT。
+实际落地建议：局部 ToT——大多数步骤用 ReAct，遇到关键分叉点时切换到 ToT 做多候选评估。'><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css><link id=darkModeStyle rel=stylesheet type=text/css href=https://xautjzd.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css disabled></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/tags>Tags</a>
+<a href=/about>About</a>
+| <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><main><nav class=breadcrumbs><a href=https://xautjzd.github.io/>Home</a>
+<span class=separator>/</span>
+<a href=https://xautjzd.github.io/posts>Posts</a>
+<span class=separator>/</span>
+<span class=current>Agent 真正的分水岭，不是“会回答”，而是“会稳定做事”：一文讲透推理框架与工程落地</span></nav><article><div class=post-container><div class=post-content><div class=title><h1 class=title>Agent 真正的分水岭，不是“会回答”，而是“会稳定做事”：一文讲透推理框架与工程落地</h1><div class=meta>Posted on Apr 22, 2026
+<span class=reading-time>· 3 min read</span></div></div><section class=body><blockquote><p>大多数人构建 Agent 失败，不是因为用的模型不够强，而是因为根本没想清楚"怎么让它持续、可靠地把一件事做完"。</p></blockquote><h2 id=一你遇到的那堵墙叫会回答与会做事之间的鸿沟>一、你遇到的那堵墙，叫"会回答"与"会做事"之间的鸿沟</h2><p>很多团队第一次做 Agent 的过程是这样的：</p><p>用一个强模型，写几条 system prompt，加上几个工具调用，demo 跑起来了，看起来相当聪明——能搜索、能写代码、能总结。然后上线，开始出问题。任务中途卡住，工具调用失败没有恢复，执行路径陷入循环，最终状态不知道在哪里。</p><p>这不是模型不够强。换成更贵的模型，问题依然存在。</p><p>根本原因是：<strong>聊天和做事是两件截然不同的事。</strong></p><p>聊天是无状态的一问一答。做事是有状态的、多步骤的、需要在不确定中持续推进的过程。中间有工具、有失败、有依赖、有反馈、有分支。光靠"更智能地生成下一个 token"，不足以撑起这个过程。</p><p>这就是推理框架存在的意义。它不是让模型"更聪明"，而是给模型提供<strong>持续完成任务的结构</strong>：怎么拆解问题，怎么规划步骤，怎么调用工具，怎么判断结果，怎么在失败后恢复。</p><h2 id=二推理框架解决的不是智力问题而是工程问题>二、推理框架解决的不是"智力"问题，而是"工程"问题</h2><p>我们先把几个主流推理框架过一遍，但不是为了背概念——而是搞清楚<strong>它们各自在解决什么具体的工程问题</strong>。</p><h3 id=cot把复杂问题拆成中间步骤>CoT：把复杂问题拆成中间步骤</h3><p>Chain-of-Thought 的核心洞察很简单：语言模型在"一步到位"时容易出错，但如果强迫它逐步推导，准确率会显著提升。</p><p>工程上怎么理解？CoT 本质上是把一次高风险的大跳跃，拆成多次低风险的小推断。每一步都是可审查、可调试的。</p><p><strong>适合的场景</strong>：推理密集型的单次任务——数学、逻辑、分析、判断。它是基础，几乎所有复杂推理框架都内嵌了 CoT。</p><p><strong>不适合的场景</strong>：多轮工具调用、需要外部反馈的动态任务。CoT 是"想清楚再说"，不是"边做边想"。</p><h3 id=react推理与行动交替专为工具调用设计>ReAct：推理与行动交替，专为工具调用设计</h3><p>这是目前工程落地最广的框架之一。结构是 Thought → Action → Observation → Thought → Action……循环往复，直到任务完成。</p><p><strong>它解决的核心问题</strong>：工具调用不是瞬间完成的，外部世界的反馈（Observation）会影响下一步的推理（Thought）。ReAct 把这个"感知-思考-行动"的循环显式地建模出来。</p><p><strong>工程上需要注意的</strong>：</p><ul><li>Observation 的格式化很重要。把工具返回的原始数据整形成模型能有效利用的格式，直接影响后续推理质量。</li><li>需要设计循环终止条件，否则容易陷入无限 Action 循环。</li><li>Token 消耗随步数线性增长，长任务要考虑上下文压缩。</li></ul><h3 id=self-consistency同一问题跑多次投票选最稳的答案>Self-Consistency：同一问题跑多次，投票选最稳的答案</h3><p>一次推理可能抽到错误路径。多跑几次、多数路径投票，能显著提升结论的稳定性。</p><p><strong>工程上的代价很明显</strong>：token 消耗成倍增加，延迟上升。所以不是什么场景都该用——只有当<strong>错误代价远大于资源代价</strong>时才值得开。高风险判断、分类决策、关键路由，用得上。普通问答，不要上。</p><h3 id=plan-and-solve先想好再动手>Plan-and-Solve：先想好再动手</h3><p>模型在执行复杂任务时，有一个常见失败模式：<strong>漏步</strong>。生成过程中"忘了"某个必要环节，结果到最后发现流程不完整。</p><p>Plan-and-Solve 的做法是先生成一个显式计划，再逐步执行。计划是可见的、可检查的。</p><p><strong>工程价值</strong>：让任务的整体结构在执行之前就被显式化。这意味着你可以在执行前做校验，比如检查计划步骤是否覆盖了约束条件、是否有明显遗漏。</p><p><strong>注意</strong>：计划和执行之间存在"计划漂移"问题——执行过程中遇到新信息，计划可能需要动态调整。系统设计时要考虑计划的可修订性。</p><h3 id=tot把推理当成搜索问题>ToT：把推理当成搜索问题</h3><p>Tree-of-Thoughts 把推理路径建模为树结构，在每个节点评估多个候选方向，选择最有价值的分支继续探索。</p><p>这在理论上非常优雅——它把推理变成了一个有价值评估的搜索过程。</p><p><strong>但工程代价极高</strong>：每个节点要生成多个候选并评估，计算量爆炸式增长。<strong>ToT 在工程实践中应该只用于极高价值、可以容忍高成本的决策点</strong>，比如复杂规划的关键分叉处，而不是整个任务都走 ToT。</p><p>实际落地建议：<strong>局部 ToT</strong>——大多数步骤用 ReAct，遇到关键分叉点时切换到 ToT 做多候选评估。</p><h3 id=reflexion从失败中学习而不是重试>Reflexion：从失败中学习，而不是重试</h3><p>大多数系统面对失败的处理方式是：重试。Reflexion 的处理方式是：反思。</p><p>失败后，模型生成一段反思文本（&ldquo;上次哪里错了，为什么错，下次怎么避免&rdquo;），把这段文字作为记忆存储起来，影响后续任务的执行。</p><p><strong>工程价值</strong>：在需要迭代改进的任务中，Reflexion 能让系统从错误中积累经验，而不是每次都从零开始犯同样的错。</p><p><strong>注意</strong>：反思记忆需要管理。错误的反思（比如对一个偶发性错误过度归因）会污染后续判断。记忆需要有清理机制。</p><h2 id=三怎么选框架按任务类型不是按概念热度>三、怎么选框架：按任务类型，不是按概念热度</h2><p>这是很多团队踩的最大坑之一：看到 ToT 概念新，全系统都套上去，结果成本飞涨、延迟爆表。</p><p>选框架的正确逻辑，是<strong>先定义任务类型，再匹配框架</strong>：</p><table><thead><tr><th>任务类型</th><th>推荐框架</th><th>原因</th></tr></thead><tbody><tr><td>单轮推理、分析、判断</td><td>CoT</td><td>够用，代价最低</td></tr><tr><td>工具调用、外部交互</td><td>ReAct</td><td>天然适配感知-行动循环</td></tr><tr><td>高风险决策，需要稳定性</td><td>Self-Consistency</td><td>多路径投票提升可靠性</td></tr><tr><td>强规划、多目标、约束复杂</td><td>Plan-and-Solve</td><td>先显式化整体结构</td></tr><tr><td>关键分叉、高价值决策点</td><td>ToT（局部）</td><td>多候选评估，代价可控</td></tr><tr><td>迭代任务、失败恢复</td><td>Reflexion</td><td>从错误中积累经验</td></tr><tr><td>多 Agent 协作</td><td>框架 + 编排层</td><td>不能只靠 prompt</td></tr></tbody></table><p><strong>有一条反直觉的原则值得记住</strong>：<strong>简单任务不要上复杂框架</strong>。CoT 能解决的问题，不要套 ReAct；ReAct 能解决的，不要套 ToT。框架本身会引入复杂性，复杂性本身是成本。</p><h2 id=四推理框架在工程系统里的真实位置>四、推理框架在工程系统里的真实位置</h2><p>说完框架理论，我们必须谈工程现实。因为推理框架不是独立运行的——它嵌在一个完整的 Agent 系统里，和其他层紧密交织。</p><p>一个最小可用的 Agent 闭环是这样的：</p><pre tabindex=0><code>输入 → 推理 → 行动（工具调用）→ 结果校验 → 状态更新 → 下一轮
+</code></pre><p>推理框架驱动这个循环，但它不是全部。围绕它还需要：</p><p><strong>状态管理层</strong>：Agent 执行过程中的状态分三类：</p><ul><li><strong>短期上下文</strong>：当前对话和任务上下文，放在 context window 里</li><li><strong>任务状态</strong>：当前执行到哪一步、哪些子任务完成了、哪些失败了</li><li><strong>长期记忆</strong>：跨任务积累的知识、用户偏好、历史经验</li></ul><p>这三层要分开设计，不能全堆在 prompt 里。堆在 prompt 里的结果是：上下文爆炸，信息噪声增加，推理质量下降。</p><p><strong>工具层</strong>：工具是 Agent 的手。工具设计有几个容易忽略的原则：</p><ul><li>工具接口要稳定，Schema 版本要管理，避免工具接口变更导致 Agent 行为突变</li><li>工具调用要有超时和错误码，返回结果要结构化，而不是裸字符串</li><li>工具权限要最小化，Agent 能调用的范围要做白名单控制</li></ul><p><strong>编排层</strong>：推理框架决定"怎么想"，编排层决定"怎么走"。对于复杂任务，编排层通常是一个状态机或图结构——节点是执行单元，边是转换条件，状态是整个任务的当前快照。</p><p><strong>推理框架不是替代编排，而是驱动编排</strong>。推理框架的输出（下一步做什么）是编排层的输入（触发哪个节点）。两者协作，才能构成一个可控的执行系统。</p><h2 id=五基于-langgraph-的工程参考状态化可观测可回滚>五、基于 LangGraph 的工程参考：状态化、可观测、可回滚</h2><p>为什么谈 LangGraph？因为它的核心设计理念和 Agent 工程的需求高度吻合：<strong>把 Agent 执行过程建模为一个有状态的图</strong>。节点是可执行单元，边是转换逻辑，状态是可持久化的快照。这让整个执行过程变得可观测、可回滚、可扩展。</p><p>一个基本的项目结构应该这样分层：</p><pre tabindex=0><code>agent/
+├── graph/           # 图结构定义：节点、边、状态 schema
+├── nodes/           # 各功能节点实现：规划器、执行器、校验器
+├── tools/           # 工具定义与 schema
+├── memory/          # 记忆模块：短期 / 长期
+├── prompts/         # prompt 模板，与代码分离
+├── policies/        # 决策策略，与 prompt 分离
+└── evals/           # 评估数据与评测脚本
+</code></pre><p>关键的职责分离：</p><ul><li><strong>规划器节点</strong>：接收任务描述，输出执行计划（结构化的步骤列表）。它不执行，只规划。</li><li><strong>执行器节点</strong>：按计划逐步执行，调用工具，收集 Observation。</li><li><strong>校验器节点</strong>：评估执行结果是否满足任务目标。失败时决定是重试、反思还是上报。</li><li><strong>记忆模块</strong>：在任务结束后更新长期记忆；在任务开始时检索相关历史。</li></ul><p>一个完整任务链路的核心代码骨架：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> langgraph.graph <span style=color:#f92672>import</span> StateGraph, END
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> typing <span style=color:#f92672>import</span> TypedDict, List
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>AgentState</span>(TypedDict):
+</span></span><span style=display:flex><span>    task: str
+</span></span><span style=display:flex><span>    plan: List[str]
+</span></span><span style=display:flex><span>    current_step: int
+</span></span><span style=display:flex><span>    observations: List[str]
+</span></span><span style=display:flex><span>    reflection: str
+</span></span><span style=display:flex><span>    result: str
+</span></span><span style=display:flex><span>    status: str  <span style=color:#75715e># planning / executing / validating / done / failed</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>planner_node</span>(state: AgentState) <span style=color:#f92672>-&gt;</span> AgentState:
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 调用 LLM，生成结构化执行计划</span>
+</span></span><span style=display:flex><span>    plan <span style=color:#f92672>=</span> call_planner(state[<span style=color:#e6db74>&#34;task&#34;</span>])
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> {<span style=color:#f92672>**</span>state, <span style=color:#e6db74>&#34;plan&#34;</span>: plan, <span style=color:#e6db74>&#34;current_step&#34;</span>: <span style=color:#ae81ff>0</span>, <span style=color:#e6db74>&#34;status&#34;</span>: <span style=color:#e6db74>&#34;executing&#34;</span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>executor_node</span>(state: AgentState) <span style=color:#f92672>-&gt;</span> AgentState:
+</span></span><span style=display:flex><span>    step <span style=color:#f92672>=</span> state[<span style=color:#e6db74>&#34;plan&#34;</span>][state[<span style=color:#e6db74>&#34;current_step&#34;</span>]]
+</span></span><span style=display:flex><span>    obs <span style=color:#f92672>=</span> execute_step(step)  <span style=color:#75715e># 调用工具</span>
+</span></span><span style=display:flex><span>    observations <span style=color:#f92672>=</span> state[<span style=color:#e6db74>&#34;observations&#34;</span>] <span style=color:#f92672>+</span> [obs]
+</span></span><span style=display:flex><span>    next_step <span style=color:#f92672>=</span> state[<span style=color:#e6db74>&#34;current_step&#34;</span>] <span style=color:#f92672>+</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>    status <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;validating&#34;</span> <span style=color:#66d9ef>if</span> next_step <span style=color:#f92672>&gt;=</span> len(state[<span style=color:#e6db74>&#34;plan&#34;</span>]) <span style=color:#66d9ef>else</span> <span style=color:#e6db74>&#34;executing&#34;</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> {<span style=color:#f92672>**</span>state, <span style=color:#e6db74>&#34;observations&#34;</span>: observations, <span style=color:#e6db74>&#34;current_step&#34;</span>: next_step, <span style=color:#e6db74>&#34;status&#34;</span>: status}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>validator_node</span>(state: AgentState) <span style=color:#f92672>-&gt;</span> AgentState:
+</span></span><span style=display:flex><span>    passed, result <span style=color:#f92672>=</span> validate_result(state)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> passed:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> {<span style=color:#f92672>**</span>state, <span style=color:#e6db74>&#34;result&#34;</span>: result, <span style=color:#e6db74>&#34;status&#34;</span>: <span style=color:#e6db74>&#34;done&#34;</span>}
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>        reflection <span style=color:#f92672>=</span> generate_reflection(state)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> {<span style=color:#f92672>**</span>state, <span style=color:#e6db74>&#34;reflection&#34;</span>: reflection, <span style=color:#e6db74>&#34;status&#34;</span>: <span style=color:#e6db74>&#34;failed&#34;</span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 构建图</span>
+</span></span><span style=display:flex><span>graph <span style=color:#f92672>=</span> StateGraph(AgentState)
+</span></span><span style=display:flex><span>graph<span style=color:#f92672>.</span>add_node(<span style=color:#e6db74>&#34;planner&#34;</span>, planner_node)
+</span></span><span style=display:flex><span>graph<span style=color:#f92672>.</span>add_node(<span style=color:#e6db74>&#34;executor&#34;</span>, executor_node)
+</span></span><span style=display:flex><span>graph<span style=color:#f92672>.</span>add_node(<span style=color:#e6db74>&#34;validator&#34;</span>, validator_node)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>graph<span style=color:#f92672>.</span>set_entry_point(<span style=color:#e6db74>&#34;planner&#34;</span>)
+</span></span><span style=display:flex><span>graph<span style=color:#f92672>.</span>add_edge(<span style=color:#e6db74>&#34;planner&#34;</span>, <span style=color:#e6db74>&#34;executor&#34;</span>)
+</span></span><span style=display:flex><span>graph<span style=color:#f92672>.</span>add_conditional_edges(<span style=color:#e6db74>&#34;executor&#34;</span>, <span style=color:#66d9ef>lambda</span> s: s[<span style=color:#e6db74>&#34;status&#34;</span>], {
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;executing&#34;</span>: <span style=color:#e6db74>&#34;executor&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;validating&#34;</span>: <span style=color:#e6db74>&#34;validator&#34;</span>
+</span></span><span style=display:flex><span>})
+</span></span><span style=display:flex><span>graph<span style=color:#f92672>.</span>add_conditional_edges(<span style=color:#e6db74>&#34;validator&#34;</span>, <span style=color:#66d9ef>lambda</span> s: s[<span style=color:#e6db74>&#34;status&#34;</span>], {
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;done&#34;</span>: END,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;failed&#34;</span>: <span style=color:#e6db74>&#34;planner&#34;</span>  <span style=color:#75715e># 反思后重新规划</span>
+</span></span><span style=display:flex><span>})
+</span></span></code></pre></div><p>这个骨架几百行代码，但它实现了一个完整闭环：规划 → 执行 → 校验 → 反思 → 重规划。<strong>每一步都有状态快照，任何节点失败都可以从 checkpoint 回滚，整个执行路径完全可观测。</strong></p><h2 id=六真正的坑在哪里>六、真正的坑在哪里</h2><p>用推理框架构建 Agent，有几个坑是几乎每个团队都会踩的，值得单独说清楚。</p><h3 id=过度推理链路越长问题越多>过度推理：链路越长，问题越多</h3><p>这是最常见的反模式。以为推理链越长、步骤越多，效果越好。实际上：每增加一个推理步骤，都会引入错误积累、延迟增加、成本上升。</p><p><strong>原则</strong>：用最短的推理链完成任务。能一步解决的，不要三步。能 CoT 解决的，不要 ReAct。</p><h3 id=过度自治工具滥用与任务跑飞>过度自治：工具滥用与任务跑飞</h3><p>给 Agent 的工具越多、权限越大，出问题时影响范围越不可控。见过 Agent 因为理解偏差，把不该删的数据删掉的案例。</p><p><strong>工程防线</strong>：工具白名单 + 权限最小化 + 高风险操作的人工确认节点。不要因为"Agent 应该自主"而放弃必要的人工介入点。</p><h3 id=状态污染错误记忆影响后续判断>状态污染：错误记忆影响后续判断</h3><p>Reflexion 的记忆如果没有清理机制，错误的反思会固化下来，影响后续任务。短期上下文如果不做压缩，会把噪声信息带进每一轮推理。</p><p><strong>工程要求</strong>：记忆要有 TTL 和主动清理机制。上下文超过一定长度要做摘要压缩，而不是无限堆叠。</p><h3 id=版本漂移隐性的稳定性杀手>版本漂移：隐性的稳定性杀手</h3><p>Prompt 改了，Schema 改了，工具接口升级了，模型换版本了——任何一个变化都可能改变 Agent 的行为，而且通常是悄悄改变的。</p><p><strong>工程要求</strong>：Prompt、Schema、工具接口、模型版本全部纳入版本管理。生产环境的配置要能够冻结和回滚。</p><h2 id=七如何验证推理框架真的有价值ab-测试设计>七、如何验证推理框架真的有价值：A/B 测试设计</h2><p>引入推理框架之后，怎么知道它有没有效果？&ldquo;感觉好像更好了"不是答案，数据才是。</p><p><strong>核心指标体系</strong>（不是全要，按场景选）：</p><ul><li><strong>任务成功率</strong>：端到端地完成任务的比例，这是最重要的指标</li><li><strong>工具调用成功率</strong>：工具层的稳定性指标</li><li><strong>平均步数</strong>：推理效率指标，步数异常增加可能意味着循环或困惑</li><li><strong>平均耗时 / token 成本</strong>：资源效率指标</li><li><strong>人工接管率</strong>：Agent 无法自行完成、需要人工干预的比例</li><li><strong>恢复成功率</strong>：失败后通过 Reflexion 或重规划恢复成功的比例</li></ul><p><strong>实验设计</strong>：Baseline 是当前系统（通常是没有显式推理框架的 prompt 调用），Treatment 是引入推理框架的版本。按任务难度分层分析——推理框架对简单任务可能没有收益，对复杂任务才有显著提升。</p><p><strong>离线 + 在线结合</strong>：先用历史任务数据做离线评测，确认指标趋势；再小流量上线做在线 A/B，确认生产环境中的真实表现。不要跳过离线直接上线——生产环境的问题发现成本太高。</p><h2 id=八结语真正的竞争力是工程化能力>八、结语：真正的竞争力是工程化能力</h2><p>推理框架不是魔法。CoT、ReAct、Reflexion——这些名字本身没有价值，价值来自于<strong>把它们正确地工程化，并在生产环境中稳定运行</strong>。</p><p>很多团队在 demo 阶段表现亮眼，上线后问题不断。根本差距不在模型，也不在框架选择，而在工程化能力：状态怎么管，工具怎么设计，错误怎么恢复，版本怎么控制，效果怎么评估。</p><p>把"思考"变成"可靠执行&rdquo;——这才是 Agent 真正的门槛。</p><p>下一阶段的竞争，不会在于谁调用了更强的模型，也不会在于谁用了更复杂的推理框架。<strong>竞争在于谁能把 Agent 从"能演示"变成"能交付"，谁能让系统跑得稳、可观测、可回滚、可持续迭代。</strong></p><p>工程能力，才是真正的护城河。</p></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/ai>ai</a></li><li><a href=/tags/llm>llm</a></li></ul></nav></div><div class=related-posts><h3>Related Posts</h3><ul><li><a href=/posts/2026-04-21-multiagent-pattern/>MultiAgent 协作模式全解析：从单体 Agent 到分布式 AI 系统</a>
+<span class=meta>2026-04-21</span></li><li><a href=/posts/2026-04-20-transformer-deep-dive/>Transformer 全面拆解：从「预测下一个词」到改变世界的技术</a>
+<span class=meta>2026-04-20</span></li><li><a href=/posts/2026-04-20-how-to-fine-tuning-llm/>LLM 微调实战指南：从原理到落地的完整路径</a>
+<span class=meta>2026-04-20</span></li></ul></div></div><aside class=toc-sidebar><div class=toc-wrapper><div class=toc-header><svg class="toc-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+<span>目录</span></div><nav id=TableOfContents><ul><li><a href=#一你遇到的那堵墙叫会回答与会做事之间的鸿沟>一、你遇到的那堵墙，叫"会回答"与"会做事"之间的鸿沟</a></li><li><a href=#二推理框架解决的不是智力问题而是工程问题>二、推理框架解决的不是"智力"问题，而是"工程"问题</a></li><li><a href=#三怎么选框架按任务类型不是按概念热度>三、怎么选框架：按任务类型，不是按概念热度</a></li><li><a href=#四推理框架在工程系统里的真实位置>四、推理框架在工程系统里的真实位置</a></li><li><a href=#五基于-langgraph-的工程参考状态化可观测可回滚>五、基于 LangGraph 的工程参考：状态化、可观测、可回滚</a></li><li><a href=#六真正的坑在哪里>六、真正的坑在哪里</a></li><li><a href=#七如何验证推理框架真的有价值ab-测试设计>七、如何验证推理框架真的有价值：A/B 测试设计</a></li><li><a href=#八结语真正的竞争力是工程化能力>八、结语：真正的竞争力是工程化能力</a></li></ul></nav></div></aside><button class=toc-toggle onclick=toggleToc() aria-label=切换目录>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg></button></div></article></main><style>.content{max-width:1100px}.post-content p,.body p,.post-content,.body{text-align:justify!important;text-align-last:left;text-justify:inter-ideograph;word-wrap:break-word}.post-content li,.body li{text-align:left}.post-content a,.body a,.post-content code,.body code{word-break:break-all;hyphens:none}.post-content ol,.body ol{padding-left:2em}.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}.post-container{display:flex;gap:40px;align-items:flex-start;justify-content:center}.post-content{flex:0 0 800px;max-width:800px;min-width:0}.toc-sidebar{flex:0 0 240px;min-width:200px;max-width:280px;align-self:stretch}.toc-wrapper{position:sticky;top:20px;background:#f8f8f8;border-radius:8px;padding:16px;max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}.toc-wrapper::-webkit-scrollbar{display:none}.toc-header{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e0e0e0}.toc-icon{flex-shrink:0}.toc-sidebar #TableOfContents{font-size:13px;line-height:1.6}.toc-sidebar #TableOfContents ul{list-style:none;padding-left:0;margin:0}.toc-sidebar #TableOfContents ul ul{padding-left:12px;margin-top:4px}.toc-sidebar #TableOfContents li{margin:4px 0;text-indent:0}.toc-sidebar #TableOfContents li::before{content:none}.toc-sidebar #TableOfContents a{display:block;padding:4px 8px;border-radius:4px;border-bottom:none;text-decoration:none;color:#555;transition:all .2s ease}.toc-sidebar #TableOfContents a:hover{background-color:rgba(0,0,0,5%);color:#333}.toc-sidebar #TableOfContents a.active{background-color:var(--maincolor,red);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{font-weight:500;color:#333}.toc-sidebar #TableOfContents ul ul li a{font-size:12px;color:#666}.toc-toggle{display:none;position:fixed;right:20px;bottom:100px;z-index:1000;width:48px;height:48px;border-radius:50%;background:var(--maincolor,red);color:#fff;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);align-items:center;justify-content:center;transition:transform .2s ease}.toc-toggle:hover{transform:scale(1.1)}.toc-toggle svg{max-height:none}@media screen and (max-width:900px){.content{max-width:100%}.post-container{flex-direction:column;gap:20px}.post-content{flex:1;max-width:100%;width:100%}.toc-sidebar{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;max-width:80vw;z-index:999;background:rgba(255,255,255,.98);flex:none;min-width:auto;padding:20px;box-shadow:-2px 0 10px rgba(0,0,0,.2);overflow-y:auto}.toc-sidebar.open{display:block}.toc-wrapper{position:static;max-height:none;background:0 0;overscroll-behavior:contain}.toc-toggle{display:flex}.toc-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:998}.toc-overlay.open{display:block}}@media(prefers-color-scheme:dark){.toc-wrapper{background:#2a2a2a}.toc-header{color:#e0e0e0;border-bottom-color:#444}.toc-sidebar #TableOfContents a{color:#bbb}.toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.toc-sidebar #TableOfContents ul ul li a{color:#aaa}@media screen and (max-width:900px){.toc-sidebar{background:rgba(30,30,30,.98)}}}.dark .toc-wrapper{background:#2a2a2a}.dark .toc-header{color:#e0e0e0;border-bottom-color:#444}.dark .toc-sidebar #TableOfContents a{color:#bbb}.dark .toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.dark .toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.dark .toc-sidebar #TableOfContents ul ul li a{color:#aaa}.dark .toc-sidebar #TableOfContents a.active{background-color:var(--darkMaincolor,#50fa7b);color:#232333}</style><script>(function(){window.toggleToc=function(){const t=document.querySelector(".toc-sidebar");let e=document.querySelector(".toc-overlay");e||(e=document.createElement("div"),e.className="toc-overlay",e.onclick=toggleToc,document.body.appendChild(e)),t.classList.toggle("open"),e.classList.toggle("open"),document.body.style.overflow=t.classList.contains("open")?"hidden":""};function e(){const e=document.querySelectorAll(".body h1[id], .body h2[id], .body h3[id], .body h4[id]"),t=document.querySelectorAll('.toc-sidebar a[href^="#"]'),a=document.querySelector(".toc-wrapper");if(e.length===0||t.length===0||!a)return;let n=null,s=!1;const r=100;function i(){if(s)return;const i=window.scrollY+r;let o=null;for(let t=e.length-1;t>=0;t--)if(e[t].offsetTop<=i){o=e[t];break}o&&n!==o&&(n=o,t.forEach(e=>{e.classList.remove("active"),e.getAttribute("href")==="#"+o.id&&(e.classList.add("active"),e.scrollIntoView({behavior:"smooth",block:"nearest"}))}))}let o=!1;window.addEventListener("scroll",function(){o||(window.requestAnimationFrame(function(){i(),o=!1}),o=!0)},{passive:!0}),i(),t.forEach(e=>{e.addEventListener("click",function(e){const o=this.getAttribute("href");if(o&&o.startsWith("#")){e.preventDefault();const a=o.slice(1),i=document.getElementById(a);if(i){s=!0,n=i;const e=i.getBoundingClientRect(),o=window.pageYOffset+e.top-80;t.forEach(e=>e.classList.remove("active")),this.classList.add("active"),this.scrollIntoView({behavior:"auto",block:"center"}),window.scrollTo({top:Math.max(0,o),behavior:"smooth"}),setTimeout(()=>{s=!1},600),window.innerWidth<=900&&toggleToc()}}})})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",e):e()})()</script><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://x.com/xautjzd/ rel=me title=X><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#x"/></svg></a><a class=border></a></div><div class=footer-info>2026 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>
