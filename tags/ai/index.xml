@@ -1,4 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ai on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/ai/</link><description>Recent content in Ai on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 26 Apr 2026 22:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>Claude Code 是如何工作的？一个自主编程智能体的架构深度解析</title><link>https://xautjzd.github.io/posts/2026-04-26-how-claude-code-works/</link><pubDate>Sun, 26 Apr 2026 22:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-26-how-claude-code-works/</guid><description>&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ai on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/ai/</link><description>Recent content in Ai on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Wed, 29 Apr 2026 22:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>企业级 RAG 实战指南：从理论到落地的完整避坑手册</title><link>https://xautjzd.github.io/posts/2026-04-29-rag-enterprise-guide/</link><pubDate>Wed, 29 Apr 2026 22:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-29-rag-enterprise-guide/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;本文系统梳理了 RAG（检索增强生成）技术在企业场景中的落地全流程，涵盖五大应用场景、六步实施路径，以及十大常见陷阱的针对性解决方案。无论你是刚接触 RAG 的初学者，还是正在部署企业知识库的工程师，都能从中获得可落地的实践经验。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id="一为什么企业需要-rag"&gt;一、为什么企业需要 RAG？&lt;/h2&gt;
+&lt;h3 id="11-llm-的先天局限"&gt;1.1 LLM 的先天局限&lt;/h3&gt;
+&lt;p&gt;你们公司有多少份内部文档？产品手册、IT 规范、人事制度、历史工单、会议纪要……保守估计几千份，多的几十万份。这些文档里藏着公司真正的运营知识，但员工每天花大量时间在&amp;quot;找东西&amp;quot;上，而不是&amp;quot;用东西&amp;quot;上。
+直接用 ChatGPT 或者任何通用大模型，有三个无法绕过的硬伤：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;知识实效性：&lt;/strong&gt; 模型训练有时间窗口，你公司上个月刚更新的报销政策，它永远不知道。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;领域盲区：&lt;/strong&gt; 它对你的业务一无所知，给出的答案泛泛而谈，对你的具体场景没有参考价值。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;幻觉：&lt;/strong&gt; 它会在不知道的时候&amp;quot;编&amp;quot;一个看起来很正确的答案，而你的员工可能直接照着执行了。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="12-rag-的破局之道"&gt;1.2 RAG 的破局之道&lt;/h3&gt;
+&lt;p&gt;RAG（Retrieval-Augmented Generation，检索增强生成）解决的正是这三个问题。它通过&amp;quot;检索 + 生成&amp;quot;的架构，让 LLM 能够基于企业私有知识回答问题：&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│ 用户提问 │ ──→ │ 检索知识库 │ ──→ │ LLM 生成 │
+│ (Question) │ │ (Retrieve) │ │ (Generate) │
+└─────────────┘ └─────────────┘ └─────────────┘
+ ↑
+ ┌─────────────┐
+ │ 企业私有数据 │
+ │ 产品文档/制度 │
+ │ 客服记录/论文 │
+ └─────────────┘
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;核心优势：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;知识实时更新&lt;/strong&gt;：新文档上传即可被检索&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;领域精准回答&lt;/strong&gt;：基于企业专属知识生成&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;答案可溯源&lt;/strong&gt;：每个回答都能定位到原文出处&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;成本可控&lt;/strong&gt;：无需微调 LLM，性价比极高&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="二企业-rag-的五大黄金场景"&gt;二、企业 RAG 的五大黄金场景&lt;/h2&gt;
+&lt;h3 id="场景-1智能客服问答"&gt;场景 1：智能客服问答&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;痛点：&lt;/strong&gt; 客服人员需要记忆大量产品知识，重复问题消耗人力&lt;/p&gt;</description></item><item><title>当 AI 能写代码，我们还需要软件工程师吗？</title><link>https://xautjzd.github.io/posts/2026-04-27-software-engineer-in-ai-era/</link><pubDate>Mon, 27 Apr 2026 12:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-27-software-engineer-in-ai-era/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;&amp;ldquo;软件正在吞噬世界。&amp;rdquo; — Marc Andreessen，2011 年&lt;/p&gt;
+&lt;p&gt;而今天，AI 正在吞噬软件的执行层。那些曾经定义我们职业身份的事情，正在被一个工具接管。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id="一个让人不安的早晨"&gt;一个让人不安的早晨&lt;/h2&gt;
+&lt;p&gt;你盯着那段代码，脑子里冒出一个问题：&lt;strong&gt;这件事，还需要我吗？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;你打开 LinkedIn，又看到几条熟悉的消息：某大厂裁员，某初创公司宣布用 AI Agent 替代了整个外包团队、Anthropic CEO Dario Amodei 的预言——未来 AI 将取代 50% 的初级岗位。你关掉页面，打开 IDE，却发现 Copilot 已经把你想写的函数补全了——连注释都写好了。&lt;/p&gt;
+&lt;p&gt;你盯着那段代码，心里升起一个问题：&lt;strong&gt;我还有存在的必要吗？&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;这个问题，正在折磨全球数百万软件工程师。它值得被认真对待，而不是被一句&amp;quot;别担心，AI 只是工具&amp;quot;草草打发。&lt;/p&gt;
+&lt;p&gt;但在焦虑淹没你之前，我们需要先搞清楚：&lt;strong&gt;这个问题本身，是不是问错了？&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id="一恐慌背后的真实数据"&gt;一、恐慌背后的真实数据&lt;/h2&gt;
+&lt;p&gt;让我们先直视那些令人不安的数字。&lt;/p&gt;
+&lt;p&gt;根据斯坦福数字经济研究所 2025 年的报告，AI 曝光度最高的岗位——IT 和软件工程——22 至 25 岁群体的就业率从 2022 年峰值下滑了约 20%。与此同时，35 至 49 岁的工程师群体就业率却上涨了 9%。年轻人进不来，经验者更吃香。&lt;/p&gt;
+&lt;p&gt;Stack Overflow 2025 年开发者调查显示，84% 的开发者现在已经在日常工作中使用 AI 辅助工具，而这一比例在 2023 年还只有 70%。AI 工具的渗透速度之快，超过了大多数人的预期。&lt;/p&gt;
+&lt;p&gt;初级工程师的传统入场路径——实习——也在急速萎缩。招聘平台 Handshake 的数据显示，科技类实习职位自 2023 年以来缩减了 30%，而申请人数却增加了 7%。哈佛大学针对 6200 万名劳动者的研究同样发现，企业采用生成式 AI 之后，初级开发者的雇用在六个季度内下降了约 9% 至 10%，而资深开发者几乎不受影响。&lt;/p&gt;</description></item><item><title>Claude Code 是如何工作的？一个自主编程智能体的架构深度解析</title><link>https://xautjzd.github.io/posts/2026-04-26-how-claude-code-works/</link><pubDate>Sun, 26 Apr 2026 22:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-26-how-claude-code-works/</guid><description>&lt;blockquote&gt;
 &lt;p&gt;你有没有想过，当你在终端输入 &lt;code&gt;claude &amp;quot;帮我重构这个认证模块&amp;quot;&lt;/code&gt; 之后，接下来的几分钟里究竟发生了什么？Claude 是怎么在没有任何人逐步指导的情况下，自己找到文件、理解代码结构、做出修改、运行测试、再迭代修复的？&lt;/p&gt;
 &lt;p&gt;这篇文章试图从架构层面，把这个过程讲清楚，面向对 AI 智能体设计有兴趣的工程师和产品人。如果你只是想用好 Claude Code，这篇文章同样能帮你建立一个清晰的心智模型，让你知道什么样的任务适合它，什么样的指令能让它发挥最大效果。&lt;/p&gt;
 &lt;/blockquote&gt;
