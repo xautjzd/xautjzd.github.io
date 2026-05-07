@@ -3,7 +3,8 @@
 <a href=/tags>Tags</a>
 <a href=/about>About</a>
 | <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
-<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><h1 class=page-title>所有文章</h1><div class=year-section><h2 class=year-title>2013</h2><ul class=posts><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-29-install-ruby-and-rails/>Fedora17下搭建Ruby和Rails环境</a><div class=post-summary>不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用RVM进行管理。
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><h1 class=page-title>所有文章</h1><div class=year-section><h2 class=year-title>2013</h2><ul class=posts><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-30-create-my-first-rails-app/>创建我的第一个rails程序</a><div class=post-summary>##开启Mysql服务
+我的一个rails程序是采用mysql数据库，不是默认的sqlite3.所以前提是已经安装了mysql。由于Mysql安装了好久，但是很少使用。所以服务没有启动，近来可能会频繁使用，便设置为开机自动启动了。设置方法为:#systemctl enable …</div></div><span class=meta>2013-07-30</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-29-install-ruby-and-rails/>Fedora17下搭建Ruby和Rails环境</a><div class=post-summary>不同的项目所用的ruby版本不同，所以为了方便不同项目ruby版本的切换，需要在同一个系统中安装多个ruby版本，并且针对不同的项目在不同的版本间切换，为了方便ruby版本的管理，采用RVM进行管理。
 ##1.安装RVM
 #curl -L https://get.rvm.io | bash -s …</div></div><span class=meta>2013-07-29</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-27-vim-vundle-install-and-config/>Vim下的的插件管理神器——Vundle</a><div class=post-summary>断断续续用Vim也不少时间了，但是从来没有进行过复杂的Vim配置，每每需要插件都是网上寻求安装方式。但是当插件多了管理也便变得繁琐，最后终于让我结识了插件管理神器——Vundle，用过的人都说好用，所以我便也尝试了，网上也有一部分人采用pathogen来进行插件管理，但是据说没有Vundle好用，也 …</div></div><span class=meta>2013-07-27</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-27-metaprogram-proc/>Ruby元编程之Proc对象</a><div class=post-summary>Proc Proc对象其实就是将代码块(block)转换成对象的块。方式有大致几种：
 1.Proc对象
@@ -19,8 +20,7 @@ a = [[1, 2, 3], [4, 5, …</div></div><span class=meta>2013-07-21</span></li><li
 局部变量 一般以小写字母或下划线开头，当多个单词组成一个变量时，单词间用_分隔。局部变量一般用在代码快里面
 全局变量 全局变量在整个ruby程序中都可以访问，无论他们在哪被定义。全局变量以$开头。eg:
 $global_variable = 10
-实例变量 实例变量的范围则是类的实例， …</div></div><span class=meta>2013-07-19</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-congfig-disqus-plugin/>Octopress配置Disqus插件</a><div class=post-summary>###添加Disqus插件 看到不少人博客上都有Comments功能，便也想给自己的博客添加上。经过搜寻一番，发现大多用的都是Disqus，而且octopress其实内置了其功能，只是默认没有设置.编辑博客主目录下的config.yml文件即可： $vim _config.yml
-找到： …</div></div><span class=meta>2013-07-18</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-structure-of-octopress/>Octopress目录结构</a><div class=post-summary>###Octopress博客目录结构
+实例变量 实例变量的范围则是类的实例， …</div></div><span class=meta>2013-07-19</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-structure-of-octopress/>Octopress目录结构</a><div class=post-summary>###Octopress博客目录结构
 octopress博客的source目录结构大致如下:
 source/ ├── _attachments ├── _includes │ ├── asides │ ├── custom │ │ └── asides │ └── post ├── _layouts …</div></div><span class=meta>2013-07-18</span></li><li class=post><div class=post-main><a class=post-title href=/posts/2013-07-18-add-navigator/>Octopress 修改导航栏(Navigator)</a><div class=post-summary>搭建好的Octopress导航栏默认只有Blog和Archives，远远不能满足要求，于是便想着在导航栏上添加几个菜单。方法如下：
 $rake new_page[About] 默认会在source目录中生成about/index.markdown文件，不过感觉这样影响视觉，便想着将生成的页面和其他页 …</div></div><span class=meta>2013-07-18</span></li></ul></div><div class=pagination><a href=/posts/page/8/ class=prev>← Previous</a>
