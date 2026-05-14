@@ -1,0 +1,765 @@
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>从单机到千卡集群：Ray 如何让 Python 代码拥有超能力？ - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='引言：一个让 Python 程序员"无痛"进入分布式计算的框架
+为什么训练 AI 模型越来越像"喂显卡吃数据"？
+2023 年，GPT-4 的参数规模达到了 1.8 万亿。这个数字意味着什么？如果把它想象成一座图书馆，那大约是 1800 亿本书——而这些"书"需要在成百上千张 GPU 上同时被"阅读"和"理解"。
+训练这样的模型，单张显卡已经远远不够。你需要分布式计算：把任务拆分到多台机器、多张显卡上并行执行。但传统的分布式编程方式，对大多数 Python 开发者来说，简直是一场噩梦。
+Ray 是什么？
+Ray 是一个让 Python 代码自动具备分布式能力的开源框架。
+它的核心魔法极其简单：给你的 Python 函数加上 @ray.remote 装饰器，这个函数就能在集群中的任意节点上并行执行。从单机笔记本到千卡集群，同一套代码，无需重写。
+这不是魔法，这是来自 UC Berkeley RISELab 的工程师们，为 AI 时代的 Python 开发者精心设计的分布式抽象。
+为什么 OpenAI、Uber、Shopify 都选择了它？
+
+OpenAI：用 Ray 训练 ChatGPT，从 MPI 迁移过来后，基础设施复杂度降低了十倍以上
+Uber：基于 Ray 构建实时供需预测系统，每天处理数百万订单
+Shopify：基于 Ray 搭建 ML 平台 Merlin，实现从 Jupyter 到生产的无缝衔接
+
+这些公司的共同点是什么？他们都在解决同一个问题：如何让 AI 研发和部署变得更简单、更快速、更便宜。
+这篇文章，我们就来聊聊 Ray 到底是什么，它解决了 AI 工程的哪些痛点，以及为什么它正在成为分布式 AI 计算的工业标准。
+第一部分：Ray 是什么——给 Python 的分布式超能力
+1. Ray 诞生的故事：UC Berkeley 的学术项目如何变成工业标准
+从 RISELab 走出
+2016 年，加州大学伯克利分校的 RISELab（Real-Time Intelligent Systems and Engineering Laboratory）诞生了一个新项目。这个实验室的前身是著名的 AMPLab，也就是 Spark 和 Mesos 的发源地。'><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-05-13-ray-distributed-ai-framework/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="从单机到千卡集群：Ray 如何让 Python 代码拥有超能力？"><meta property="og:description" content='引言：一个让 Python 程序员"无痛"进入分布式计算的框架 为什么训练 AI 模型越来越像"喂显卡吃数据"？ 2023 年，GPT-4 的参数规模达到了 1.8 万亿。这个数字意味着什么？如果把它想象成一座图书馆，那大约是 1800 亿本书——而这些"书"需要在成百上千张 GPU 上同时被"阅读"和"理解"。
+训练这样的模型，单张显卡已经远远不够。你需要分布式计算：把任务拆分到多台机器、多张显卡上并行执行。但传统的分布式编程方式，对大多数 Python 开发者来说，简直是一场噩梦。
+Ray 是什么？ Ray 是一个让 Python 代码自动具备分布式能力的开源框架。
+它的核心魔法极其简单：给你的 Python 函数加上 @ray.remote 装饰器，这个函数就能在集群中的任意节点上并行执行。从单机笔记本到千卡集群，同一套代码，无需重写。
+这不是魔法，这是来自 UC Berkeley RISELab 的工程师们，为 AI 时代的 Python 开发者精心设计的分布式抽象。
+为什么 OpenAI、Uber、Shopify 都选择了它？ OpenAI：用 Ray 训练 ChatGPT，从 MPI 迁移过来后，基础设施复杂度降低了十倍以上 Uber：基于 Ray 构建实时供需预测系统，每天处理数百万订单 Shopify：基于 Ray 搭建 ML 平台 Merlin，实现从 Jupyter 到生产的无缝衔接 这些公司的共同点是什么？他们都在解决同一个问题：如何让 AI 研发和部署变得更简单、更快速、更便宜。
+这篇文章，我们就来聊聊 Ray 到底是什么，它解决了 AI 工程的哪些痛点，以及为什么它正在成为分布式 AI 计算的工业标准。
+第一部分：Ray 是什么——给 Python 的分布式超能力 1. Ray 诞生的故事：UC Berkeley 的学术项目如何变成工业标准 从 RISELab 走出 2016 年，加州大学伯克利分校的 RISELab（Real-Time Intelligent Systems and Engineering Laboratory）诞生了一个新项目。这个实验室的前身是著名的 AMPLab，也就是 Spark 和 Mesos 的发源地。'><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-05-13T10:00:00+08:00"><meta property="article:modified_time" content="2026-05-13T10:00:00+08:00"><meta property="article:tag" content="Ai"><meta name=twitter:card content="summary"><meta name=twitter:title content="从单机到千卡集群：Ray 如何让 Python 代码拥有超能力？"><meta name=twitter:description content='引言：一个让 Python 程序员"无痛"进入分布式计算的框架 为什么训练 AI 模型越来越像"喂显卡吃数据"？ 2023 年，GPT-4 的参数规模达到了 1.8 万亿。这个数字意味着什么？如果把它想象成一座图书馆，那大约是 1800 亿本书——而这些"书"需要在成百上千张 GPU 上同时被"阅读"和"理解"。
+训练这样的模型，单张显卡已经远远不够。你需要分布式计算：把任务拆分到多台机器、多张显卡上并行执行。但传统的分布式编程方式，对大多数 Python 开发者来说，简直是一场噩梦。
+Ray 是什么？ Ray 是一个让 Python 代码自动具备分布式能力的开源框架。
+它的核心魔法极其简单：给你的 Python 函数加上 @ray.remote 装饰器，这个函数就能在集群中的任意节点上并行执行。从单机笔记本到千卡集群，同一套代码，无需重写。
+这不是魔法，这是来自 UC Berkeley RISELab 的工程师们，为 AI 时代的 Python 开发者精心设计的分布式抽象。
+为什么 OpenAI、Uber、Shopify 都选择了它？ OpenAI：用 Ray 训练 ChatGPT，从 MPI 迁移过来后，基础设施复杂度降低了十倍以上 Uber：基于 Ray 构建实时供需预测系统，每天处理数百万订单 Shopify：基于 Ray 搭建 ML 平台 Merlin，实现从 Jupyter 到生产的无缝衔接 这些公司的共同点是什么？他们都在解决同一个问题：如何让 AI 研发和部署变得更简单、更快速、更便宜。
+这篇文章，我们就来聊聊 Ray 到底是什么，它解决了 AI 工程的哪些痛点，以及为什么它正在成为分布式 AI 计算的工业标准。
+第一部分：Ray 是什么——给 Python 的分布式超能力 1. Ray 诞生的故事：UC Berkeley 的学术项目如何变成工业标准 从 RISELab 走出 2016 年，加州大学伯克利分校的 RISELab（Real-Time Intelligent Systems and Engineering Laboratory）诞生了一个新项目。这个实验室的前身是著名的 AMPLab，也就是 Spark 和 Mesos 的发源地。'><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css><link id=darkModeStyle rel=stylesheet type=text/css href=https://xautjzd.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css disabled></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/tags>Tags</a>
+<a href=/about>About</a>
+| <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><main><nav class=breadcrumbs><a href=https://xautjzd.github.io/>Home</a>
+<span class=separator>/</span>
+<a href=https://xautjzd.github.io/posts>Posts</a>
+<span class=separator>/</span>
+<span class=current>从单机到千卡集群：Ray 如何让 Python 代码拥有超能力？</span></nav><article><div class=post-container><div class=post-content><div class=title><h1 class=title>从单机到千卡集群：Ray 如何让 Python 代码拥有超能力？</h1><div class=meta>Posted on May 13, 2026
+<span class=reading-time>· 17 min read</span></div></div><section class=body><h2 id=引言一个让-python-程序员无痛进入分布式计算的框架>引言：一个让 Python 程序员"无痛"进入分布式计算的框架</h2><h3 id=为什么训练-ai-模型越来越像喂显卡吃数据>为什么训练 AI 模型越来越像"喂显卡吃数据"？</h3><p>2023 年，GPT-4 的参数规模达到了 1.8 万亿。这个数字意味着什么？如果把它想象成一座图书馆，那大约是 1800 亿本书——而这些"书"需要在成百上千张 GPU 上同时被"阅读"和"理解"。</p><p>训练这样的模型，单张显卡已经远远不够。你需要分布式计算：把任务拆分到多台机器、多张显卡上并行执行。但传统的分布式编程方式，对大多数 Python 开发者来说，简直是一场噩梦。</p><h3 id=ray-是什么>Ray 是什么？</h3><p><strong>Ray 是一个让 Python 代码自动具备分布式能力的开源框架。</strong></p><p>它的核心魔法极其简单：给你的 Python 函数加上 <code>@ray.remote</code> 装饰器，这个函数就能在集群中的任意节点上并行执行。从单机笔记本到千卡集群，同一套代码，无需重写。</p><p>这不是魔法，这是来自 UC Berkeley RISELab 的工程师们，为 AI 时代的 Python 开发者精心设计的分布式抽象。</p><h3 id=为什么-openaiubershopify-都选择了它>为什么 OpenAI、Uber、Shopify 都选择了它？</h3><ul><li><strong>OpenAI</strong>：用 Ray 训练 ChatGPT，从 MPI 迁移过来后，基础设施复杂度降低了十倍以上</li><li><strong>Uber</strong>：基于 Ray 构建实时供需预测系统，每天处理数百万订单</li><li><strong>Shopify</strong>：基于 Ray 搭建 ML 平台 Merlin，实现从 Jupyter 到生产的无缝衔接</li></ul><p>这些公司的共同点是什么？他们都在解决同一个问题：<strong>如何让 AI 研发和部署变得更简单、更快速、更便宜。</strong></p><p>这篇文章，我们就来聊聊 Ray 到底是什么，它解决了 AI 工程的哪些痛点，以及为什么它正在成为分布式 AI 计算的工业标准。</p><h2 id=第一部分ray-是什么给-python-的分布式超能力>第一部分：Ray 是什么——给 Python 的分布式超能力</h2><h3 id=1-ray-诞生的故事uc-berkeley-的学术项目如何变成工业标准>1. Ray 诞生的故事：UC Berkeley 的学术项目如何变成工业标准</h3><h4 id=从-riselab-走出>从 RISELab 走出</h4><p>2016 年，加州大学伯克利分校的 RISELab（Real-Time Intelligent Systems and Engineering Laboratory）诞生了一个新项目。这个实验室的前身是著名的 AMPLab，也就是 Spark 和 Mesos 的发源地。</p><p>项目的创始人是三位博士生：<strong>Robert Nishihara</strong>、<strong>Philipp Moritz</strong> 和他们的导师 <strong>Ion Stoica</strong>。他们的目标很简单：创建一个新的分布式计算框架，专门解决 AI 和强化学习的独特需求。</p><p>当时的分布式计算领域，Spark 统治着大数据批处理，MPI 统治着高性能计算。但 AI 工作负载有着完全不同的特征：</p><ul><li><strong>异构计算</strong>：一个 AI pipeline 可能需要 CPU 做预处理、GPU 做训练、CPU 再做服务</li><li><strong>动态任务</strong>：强化学习的任务图是运行时才确定的，无法像 Spark 那样静态规划</li><li><strong>毫秒级延迟</strong>：在线服务需要极低的响应延迟，批处理的秒级延迟 unacceptable</li></ul><p>Spark 和 MPI 都不是为这种场景设计的。</p><h4 id=从研究工具到企业级框架>从研究工具到企业级框架</h4><p>2017 年，Ray 的第一篇论文《Ray: A Distributed Framework for Emerging AI Applications》发表在 arXiv 上。同年，Ray 开源。</p><p>2019 年，Anyscale 成立——由 Ray 的核心创始团队创办的公司，致力于提供 Ray 的商业支持和企业级服务。</p><p>2020-2023 年，Ray 的生态系统迅速扩展：Ray Train、Ray Serve、Ray RLlib、Ray Tune、Ray Data 相继发布，形成了一个完整的 AI 计算平台。</p><p>2024 年，Ray 成为 PyTorch 生态的一部分，Anyscale 与 Meta 达成深度合作。</p><p>今天，Ray 已经成为包括 OpenAI、Uber、Shopify、蚂蚁集团、字节跳动在内的数百家公司的基础设施核心组件。</p><h4 id=为什么选择-python>为什么选择 Python？</h4><p>Ray 选择 Python 作为核心语言，不是偶然。</p><p>Python 已经是 AI 领域的事实标准语言：PyTorch、TensorFlow、JAX、HuggingFace、scikit-learn……几乎所有主流 AI 框架都提供 Python API。</p><p>但 Python 有一个致命弱点：<strong>原生的多进程/多线程支持非常糟糕。</strong></p><p>全局解释器锁（GIL）让真正的并行计算变得困难，<code>multiprocessing</code> 库虽然有，但 API 复杂、序列化问题频发、调试困难。</p><p>Ray 的定位非常精准：<strong>让 Python 开发者无需关心底层分布式细节，就能享受分布式的性能优势。</strong></p><h3 id=2-ray-的核心魔法两行代码变分布式>2. Ray 的核心魔法：两行代码变分布式</h3><h4 id=对比传统方式用-mpispark-写分布式代码有多痛苦>对比传统方式：用 MPI/Spark 写分布式代码有多痛苦？</h4><p>让我们先看一个最简单的例子：并行计算一个列表中每个数字的平方。</p><p><strong>原生 Python（串行）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>square</span>(x):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> x <span style=color:#f92672>*</span> x
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> [square(x) <span style=color:#66d9ef>for</span> x <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>10000</span>)]
+</span></span></code></pre></div><p><strong>Python multiprocessing：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> multiprocessing <span style=color:#f92672>import</span> Pool
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>square</span>(x):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> x <span style=color:#f92672>*</span> x
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> Pool(<span style=color:#ae81ff>4</span>) <span style=color:#66d9ef>as</span> p:
+</span></span><span style=display:flex><span>    results <span style=color:#f92672>=</span> p<span style=color:#f92672>.</span>map(square, range(<span style=color:#ae81ff>10000</span>))
+</span></span></code></pre></div><p>看起来还行？但这只是最简单的场景。一旦涉及以下情况，代码复杂度会急剧上升：</p><ul><li>需要跨机器运行（multiprocessing 只能单机）</li><li>函数参数/返回值无法被 pickle 序列化</li><li>需要在不同任务之间共享状态</li><li>需要动态决定执行哪些任务</li></ul><p><strong>MPI（消息传递接口）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> mpi4py <span style=color:#f92672>import</span> MPI
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>comm <span style=color:#f92672>=</span> MPI<span style=color:#f92672>.</span>COMM_WORLD
+</span></span><span style=display:flex><span>rank <span style=color:#f92672>=</span> comm<span style=color:#f92672>.</span>Get_rank()
+</span></span><span style=display:flex><span>size <span style=color:#f92672>=</span> comm<span style=color:#f92672>.</span>Get_size()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> rank <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>:
+</span></span><span style=display:flex><span>    data <span style=color:#f92672>=</span> list(range(<span style=color:#ae81ff>10000</span>))
+</span></span><span style=display:flex><span>    chunks <span style=color:#f92672>=</span> [data[i::size] <span style=color:#66d9ef>for</span> i <span style=color:#f92672>in</span> range(size)]
+</span></span><span style=display:flex><span><span style=color:#66d9ef>else</span>:
+</span></span><span style=display:flex><span>    chunks <span style=color:#f92672>=</span> <span style=color:#66d9ef>None</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>chunk <span style=color:#f92672>=</span> comm<span style=color:#f92672>.</span>scatter(chunks, root<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> [x <span style=color:#f92672>*</span> x <span style=color:#66d9ef>for</span> x <span style=color:#f92672>in</span> chunk]
+</span></span><span style=display:flex><span>gathered <span style=color:#f92672>=</span> comm<span style=color:#f92672>.</span>gather(results, root<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> rank <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>:
+</span></span><span style=display:flex><span>    print(flatten(gathered))
+</span></span></code></pre></div><p>代码量暴增，概念复杂（rank、scatter、gather），而且要求所有节点运行完全相同的代码。</p><p><strong>Spark：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> pyspark <span style=color:#f92672>import</span> SparkContext
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>sc <span style=color:#f92672>=</span> SparkContext(<span style=color:#e6db74>&#34;local&#34;</span>, <span style=color:#e6db74>&#34;Square App&#34;</span>)
+</span></span><span style=display:flex><span>data <span style=color:#f92672>=</span> sc<span style=color:#f92672>.</span>parallelize(range(<span style=color:#ae81ff>10000</span>))
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> data<span style=color:#f92672>.</span>map(<span style=color:#66d9ef>lambda</span> x: x <span style=color:#f92672>*</span> x)<span style=color:#f92672>.</span>collect()
+</span></span></code></pre></div><p>Spark 的 API 设计得很好，但它有严格的限制：</p><ul><li>必须是数据并行（DataFrame/RDD 操作）</li><li>不支持细粒度的任务调度</li><li>启动开销大，不适合毫秒级任务</li><li>主要用于批处理，不适合交互式计算</li></ul><h4 id=rayremote-装饰器函数级别的分布式抽象>@ray.remote 装饰器：函数级别的分布式抽象</h4><p>现在看看 Ray 的做法：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ray<span style=color:#f92672>.</span>init()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@ray.remote</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>square</span>(x):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> x <span style=color:#f92672>*</span> x
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 提交 10000 个并行任务</span>
+</span></span><span style=display:flex><span>futures <span style=color:#f92672>=</span> [square<span style=color:#f92672>.</span>remote(x) <span style=color:#66d9ef>for</span> x <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>10000</span>)]
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> ray<span style=color:#f92672>.</span>get(futures)
+</span></span></code></pre></div><p>看到了吗？</p><ul><li>只需加上 <code>@ray.remote</code> 装饰器</li><li><code>square.remote(x)</code> 提交异步任务</li><li><code>ray.get(futures)</code> 获取结果</li></ul><p>Ray 自动处理：</p><ul><li>任务调度到哪个节点执行</li><li>数据如何序列化和传输</li><li>失败任务的自动重试</li><li>内存管理和垃圾回收</li></ul><p>这背后的设计理念是：<strong>让分布式计算像写普通函数一样简单。</strong></p><h4 id=从单机笔记本到-1000-张-gpu>从单机笔记本到 1000 张 GPU</h4><p>更神奇的是代码的可移植性。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 本地开发测试</span>
+</span></span><span style=display:flex><span>ray<span style=color:#f92672>.</span>init()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 连接到 1000 张 GPU 的集群（只需改这一行）</span>
+</span></span><span style=display:flex><span>ray<span style=color:#f92672>.</span>init(address<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;ray://head-node:10001&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 你的业务代码完全不变</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@ray.remote</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>train_model</span>(config):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 训练代码</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> model
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>futures <span style=color:#f92672>=</span> [train_model<span style=color:#f92672>.</span>remote(config) <span style=color:#66d9ef>for</span> config <span style=color:#f92672>in</span> configs]
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> ray<span style=color:#f92672>.</span>get(futures)
+</span></span></code></pre></div><p>同一套代码，可以在笔记本上调试，可以提交到本地集群测试，可以无缝扩展到生产环境的大规模集群。</p><p>这解决了 AI 工程的一个核心痛点：<strong>研究和生产的代码不需要重写。</strong></p><h3 id=3-ray-的技术架构极简图>3. Ray 的技术架构极简图</h3><p>要理解 Ray 为什么能做到这些，我们需要简单了解它的架构。</p><h4 id=head-node--worker-node-的基本拓扑>Head Node + Worker Node 的基本拓扑</h4><p>一个 Ray 集群由两类节点组成：</p><ul><li><strong>Head Node</strong>：负责集群管理、元数据存储、任务调度</li><li><strong>Worker Node</strong>：负责任务的实际执行</li></ul><pre tabindex=0><code>┌─────────────────────────────────────────────┐
+│              Head Node                      │
+│  ┌──────────────┐  ┌──────────────────┐     │
+│  │   GCS        │  │ Global Scheduler │     │
+│  │ (metadata)   │  │ (task dispatch)  │     │
+│  └──────────────┘  └──────────────────┘     │
+└─────────────────────┬───────────────────────┘
+                      │
+      ┌───────────────┼───────────────┐
+      │               │               │
+┌─────▼─────┐   ┌────▼────┐   ┌──────▼──────┐
+│ Worker 1  │   │ Worker 2│   │  Worker N   │
+│ ┌───────┐ │   │ ┌─────┐ │   │  ┌───────┐  │
+│ │Tasks  │ │   │ │Tasks│ │   │  │Tasks  │  │
+│ │       │ │   │ │     │ │   │  │       │  │
+│ ├───────┤ │   │ ├─────┤ │   │  ├───────┤  │
+│ │Actors │ │   │ │Actors││   │  │Actors │  │
+│ └───────┘ │   │ └─────┘ │   │  └───────┘  │
+└───────────┘   └─────────┘   └─────────────┘
+</code></pre><p>当你提交一个任务时：</p><ol><li>请求到达 Head Node 的全局调度器</li><li>调度器根据资源需求（CPU/GPU/内存）选择最优的 Worker</li><li>任务被分发到目标 Worker 执行</li><li>执行结果写回分布式对象存储</li></ol><h4 id=gcs全局控制存储与-plasma-对象存储>GCS（全局控制存储）与 Plasma 对象存储</h4><p>Ray 有两个关键的数据层：</p><p><strong>GCS（Global Control Store）</strong>：</p><ul><li>存储集群的元数据：有哪些节点、有哪些 Actor、任务的状态</li><li>基于 Redis 实现，保证高可用</li><li>是集群的"大脑"，知道一切在哪里</li></ul><p><strong>Plasma Object Store</strong>：</p><ul><li>高性能的共享内存对象存储</li><li>使用 Apache Arrow 格式，支持零拷贝传输</li><li>同节点进程间共享数据无需序列化</li><li>跨节点传输自动序列化和压缩</li></ul><p>这意味着：</p><ul><li>任务 A 在 Worker 1 生成的结果，可以被同节点的任务 B 直接读取（零拷贝）</li><li>任务 C 在 Worker 2 需要这个结果，Ray 自动通过网络传输</li><li>你不需要关心数据在哪里，Ray 自动管理</li></ul><h4 id=分布式调度器如何将任务分配到最优节点>分布式调度器：如何将任务分配到最优节点</h4><p>Ray 的调度器有几个关键特性：</p><p><strong>资源感知</strong>：每个任务可以声明资源需求</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#a6e22e>@ray.remote</span>(num_cpus<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>, num_gpus<span style=color:#f92672>=</span><span style=color:#ae81ff>1</span>, memory<span style=color:#f92672>=</span><span style=color:#ae81ff>1024</span><span style=color:#f92672>*</span><span style=color:#ae81ff>1024</span><span style=color:#f92672>*</span><span style=color:#ae81ff>1024</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>train_task</span>(data):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 这个任务需要 4 CPU + 1 GPU + 1GB 内存</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>pass</span>
+</span></span></code></pre></div><p><strong>数据本地性</strong>：调度器会优先将任务调度到已有数据的节点，减少网络传输</p><p><strong>自动负载均衡</strong>：根据节点负载动态调整任务分配</p><p><strong>故障恢复</strong>：Worker 故障时，任务自动重试到其他节点</p><p>这些能力，开发者完全不需要关心，Ray 在背后自动处理。</p><h2 id=第二部分ray-核心解决什么问题ai-工程的三座大山>第二部分：Ray 核心解决什么问题——AI 工程的三座大山</h2><p>Ray 之所以被众多顶级科技公司采用，不是因为它技术先进，而是因为它精准击中了 AI 工程中最痛的三个问题。</p><h3 id=4-问题一ai-训练代码只能在单机上跑想扩容要全部重写>4. 问题一：AI 训练代码只能在单机上跑，想扩容要全部重写</h3><h4 id=传统困境从研究到生产的鸿沟>传统困境：从研究到生产的鸿沟</h4><p>想象一下这个场景：</p><p>你是一个机器学习工程师，用 PyTorch 在笔记本上写了一个图像分类模型。代码大概是这样的：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch.nn <span style=color:#66d9ef>as</span> nn
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 定义模型</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ImageClassifier</span>(nn<span style=color:#f92672>.</span>Module):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
+</span></span><span style=display:flex><span>        super()<span style=color:#f92672>.</span><span style=color:#a6e22e>__init__</span>()
+</span></span><span style=display:flex><span>        <span style=color:#75715e># ... 网络结构</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>forward</span>(self, x):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># ... 前向传播</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 训练循环</span>
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> ImageClassifier()
+</span></span><span style=display:flex><span>optimizer <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>optim<span style=color:#f92672>.</span>Adam(model<span style=color:#f92672>.</span>parameters())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> epoch <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>100</span>):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> batch <span style=color:#f92672>in</span> dataloader:
+</span></span><span style=display:flex><span>        loss <span style=color:#f92672>=</span> model(batch)<span style=color:#f92672>.</span>backward()
+</span></span><span style=display:flex><span>        optimizer<span style=color:#f92672>.</span>step()
+</span></span></code></pre></div><p>代码跑得挺好，但现在要上生产环境了。生产环境有 8 张 A100 GPU，你需要分布式训练。</p><p>你会怎么做？</p><p><strong>方案一：PyTorch DDP（Distributed Data Parallel）</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch.distributed <span style=color:#66d9ef>as</span> dist
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> torch.nn.parallel <span style=color:#f92672>import</span> DistributedDataParallel <span style=color:#66d9ef>as</span> DDP
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 初始化进程组</span>
+</span></span><span style=display:flex><span>dist<span style=color:#f92672>.</span>init_process_group(backend<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;nccl&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 包装模型</span>
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> ImageClassifier()<span style=color:#f92672>.</span>to(local_rank)
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> DDP(model, device_ids<span style=color:#f92672>=</span>[local_rank])
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 需要使用 DistributedSampler</span>
+</span></span><span style=display:flex><span>dataloader <span style=color:#f92672>=</span> DataLoader(
+</span></span><span style=display:flex><span>    dataset, 
+</span></span><span style=display:flex><span>    sampler<span style=color:#f92672>=</span>DistributedSampler(dataset)
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 训练代码要改很多地方...</span>
+</span></span></code></pre></div><p>你需要：</p><ul><li>理解 <code>init_process_group</code>、<code>rank</code>、<code>world_size</code> 等概念</li><li>使用 <code>DistributedSampler</code> 确保每个进程读取不同数据</li><li>修改保存/加载模型的逻辑（只在 rank 0 进程保存）</li><li>处理进程同步和通信问题</li><li>使用 <code>torchrun</code> 或 <code>mp.spawn</code> 启动多进程</li></ul><p>这还没完——如果要从单机 8 卡扩展到多机 64 卡，还要配置网络、处理节点发现、同步环境……</p><p><strong>方案二：Horovod</strong></p><p>Horovod 是 Uber 开源的分布式训练框架，API 相对简洁：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> horovod.torch <span style=color:#66d9ef>as</span> hvd
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 初始化</span>
+</span></span><span style=display:flex><span>hvd<span style=color:#f92672>.</span>init()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 包装优化器</span>
+</span></span><span style=display:flex><span>optimizer <span style=color:#f92672>=</span> hvd<span style=color:#f92672>.</span>DistributedOptimizer(optimizer)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 广播参数</span>
+</span></span><span style=display:flex><span>hvd<span style=color:#f92672>.</span>broadcast_parameters(model<span style=color:#f92672>.</span>state_dict(), root_rank<span style=color:#f92672>=</span><span style=color:#ae81ff>0</span>)
+</span></span></code></pre></div><p>但依然需要理解 Horovod 的概念，而且代码还是要改很多。</p><h4 id=ray-的解法同一套代码从笔记本到千卡集群无缝扩展>Ray 的解法：同一套代码，从笔记本到千卡集群无缝扩展</h4><p>看看 Ray Train 怎么做：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> train
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>train_func</span>(config):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 这就是你原来的训练代码！</span>
+</span></span><span style=display:flex><span>    model <span style=color:#f92672>=</span> ImageClassifier()
+</span></span><span style=display:flex><span>    optimizer <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>optim<span style=color:#f92672>.</span>Adam(model<span style=color:#f92672>.</span>parameters())
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Ray Train 自动帮你处理了 DDP 的包装</span>
+</span></span><span style=display:flex><span>    model <span style=color:#f92672>=</span> train<span style=color:#f92672>.</span>torch<span style=color:#f92672>.</span>prepare_model(model)
+</span></span><span style=display:flex><span>    optimizer <span style=color:#f92672>=</span> train<span style=color:#f92672>.</span>torch<span style=color:#f92672>.</span>prepare_optimizer(optimizer)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> epoch <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>100</span>):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> batch <span style=color:#f92672>in</span> train<span style=color:#f92672>.</span>get_dataset_shard(<span style=color:#e6db74>&#34;train&#34;</span>):
+</span></span><span style=display:flex><span>            loss <span style=color:#f92672>=</span> model(batch)<span style=color:#f92672>.</span>backward()
+</span></span><span style=display:flex><span>            optimizer<span style=color:#f92672>.</span>step()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> TorchTrainer(
+</span></span><span style=display:flex><span>    train_loop_per_worker<span style=color:#f92672>=</span>train_func,
+</span></span><span style=display:flex><span>    scaling_config<span style=color:#f92672>=</span>train<span style=color:#f92672>.</span>ScalingConfig(
+</span></span><span style=display:flex><span>        num_workers<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>,      <span style=color:#75715e># 扩展到 4 个 worker</span>
+</span></span><span style=display:flex><span>        use_gpu<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>,        <span style=color:#75715e># 每个 worker 用 GPU</span>
+</span></span><span style=display:flex><span>    ),
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>result <span style=color:#f92672>=</span> trainer<span style=color:#f92672>.</span>fit()
+</span></span></code></pre></div><p>注意几点：</p><ol><li><code>train_func</code> 里的代码几乎就是你原来的代码</li><li><code>prepare_model</code> 和 <code>prepare_optimizer</code> 自动处理分布式包装</li><li>改 <code>num_workers=64</code> 就可以扩展到 64 个 worker</li><li>单机多卡和多机多卡，代码完全一样</li></ol><p>Ray Train 在背后做了什么？</p><ul><li>自动设置进程组和环境变量</li><li>自动处理数据分片（DistributedSampler）</li><li>自动处理模型同步和通信</li><li>自动处理检查点保存和恢复</li></ul><p>你<strong>不需要</strong>知道 DDP、Horovod、或者 NCCL 是什么，Ray 自动帮你搞定。</p><h4 id=案例一个图像分类脚本如何在不改动逻辑的情况下提速-100-倍>案例：一个图像分类脚本，如何在不改动逻辑的情况下提速 100 倍</h4><p>假设我们有一个简单的图像分类训练脚本：</p><p><strong>原始单机代码：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> torchvision <span style=color:#f92672>import</span> datasets, transforms
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 数据加载</span>
+</span></span><span style=display:flex><span>transform <span style=color:#f92672>=</span> transforms<span style=color:#f92672>.</span>Compose([<span style=color:#f92672>...</span>])
+</span></span><span style=display:flex><span>trainset <span style=color:#f92672>=</span> datasets<span style=color:#f92672>.</span>CIFAR10(root<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;./data&#39;</span>, train<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>, download<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>, transform<span style=color:#f92672>=</span>transform)
+</span></span><span style=display:flex><span>trainloader <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>utils<span style=color:#f92672>.</span>data<span style=color:#f92672>.</span>DataLoader(trainset, batch_size<span style=color:#f92672>=</span><span style=color:#ae81ff>128</span>, shuffle<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 模型</span>
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>hub<span style=color:#f92672>.</span>load(<span style=color:#e6db74>&#39;pytorch/vision:v0.10.0&#39;</span>, <span style=color:#e6db74>&#39;resnet18&#39;</span>, pretrained<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> model<span style=color:#f92672>.</span>cuda()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 训练</span>
+</span></span><span style=display:flex><span>optimizer <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>optim<span style=color:#f92672>.</span>SGD(model<span style=color:#f92672>.</span>parameters(), lr<span style=color:#f92672>=</span><span style=color:#ae81ff>0.001</span>, momentum<span style=color:#f92672>=</span><span style=color:#ae81ff>0.9</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> epoch <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>10</span>):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> images, labels <span style=color:#f92672>in</span> trainloader:
+</span></span><span style=display:flex><span>        images, labels <span style=color:#f92672>=</span> images<span style=color:#f92672>.</span>cuda(), labels<span style=color:#f92672>.</span>cuda()
+</span></span><span style=display:flex><span>        optimizer<span style=color:#f92672>.</span>zero_grad()
+</span></span><span style=display:flex><span>        outputs <span style=color:#f92672>=</span> model(images)
+</span></span><span style=display:flex><span>        loss <span style=color:#f92672>=</span> criterion(outputs, labels)
+</span></span><span style=display:flex><span>        loss<span style=color:#f92672>.</span>backward()
+</span></span><span style=display:flex><span>        optimizer<span style=color:#f92672>.</span>step()
+</span></span></code></pre></div><p>在单张 V100 上，这个脚本跑完 10 个 epoch 大约需要 30 分钟。</p><p><strong>Ray 分布式版本（改动不到 10 行）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> train
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train <span style=color:#f92672>import</span> ScalingConfig
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>train_func</span>(config):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 数据加载</span>
+</span></span><span style=display:flex><span>    trainset <span style=color:#f92672>=</span> datasets<span style=color:#f92672>.</span>CIFAR10(root<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;./data&#39;</span>, train<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>, download<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>, transform<span style=color:#f92672>=</span>transform)
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 使用 Ray 的数据分片</span>
+</span></span><span style=display:flex><span>    trainloader <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>utils<span style=color:#f92672>.</span>data<span style=color:#f92672>.</span>DataLoader(
+</span></span><span style=display:flex><span>        trainset, 
+</span></span><span style=display:flex><span>        sampler<span style=color:#f92672>=</span>train<span style=color:#f92672>.</span>get_dataset_shard(<span style=color:#e6db74>&#34;train&#34;</span>),
+</span></span><span style=display:flex><span>        batch_size<span style=color:#f92672>=</span><span style=color:#ae81ff>128</span>
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 模型（Ray 自动处理 GPU 分配）</span>
+</span></span><span style=display:flex><span>    model <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>hub<span style=color:#f92672>.</span>load(<span style=color:#e6db74>&#39;pytorch/vision:v0.10.0&#39;</span>, <span style=color:#e6db74>&#39;resnet18&#39;</span>, pretrained<span style=color:#f92672>=</span><span style=color:#66d9ef>False</span>)
+</span></span><span style=display:flex><span>    model <span style=color:#f92672>=</span> train<span style=color:#f92672>.</span>torch<span style=color:#f92672>.</span>prepare_model(model)  <span style=color:#75715e># ← 关键修改 1</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 训练（代码几乎不变）</span>
+</span></span><span style=display:flex><span>    optimizer <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>optim<span style=color:#f92672>.</span>SGD(model<span style=color:#f92672>.</span>parameters(), lr<span style=color:#f92672>=</span><span style=color:#ae81ff>0.001</span>, momentum<span style=color:#f92672>=</span><span style=color:#ae81ff>0.9</span>)
+</span></span><span style=display:flex><span>    optimizer <span style=color:#f92672>=</span> train<span style=color:#f92672>.</span>torch<span style=color:#f92672>.</span>prepare_optimizer(optimizer)  <span style=color:#75715e># ← 关键修改 2</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> epoch <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>10</span>):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>for</span> images, labels <span style=color:#f92672>in</span> trainloader:
+</span></span><span style=display:flex><span>            optimizer<span style=color:#f92672>.</span>zero_grad()
+</span></span><span style=display:flex><span>            outputs <span style=color:#f92672>=</span> model(images)
+</span></span><span style=display:flex><span>            loss <span style=color:#f92672>=</span> criterion(outputs, labels)
+</span></span><span style=display:flex><span>            loss<span style=color:#f92672>.</span>backward()
+</span></span><span style=display:flex><span>            optimizer<span style=color:#f92672>.</span>step()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 启动分布式训练（扩展到 4 个 GPU）</span>
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> TorchTrainer(
+</span></span><span style=display:flex><span>    train_loop_per_worker<span style=color:#f92672>=</span>train_func,
+</span></span><span style=display:flex><span>    scaling_config<span style=color:#f92672>=</span>ScalingConfig(num_workers<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>, use_gpu<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>),
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>result <span style=color:#f92672>=</span> trainer<span style=color:#f92672>.</span>fit()
+</span></span></code></pre></div><p><strong>结果：</strong></p><ul><li>单机 1x V100：30 分钟</li><li>分布式 4x V100：8 分钟（接近线性加速）</li><li>分布式 8x V100：4 分钟</li></ul><p>代码改动不到 10 行，性能提升 100 倍（如果扩展到更多 GPU）。</p><p>这就是 Ray 解决的第一座大山：<strong>消除从研究到生产的代码重写成本。</strong></p><h3 id=5-问题二训练和服务使用两套系统模型上线要翻译一次>5. 问题二：训练和服务使用两套系统，模型上线要"翻译"一次</h3><h4 id=传统困境训练用-horovod服务用-flask模型格式转换-headache>传统困境：训练用 Horovod，服务用 Flask，模型格式转换 headache</h4><p>继续上面的例子。你的图像分类模型训练好了，现在要部署成 API 服务，让前端可以调用。</p><p>传统的流程是这样的：</p><p><strong>训练阶段（PyTorch/Horovod）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># train.py - 分布式训练</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> horovod.torch <span style=color:#66d9ef>as</span> hvd
+</span></span><span style=display:flex><span><span style=color:#75715e># ... 训练代码 ...</span>
+</span></span><span style=display:flex><span>torch<span style=color:#f92672>.</span>save(model<span style=color:#f92672>.</span>state_dict(), <span style=color:#e6db74>&#39;model.pth&#39;</span>)
+</span></span></code></pre></div><p><strong>服务阶段（Flask/FastAPI）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># serve.py - 模型服务</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> flask <span style=color:#f92672>import</span> Flask, request
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app <span style=color:#f92672>=</span> Flask(__name__)
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> ImageClassifier()
+</span></span><span style=display:flex><span>model<span style=color:#f92672>.</span>load_state_dict(torch<span style=color:#f92672>.</span>load(<span style=color:#e6db74>&#39;model.pth&#39;</span>))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@app.route</span>(<span style=color:#e6db74>&#39;/predict&#39;</span>, methods<span style=color:#f92672>=</span>[<span style=color:#e6db74>&#39;POST&#39;</span>])
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>predict</span>():
+</span></span><span style=display:flex><span>    image <span style=color:#f92672>=</span> request<span style=color:#f92672>.</span>files[<span style=color:#e6db74>&#39;image&#39;</span>]
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 预处理</span>
+</span></span><span style=display:flex><span>    tensor <span style=color:#f92672>=</span> preprocess(image)
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 推理</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>with</span> torch<span style=color:#f92672>.</span>no_grad():
+</span></span><span style=display:flex><span>        output <span style=color:#f92672>=</span> model(tensor)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> {<span style=color:#e6db74>&#39;prediction&#39;</span>: output<span style=color:#f92672>.</span>argmax()<span style=color:#f92672>.</span>item()}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    app<span style=color:#f92672>.</span>run(host<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;0.0.0.0&#39;</span>, port<span style=color:#f92672>=</span><span style=color:#ae81ff>5000</span>)
+</span></span></code></pre></div><p>看起来挺简单？但当你真正做生产部署时，问题接踵而至：</p><p><strong>问题 1：模型格式转换</strong></p><ul><li>PyTorch 的 <code>.pth</code> 格式适合训练，但生产环境可能需要 ONNX 或 TorchScript</li><li>转换过程可能丢失精度或兼容性</li></ul><p><strong>问题 2：服务框架与训练框架脱节</strong></p><ul><li>Flask/FastAPI 与 Horovod/PyTorch 是完全独立的系统</li><li>需要额外的胶水代码处理模型加载、内存管理、并发请求</li></ul><p><strong>问题 3：资源管理困难</strong></p><ul><li>单进程 Flask 无法利用多核 CPU</li><li>多进程部署需要手动管理 GPU 显存分配</li><li>如何实现自动扩缩容？</li></ul><p><strong>问题 4：版本管理与 A/B 测试</strong></p><ul><li>模型更新了，如何无缝切换？</li><li>如何做 A/B 测试比较两个模型版本？</li></ul><p><strong>问题 5：批处理与实时服务的割裂</strong></p><ul><li>批量预测用 Spark？实时预测用 Flask？两套系统，两套代码</li></ul><h4 id=ray-的解法train--serving-一站式完成>Ray 的解法：Train → Serving 一站式完成</h4><p>Ray Serve 的设计哲学是：<strong>训练和 serving 应该是同一套代码、同一个运行时。</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> serve
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> fastapi <span style=color:#f92672>import</span> FastAPI
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app <span style=color:#f92672>=</span> FastAPI()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@serve.deployment</span>(
+</span></span><span style=display:flex><span>    num_replicas<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>,  <span style=color:#75715e># 启动 4 个副本</span>
+</span></span><span style=display:flex><span>    ray_actor_options<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;num_gpus&#34;</span>: <span style=color:#ae81ff>0.25</span>}  <span style=color:#75715e># 每个副本用 0.25 GPU</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@serve.ingress</span>(app)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ImageClassifierService</span>:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 加载模型（和训练时完全一样的代码）</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>model <span style=color:#f92672>=</span> torch<span style=color:#f92672>.</span>hub<span style=color:#f92672>.</span>load(<span style=color:#e6db74>&#39;pytorch/vision:v0.10.0&#39;</span>, <span style=color:#e6db74>&#39;resnet18&#39;</span>)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>model<span style=color:#f92672>.</span>load_state_dict(torch<span style=color:#f92672>.</span>load(<span style=color:#e6db74>&#39;model.pth&#39;</span>))
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@app.post</span>(<span style=color:#e6db74>&#34;/predict&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>predict</span>(self, image: bytes):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 预处理（和训练时完全一样的预处理代码）</span>
+</span></span><span style=display:flex><span>        tensor <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>preprocess(image)
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 推理</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>with</span> torch<span style=color:#f92672>.</span>no_grad():
+</span></span><span style=display:flex><span>            output <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>model(tensor)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> {<span style=color:#e6db74>&#34;prediction&#34;</span>: output<span style=color:#f92672>.</span>argmax()<span style=color:#f92672>.</span>item()}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 部署服务</span>
+</span></span><span style=display:flex><span>serve<span style=color:#f92672>.</span>run(ImageClassifierService<span style=color:#f92672>.</span>bind())
+</span></span></code></pre></div><p>看关键点：</p><ol><li><strong>同一套模型代码</strong>：加载模型的代码和训练时完全一样</li><li><strong>声明式部署</strong>：用装饰器声明需要多少副本、多少资源</li><li><strong>自动扩缩容</strong>：流量大了自动增加副本，流量小了自动减少</li><li><strong>支持复合服务</strong>：可以把多个模型组合成一个服务链路</li></ol><h4 id=案例训练好的模型如何一行代码变成可调用的-rest-api>案例：训练好的模型，如何一行代码变成可调用的 REST API</h4><p><strong>完整的训练到部署流程：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> train, serve
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.serve <span style=color:#f92672>import</span> PredictorDeployment
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ========== 第一步：训练模型 ==========</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>train_func</span>(config):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># ... 训练代码 ...</span>
+</span></span><span style=display:flex><span>    train<span style=color:#f92672>.</span>save_checkpoint(model<span style=color:#f92672>=</span>model<span style=color:#f92672>.</span>state_dict())
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> TorchTrainer(train_func, scaling_config<span style=color:#f92672>=</span>train<span style=color:#f92672>.</span>ScalingConfig(num_workers<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>, use_gpu<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>))
+</span></span><span style=display:flex><span>result <span style=color:#f92672>=</span> trainer<span style=color:#f92672>.</span>fit()
+</span></span><span style=display:flex><span>checkpoint <span style=color:#f92672>=</span> result<span style=color:#f92672>.</span>checkpoint
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># ========== 第二步：部署模型（只需这几行） ==========</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchCheckpoint, TorchPredictor
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>ImagePredictor</span>(TorchPredictor):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>preprocess</span>(self, data):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 和训练时一样的预处理</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> transforms(data)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 部署为 HTTP 服务</span>
+</span></span><span style=display:flex><span>serve<span style=color:#f92672>.</span>run(
+</span></span><span style=display:flex><span>    PredictorDeployment<span style=color:#f92672>.</span>options(num_replicas<span style=color:#f92672>=</span><span style=color:#ae81ff>2</span>)<span style=color:#f92672>.</span>bind(
+</span></span><span style=display:flex><span>        ImagePredictor,
+</span></span><span style=display:flex><span>        checkpoint
+</span></span><span style=display:flex><span>    )
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 服务现在运行在 http://localhost:8000/</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 可以直接调用！</span>
+</span></span></code></pre></div><p>训练好的模型，通过 <code>serve.run()</code> 一行代码就变成了可调用的 HTTP 服务。</p><p><strong>Ray Serve 还解决了哪些传统痛点？</strong></p><p><strong>多模型组合服务</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 构建一个推荐系统的服务链路</span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 请求 → Embedding 模型 → 粗排模型 → 精排模型 → 结果</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>embedding <span style=color:#f92672>=</span> EmbeddingModel<span style=color:#f92672>.</span>bind()
+</span></span><span style=display:flex><span>coarse_rank <span style=color:#f92672>=</span> CoarseRanker<span style=color:#f92672>.</span>bind(embedding)
+</span></span><span style=display:flex><span>fine_rank <span style=color:#f92672>=</span> FineRanker<span style=color:#f92672>.</span>bind(coarse_rank)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>serve<span style=color:#f92672>.</span>run(fine_rank)  <span style=color:#75715e># 部署整个链路</span>
+</span></span></code></pre></div><p><strong>自动扩缩容</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#a6e22e>@serve.deployment</span>(
+</span></span><span style=display:flex><span>    autoscaling_config<span style=color:#f92672>=</span>{
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;min_replicas&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;max_replicas&#34;</span>: <span style=color:#ae81ff>100</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;target_num_ongoing_requests_per_replica&#34;</span>: <span style=color:#ae81ff>10</span>,
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>AutoScalingService</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>...</span>
+</span></span></code></pre></div><p><strong>A/B 测试</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 90% 流量走模型 A，10% 流量走模型 B</span>
+</span></span><span style=display:flex><span>serve<span style=color:#f92672>.</span>run(
+</span></span><span style=display:flex><span>    Router<span style=color:#f92672>.</span>bind({
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;model_a&#34;</span>: ModelA<span style=color:#f92672>.</span>bind(),
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;model_b&#34;</span>: ModelB<span style=color:#f92672>.</span>bind()
+</span></span><span style=display:flex><span>    }, weights<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;model_a&#34;</span>: <span style=color:#ae81ff>0.9</span>, <span style=color:#e6db74>&#34;model_b&#34;</span>: <span style=color:#ae81ff>0.1</span>})
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p>这就是 Ray 解决的第二座大山：<strong>消除训练到服务的部署鸿沟。</strong></p><h3 id=6-问题三python-多进程难用并行编程门槛高>6. 问题三：Python 多进程难用，并行编程门槛高</h3><h4 id=传统困境multiprocessing-的坑>传统困境：multiprocessing 的坑</h4><p>Python 的 <code>multiprocessing</code> 库提供了多进程支持，但实际用起来坑很多。</p><p><strong>坑 1：序列化噩梦</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> multiprocessing <span style=color:#f92672>import</span> Pool
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>MyModel</span>:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>data <span style=color:#f92672>=</span> some_complex_object
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>predict</span>(self, x):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> process(x, self<span style=color:#f92672>.</span>data)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> MyModel()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>task</span>(x):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> model<span style=color:#f92672>.</span>predict(x)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> Pool(<span style=color:#ae81ff>4</span>) <span style=color:#66d9ef>as</span> p:
+</span></span><span style=display:flex><span>    results <span style=color:#f92672>=</span> p<span style=color:#f92672>.</span>map(task, range(<span style=color:#ae81ff>100</span>))  <span style=color:#75715e># ❌ PicklingError!</span>
+</span></span></code></pre></div><p>报错：<code>PicklingError: Can't pickle &lt;function task at 0x...></code></p><p>原因：<code>multiprocessing</code> 用 pickle 序列化函数和参数，但很多 Python 对象无法被 pickle（特别是包含复杂状态的类实例、lambda 函数等）。</p><p><strong>坑 2：内存爆炸</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>process</span>(data):
+</span></span><span style=display:flex><span>    result <span style=color:#f92672>=</span> heavy_computation(data)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> result
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> Pool(<span style=color:#ae81ff>4</span>) <span style=color:#66d9ef>as</span> p:
+</span></span><span style=display:flex><span>    results <span style=color:#f92672>=</span> p<span style=color:#f92672>.</span>map(process, large_dataset)  <span style=color:#75715e># ❌ 内存不足！</span>
+</span></span></code></pre></div><p>原因：<code>Pool.map</code> 会把所有输入数据一次性序列化发送给子进程，如果数据集很大，内存会瞬间爆炸。</p><p><strong>坑 3：调试困难</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>task</span>(x):
+</span></span><span style=display:flex><span>    result <span style=color:#f92672>=</span> do_something(x)
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 如果这里出错了，traceback 几乎无法阅读</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> result
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>with</span> Pool(<span style=color:#ae81ff>4</span>) <span style=color:#66d9ef>as</span> p:
+</span></span><span style=display:flex><span>    results <span style=color:#f92672>=</span> p<span style=color:#f92672>.</span>map(task, data)  <span style=color:#75715e># ❌ 子进程崩溃，主进程只知道&#34;某个进程挂了&#34;</span>
+</span></span></code></pre></div><p>多进程的错误处理、日志收集、调试都是非常痛苦的体验。</p><p><strong>坑 4：无法跨机器</strong>
+<code>multiprocessing</code> 只能单机多进程，无法扩展到多台机器。</p><h4 id=ray-的解法函数级别的并行自动序列化自动内存管理>Ray 的解法：函数级别的并行，自动序列化、自动内存管理</h4><p>Ray 通过以下机制解决这些问题：</p><p><strong>1. 云 Pickle（Cloudpickle）</strong></p><p>Ray 使用 cloudpickle 替代标准 pickle，支持序列化更多 Python 对象：</p><ul><li>Lambda 函数</li><li>嵌套函数</li><li>类实例（只要类定义可访问）</li><li>甚至在 Jupyter Notebook 中定义的函数</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ray<span style=color:#f92672>.</span>init()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 这个 lambda 可以被序列化！</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@ray.remote</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>process</span>(x):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> (<span style=color:#66d9ef>lambda</span> y: y <span style=color:#f92672>**</span> <span style=color:#ae81ff>2</span>)(x)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>futures <span style=color:#f92672>=</span> [process<span style=color:#f92672>.</span>remote(x) <span style=color:#66d9ef>for</span> x <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>100</span>)]
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> ray<span style=color:#f92672>.</span>get(futures)  <span style=color:#75715e># ✅ 成功！</span>
+</span></span></code></pre></div><p><strong>2. 分布式对象存储</strong></p><p>Ray 的 Plasma 对象存储自动管理内存：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> numpy <span style=color:#66d9ef>as</span> np
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ray<span style=color:#f92672>.</span>init()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 创建大数组（自动放入共享内存）</span>
+</span></span><span style=display:flex><span>large_array <span style=color:#f92672>=</span> np<span style=color:#f92672>.</span>zeros(<span style=color:#ae81ff>1024</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>1024</span> <span style=color:#f92672>*</span> <span style=color:#ae81ff>100</span>)  <span style=color:#75715e># 800MB</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@ray.remote</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>process</span>(data):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># data 是从对象存储读取的，零拷贝</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> np<span style=color:#f92672>.</span>sum(data)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 把大数组放入对象存储（只需一次拷贝）</span>
+</span></span><span style=display:flex><span>array_ref <span style=color:#f92672>=</span> ray<span style=color:#f92672>.</span>put(large_array)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 多个任务共享同一个数据引用</span>
+</span></span><span style=display:flex><span>futures <span style=color:#f92672>=</span> [process<span style=color:#f92672>.</span>remote(array_ref) <span style=color:#66d9ef>for</span> _ <span style=color:#f92672>in</span> range(<span style=color:#ae81ff>100</span>)]
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> ray<span style=color:#f92672>.</span>get(futures)
+</span></span></code></pre></div><ul><li><code>ray.put()</code> 把数据放入共享内存</li><li>多个任务通过引用（reference）访问同一数据，无需重复拷贝</li><li>对象不再被引用时，自动垃圾回收</li></ul><p><strong>3. Actor：有状态并行</strong></p><p>对于需要维护状态的场景，Ray 提供了 Actor：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@ray.remote</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>Counter</span>:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>count <span style=color:#f92672>=</span> <span style=color:#ae81ff>0</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>increment</span>(self):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>count <span style=color:#f92672>+=</span> <span style=color:#ae81ff>1</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>count
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 创建 Actor 实例</span>
+</span></span><span style=display:flex><span>counter <span style=color:#f92672>=</span> Counter<span style=color:#f92672>.</span>remote()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 调用 Actor 方法（状态自动维护）</span>
+</span></span><span style=display:flex><span>print(ray<span style=color:#f92672>.</span>get(counter<span style=color:#f92672>.</span>increment<span style=color:#f92672>.</span>remote()))  <span style=color:#75715e># 1</span>
+</span></span><span style=display:flex><span>print(ray<span style=color:#f92672>.</span>get(counter<span style=color:#f92672>.</span>increment<span style=color:#f92672>.</span>remote()))  <span style=color:#75715e># 2</span>
+</span></span><span style=display:flex><span>print(ray<span style=color:#f92672>.</span>get(counter<span style=color:#f92672>.</span>increment<span style=color:#f92672>.</span>remote()))  <span style=color:#75715e># 3</span>
+</span></span></code></pre></div><p>Actor 解决了什么问题？</p><ul><li>每个 Actor 是独立进程，维护自己的状态</li><li>Actor 方法调用是异步的（返回 future）</li><li>Actor 可以分布在集群的任何节点上</li></ul><p>这在强化学习、在线服务、流处理等场景中非常有用。</p><p><strong>4. 丰富的调试工具</strong></p><p>Ray 提供了 Dashboard 来监控和调试分布式应用：</p><ul><li>查看每个任务的状态和日志</li><li>分析资源使用情况</li><li>追踪任务依赖关系</li><li>自动收集错误信息</li></ul><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 启动时开启 Dashboard</span>
+</span></span><span style=display:flex><span>ray<span style=color:#f92672>.</span>init(dashboard_host<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;0.0.0.0&#39;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 访问 http://localhost:8265 查看 Dashboard</span>
+</span></span></code></pre></div><h4 id=案例用-ray-实现简单的并行爬虫>案例：用 Ray 实现简单的并行爬虫</h4><p>对比原生多进程和 Ray 的实现：</p><p><strong>原生 multiprocessing（代码复杂，容易出错）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> multiprocessing <span style=color:#f92672>import</span> Pool, Manager
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> requests
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>fetch</span>(url, result_queue):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        response <span style=color:#f92672>=</span> requests<span style=color:#f92672>.</span>get(url, timeout<span style=color:#f92672>=</span><span style=color:#ae81ff>5</span>)
+</span></span><span style=display:flex><span>        result_queue<span style=color:#f92672>.</span>put((url, response<span style=color:#f92672>.</span>status_code))
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e:
+</span></span><span style=display:flex><span>        result_queue<span style=color:#f92672>.</span>put((url, str(e)))
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>if</span> __name__ <span style=color:#f92672>==</span> <span style=color:#e6db74>&#39;__main__&#39;</span>:
+</span></span><span style=display:flex><span>    urls <span style=color:#f92672>=</span> [<span style=color:#f92672>...</span>]  <span style=color:#75715e># 1000 个 URL</span>
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 复杂的队列管理</span>
+</span></span><span style=display:flex><span>    manager <span style=color:#f92672>=</span> Manager()
+</span></span><span style=display:flex><span>    result_queue <span style=color:#f92672>=</span> manager<span style=color:#f92672>.</span>Queue()
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>with</span> Pool(<span style=color:#ae81ff>10</span>) <span style=color:#66d9ef>as</span> p:
+</span></span><span style=display:flex><span>        p<span style=color:#f92672>.</span>starmap(fetch, [(url, result_queue) <span style=color:#66d9ef>for</span> url <span style=color:#f92672>in</span> urls])
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 收集结果</span>
+</span></span><span style=display:flex><span>    results <span style=color:#f92672>=</span> []
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>while</span> <span style=color:#f92672>not</span> result_queue<span style=color:#f92672>.</span>empty():
+</span></span><span style=display:flex><span>        results<span style=color:#f92672>.</span>append(result_queue<span style=color:#f92672>.</span>get())
+</span></span></code></pre></div><p><strong>Ray（简洁、高效、可扩展）：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> requests
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>ray<span style=color:#f92672>.</span>init()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@ray.remote</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>fetch</span>(url):
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span>:
+</span></span><span style=display:flex><span>        response <span style=color:#f92672>=</span> requests<span style=color:#f92672>.</span>get(url, timeout<span style=color:#f92672>=</span><span style=color:#ae81ff>5</span>)
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> url, response<span style=color:#f92672>.</span>status_code
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>except</span> <span style=color:#a6e22e>Exception</span> <span style=color:#66d9ef>as</span> e:
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> url, str(e)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>urls <span style=color:#f92672>=</span> [<span style=color:#f92672>...</span>]  <span style=color:#75715e># 1000 个 URL</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 一行代码并行抓取</span>
+</span></span><span style=display:flex><span>futures <span style=color:#f92672>=</span> [fetch<span style=color:#f92672>.</span>remote(url) <span style=color:#66d9ef>for</span> url <span style=color:#f92672>in</span> urls]
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> ray<span style=color:#f92672>.</span>get(futures)  <span style=color:#75715e># 自动等待所有任务完成</span>
+</span></span></code></pre></div><p>优势：</p><ul><li>代码简洁一半以上</li><li>自动处理错误和重试</li><li>可以轻松扩展到多台机器（只需连接到 Ray 集群）</li><li>通过 Dashboard 可以实时监控抓取进度</li></ul><p>这就是 Ray 解决的第三座大山：<strong>让并行编程像写普通代码一样简单。</strong></p><hr><h2 id=第三部分ray-生态能做什么五大核心场景>第三部分：Ray 生态能做什么——五大核心场景</h2><p>Ray 不仅仅是一个分布式计算框架，它已经发展成为一个完整的 AI 计算平台。下面介绍 Ray 的五大核心库。</p><h3 id=7-ray-train分布式深度学习一行代码搞定>7. Ray Train：分布式深度学习，一行代码搞定</h3><p>Ray Train 是 Ray 的分布式训练库，支持 PyTorch、TensorFlow、Horovod、HuggingFace 等主流框架。</p><h4 id=核心特性>核心特性</h4><p><strong>框架无关的统一 API</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer      <span style=color:#75715e># PyTorch</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.tensorflow <span style=color:#f92672>import</span> TensorflowTrainer  <span style=color:#75715e># TensorFlow</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.huggingface <span style=color:#f92672>import</span> HuggingFaceTrainer  <span style=color:#75715e># HuggingFace</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.xgboost <span style=color:#f92672>import</span> XGBoostTrainer    <span style=color:#75715e># XGBoost</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.lightgbm <span style=color:#f92672>import</span> LightGBMTrainer  <span style=color:#75715e># LightGBM</span>
+</span></span></code></pre></div><p>所有框架使用相同的 <code>ScalingConfig</code> 配置分布式参数：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span>scaling_config<span style=color:#f92672>=</span>ScalingConfig(
+</span></span><span style=display:flex><span>    num_workers<span style=color:#f92672>=</span><span style=color:#ae81ff>8</span>,      <span style=color:#75715e># 8 个 worker</span>
+</span></span><span style=display:flex><span>    use_gpu<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>,       <span style=color:#75715e># 使用 GPU</span>
+</span></span><span style=display:flex><span>    resources_per_worker<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;CPU&#34;</span>: <span style=color:#ae81ff>4</span>, <span style=color:#e6db74>&#34;GPU&#34;</span>: <span style=color:#ae81ff>1</span>}  <span style=color:#75715e># 每个 worker 的资源</span>
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p><strong>弹性训练（Fault Tolerance）</strong>：</p><ul><li>训练过程中某个 worker 挂了？自动重试</li><li>支持从检查点恢复，不浪费已完成的训练进度</li></ul><p><strong>与 Ray Tune 无缝集成</strong>：</p><ul><li>超参数搜索时，每个试验自动使用分布式训练</li><li>自动管理 GPU 资源分配，最大化集群利用率</li></ul><h4 id=实战把单机-stable-diffusion-训练变成分布式>实战：把单机 Stable Diffusion 训练变成分布式</h4><p><strong>单机代码：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> diffusers <span style=color:#f92672>import</span> StableDiffusionPipeline
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> StableDiffusionPipeline<span style=color:#f92672>.</span>from_pretrained(<span style=color:#e6db74>&#34;runwayml/stable-diffusion-v1-5&#34;</span>)
+</span></span><span style=display:flex><span>model <span style=color:#f92672>=</span> model<span style=color:#f92672>.</span>to(<span style=color:#e6db74>&#34;cuda&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 训练循环...</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> step, batch <span style=color:#f92672>in</span> enumerate(dataloader):
+</span></span><span style=display:flex><span>    loss <span style=color:#f92672>=</span> model(batch)<span style=color:#f92672>.</span>loss
+</span></span><span style=display:flex><span>    loss<span style=color:#f92672>.</span>backward()
+</span></span><span style=display:flex><span>    optimizer<span style=color:#f92672>.</span>step()
+</span></span></code></pre></div><p><strong>Ray 分布式版本：</strong></p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> train
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> diffusers <span style=color:#f92672>import</span> StableDiffusionPipeline
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>train_func</span>(config):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># Ray 自动分配 GPU</span>
+</span></span><span style=display:flex><span>    model <span style=color:#f92672>=</span> StableDiffusionPipeline<span style=color:#f92672>.</span>from_pretrained(<span style=color:#e6db74>&#34;runwayml/stable-diffusion-v1-5&#34;</span>)
+</span></span><span style=display:flex><span>    model <span style=color:#f92672>=</span> train<span style=color:#f92672>.</span>torch<span style=color:#f92672>.</span>prepare_model(model)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>for</span> step, batch <span style=color:#f92672>in</span> enumerate(train<span style=color:#f92672>.</span>get_dataset_shard(<span style=color:#e6db74>&#34;train&#34;</span>)):
+</span></span><span style=display:flex><span>        loss <span style=color:#f92672>=</span> model(batch)<span style=color:#f92672>.</span>loss
+</span></span><span style=display:flex><span>        loss<span style=color:#f92672>.</span>backward()
+</span></span><span style=display:flex><span>        optimizer<span style=color:#f92672>.</span>step()
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>if</span> step <span style=color:#f92672>%</span> <span style=color:#ae81ff>100</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span>:
+</span></span><span style=display:flex><span>            train<span style=color:#f92672>.</span>report({<span style=color:#e6db74>&#34;loss&#34;</span>: loss<span style=color:#f92672>.</span>item()})
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> TorchTrainer(
+</span></span><span style=display:flex><span>    train_loop_per_worker<span style=color:#f92672>=</span>train_func,
+</span></span><span style=display:flex><span>    scaling_config<span style=color:#f92672>=</span>train<span style=color:#f92672>.</span>ScalingConfig(num_workers<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>, use_gpu<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>),
+</span></span><span style=display:flex><span>    datasets<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;train&#34;</span>: ray_dataset},
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>result <span style=color:#f92672>=</span> trainer<span style=color:#f92672>.</span>fit()
+</span></span></code></pre></div><p>改动点：</p><ol><li>用 <code>train.torch.prepare_model()</code> 包装模型</li><li>使用 <code>train.get_dataset_shard()</code> 获取数据分片</li><li>用 <code>train.report()</code> 上报训练指标</li></ol><p>性能提升：</p><ul><li>单机 1x A100：约 6 小时/epoch</li><li>分布式 4x A100：约 1.5 小时/epoch（接近 4 倍加速）</li></ul><h3 id=8-ray-serve大模型时代的在线推理服务>8. Ray Serve：大模型时代的在线推理服务</h3><p>Ray Serve 是一个可扩展的模型服务框架，专为 LLM（大语言模型）和生成式 AI 设计。</p><h4 id=核心特性-1>核心特性</h4><p><strong>多模型组合（Model Composition）</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#a6e22e>@serve.deployment</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>EmbeddingModel</span>:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>model <span style=color:#f92672>=</span> SentenceTransformer(<span style=color:#e6db74>&#39;all-MiniLM-L6-v2&#39;</span>)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__call__</span>(self, text):
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>model<span style=color:#f92672>.</span>encode(text)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@serve.deployment</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>LLMModel</span>:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self, embedding_handle):
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>embedding <span style=color:#f92672>=</span> embedding_handle
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>llm <span style=color:#f92672>=</span> load_llm()
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__call__</span>(self, request):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 先调用 Embedding 服务</span>
+</span></span><span style=display:flex><span>        embedding <span style=color:#f92672>=</span> <span style=color:#66d9ef>await</span> self<span style=color:#f92672>.</span>embedding<span style=color:#f92672>.</span>remote(request<span style=color:#f92672>.</span>text)
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 再调用 LLM</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>llm<span style=color:#f92672>.</span>generate(embedding)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 构建服务图</span>
+</span></span><span style=display:flex><span>embedding <span style=color:#f92672>=</span> EmbeddingModel<span style=color:#f92672>.</span>bind()
+</span></span><span style=display:flex><span>llm <span style=color:#f92672>=</span> LLMModel<span style=color:#f92672>.</span>bind(embedding)
+</span></span><span style=display:flex><span>serve<span style=color:#f92672>.</span>run(llm)
+</span></span></code></pre></div><p><strong>自动扩缩容（Auto-scaling）</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#a6e22e>@serve.deployment</span>(
+</span></span><span style=display:flex><span>    autoscaling_config<span style=color:#f92672>=</span>{
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;min_replicas&#34;</span>: <span style=color:#ae81ff>1</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;max_replicas&#34;</span>: <span style=color:#ae81ff>100</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;target_num_ongoing_requests_per_replica&#34;</span>: <span style=color:#ae81ff>10</span>,
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;upscale_delay_s&#34;</span>: <span style=color:#ae81ff>30</span>,   <span style=color:#75715e># 30 秒后扩容</span>
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;downscale_delay_s&#34;</span>: <span style=color:#ae81ff>600</span>,  <span style=color:#75715e># 10 分钟后缩容</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>LLMService</span>:
+</span></span><span style=display:flex><span>    <span style=color:#f92672>...</span>
+</span></span></code></pre></div><p><strong>批量推理优化（Batching）</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#a6e22e>@serve.deployment</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>BatchingService</span>:
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@serve.batch</span>(max_batch_size<span style=color:#f92672>=</span><span style=color:#ae81ff>16</span>, batch_wait_timeout_s<span style=color:#f92672>=</span><span style=color:#ae81ff>0.01</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__call__</span>(self, requests):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 自动合并多个请求为 batch</span>
+</span></span><span style=display:flex><span>        batched_input <span style=color:#f92672>=</span> [req<span style=color:#f92672>.</span>text <span style=color:#66d9ef>for</span> req <span style=color:#f92672>in</span> requests]
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> self<span style=color:#f92672>.</span>model(batched_input)
+</span></span></code></pre></div><h4 id=案例用-ray-serve-部署一个-gpt-风格的-api-服务>案例：用 Ray Serve 部署一个 GPT 风格的 API 服务</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> serve
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> fastapi <span style=color:#f92672>import</span> FastAPI
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> transformers <span style=color:#f92672>import</span> AutoTokenizer, AutoModelForCausalLM
+</span></span><span style=display:flex><span><span style=color:#f92672>import</span> torch
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>app <span style=color:#f92672>=</span> FastAPI()
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@serve.deployment</span>(
+</span></span><span style=display:flex><span>    num_replicas<span style=color:#f92672>=</span><span style=color:#ae81ff>2</span>,
+</span></span><span style=display:flex><span>    ray_actor_options<span style=color:#f92672>=</span>{<span style=color:#e6db74>&#34;num_gpus&#34;</span>: <span style=color:#ae81ff>1</span>}
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@serve.ingress</span>(app)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>GPTService</span>:
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>__init__</span>(self):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 加载模型</span>
+</span></span><span style=display:flex><span>        model_name <span style=color:#f92672>=</span> <span style=color:#e6db74>&#34;microsoft/DialoGPT-medium&#34;</span>
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>tokenizer <span style=color:#f92672>=</span> AutoTokenizer<span style=color:#f92672>.</span>from_pretrained(model_name)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>model <span style=color:#f92672>=</span> AutoModelForCausalLM<span style=color:#f92672>.</span>from_pretrained(model_name)
+</span></span><span style=display:flex><span>        self<span style=color:#f92672>.</span>model <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>model<span style=color:#f92672>.</span>to(<span style=color:#e6db74>&#34;cuda&#34;</span>)
+</span></span><span style=display:flex><span>    
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@app.post</span>(<span style=color:#e6db74>&#34;/chat&#34;</span>)
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>async</span> <span style=color:#66d9ef>def</span> <span style=color:#a6e22e>chat</span>(self, message: str, max_length: int <span style=color:#f92672>=</span> <span style=color:#ae81ff>100</span>):
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 编码输入</span>
+</span></span><span style=display:flex><span>        input_ids <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>tokenizer<span style=color:#f92672>.</span>encode(
+</span></span><span style=display:flex><span>            message <span style=color:#f92672>+</span> self<span style=color:#f92672>.</span>tokenizer<span style=color:#f92672>.</span>eos_token,
+</span></span><span style=display:flex><span>            return_tensors<span style=color:#f92672>=</span><span style=color:#e6db74>&#39;pt&#39;</span>
+</span></span><span style=display:flex><span>        )<span style=color:#f92672>.</span>to(<span style=color:#e6db74>&#34;cuda&#34;</span>)
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 生成回复</span>
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>with</span> torch<span style=color:#f92672>.</span>no_grad():
+</span></span><span style=display:flex><span>            output <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>model<span style=color:#f92672>.</span>generate(
+</span></span><span style=display:flex><span>                input_ids,
+</span></span><span style=display:flex><span>                max_length<span style=color:#f92672>=</span>max_length,
+</span></span><span style=display:flex><span>                pad_token_id<span style=color:#f92672>=</span>self<span style=color:#f92672>.</span>tokenizer<span style=color:#f92672>.</span>eos_token_id
+</span></span><span style=display:flex><span>            )
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#75715e># 解码输出</span>
+</span></span><span style=display:flex><span>        response <span style=color:#f92672>=</span> self<span style=color:#f92672>.</span>tokenizer<span style=color:#f92672>.</span>decode(
+</span></span><span style=display:flex><span>            output[:, input_ids<span style=color:#f92672>.</span>shape[<span style=color:#f92672>-</span><span style=color:#ae81ff>1</span>]:][<span style=color:#ae81ff>0</span>],
+</span></span><span style=display:flex><span>            skip_special_tokens<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>
+</span></span><span style=display:flex><span>        )
+</span></span><span style=display:flex><span>        
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> {<span style=color:#e6db74>&#34;response&#34;</span>: response}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 部署服务</span>
+</span></span><span style=display:flex><span>serve<span style=color:#f92672>.</span>run(GPTService<span style=color:#f92672>.</span>bind())
+</span></span></code></pre></div><p>部署完成后，可以直接调用：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-bash data-lang=bash><span style=display:flex><span>curl -X POST http://localhost:8000/chat <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  -H <span style=color:#e6db74>&#34;Content-Type: application/json&#34;</span> <span style=color:#ae81ff>\
+</span></span></span><span style=display:flex><span>  -d <span style=color:#e6db74>&#39;{&#34;message&#34;: &#34;Hello, how are you?&#34;, &#34;max_length&#34;: 50}&#39;</span>
+</span></span></code></pre></div><h3 id=9-ray-rllib强化学习的工业级方案>9. Ray RLlib：强化学习的工业级方案</h3><p>Ray RLlib 是业界最广泛使用的强化学习库之一，支持各种 RL 算法。</p><h4 id=为什么-rl-训练天然需要分布式>为什么 RL 训练天然需要分布式？</h4><p>强化学习的训练流程是这样的：</p><ol><li>智能体（Agent）在环境中执行动作</li><li>环境返回状态和奖励</li><li>智能体根据奖励更新策略</li><li>重复</li></ol><p>这个循环需要：</p><ul><li><strong>并行环境</strong>：同时运行多个环境实例产生数据</li><li><strong>分布式策略更新</strong>：多个 worker 并行计算梯度</li><li><strong>异构计算</strong>：环境模拟用 CPU，策略更新用 GPU</li></ul><h4 id=rllib-的核心特性>RLlib 的核心特性</h4><p><strong>丰富的算法支持</strong>：</p><ul><li>经典算法：DQN、A3C、PPO、IMPALA</li><li>离线 RL：CQL、CQL、DT</li><li>多智能体：QMIX、MADDPG</li><li>模型-based：Dreamer、MB-MPO</li></ul><p><strong>多智能体训练</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> tune
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.rllib.algorithms.ppo <span style=color:#f92672>import</span> PPO
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>config <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;env&#34;</span>: <span style=color:#e6db74>&#34;multi_agent_env&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;multiagent&#34;</span>: {
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;policies&#34;</span>: {
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;agent_1&#34;</span>: (<span style=color:#f92672>...</span>, obs_space, action_space, {}),
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;agent_2&#34;</span>: (<span style=color:#f92672>...</span>, obs_space, action_space, {}),
+</span></span><span style=display:flex><span>        },
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;policy_mapping_fn&#34;</span>: <span style=color:#66d9ef>lambda</span> agent_id, <span style=color:#f92672>**</span>kwargs: agent_id,
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;num_workers&#34;</span>: <span style=color:#ae81ff>8</span>,
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tune<span style=color:#f92672>.</span>run(PPO, config<span style=color:#f92672>=</span>config)
+</span></span></code></pre></div><h4 id=openai-如何用-ray-rllib-做-rlhf>OpenAI 如何用 Ray RLlib 做 RLHF</h4><p>ChatGPT 的训练过程分为三步：</p><ol><li><strong>预训练</strong>：在大规模语料上训练基础模型</li><li><strong>SFT（Supervised Fine-Tuning）</strong>：用人工标注数据微调</li><li><strong>RLHF（Reinforcement Learning from Human Feedback）</strong>：用强化学习优化</li></ol><p>RLHF 的核心就是强化学习：</p><ul><li><strong>环境</strong>：语言模型生成回复</li><li><strong>奖励模型</strong>：人类反馈训练的模型，给回复打分</li><li><strong>策略</strong>：语言模型的参数</li></ul><p>OpenAI 使用 Ray RLlib 来分布式执行 RLHF 训练：</p><ul><li>多个 worker 并行生成回复</li><li>奖励模型并行打分</li><li>PPO 算法分布式更新策略</li></ul><p>这种规模的任务，没有分布式框架几乎不可能完成。</p><h3 id=10-ray-tune超参数搜索的自动化>10. Ray Tune：超参数搜索的自动化</h3><p>超参数调优是机器学习中最耗时、最需要算力的环节之一。</p><h4 id=炼丹痛点>炼丹痛点</h4><ul><li>参数空间大：学习率、批量大小、网络层数、激活函数……</li><li>试错成本高：每个配置都要完整训练一轮</li><li>资源利用率低：串行搜索太慢，手动并行容易冲突</li></ul><h4 id=ray-tune-的核心特性>Ray Tune 的核心特性</h4><p><strong>分布式搜索</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> ray <span style=color:#f92672>import</span> tune
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.tune.tune_config <span style=color:#f92672>import</span> TuneConfig
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>def</span> <span style=color:#a6e22e>trainable</span>(config):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># 训练代码使用 config 中的超参数</span>
+</span></span><span style=display:flex><span>    lr <span style=color:#f92672>=</span> config[<span style=color:#e6db74>&#34;lr&#34;</span>]
+</span></span><span style=display:flex><span>    batch_size <span style=color:#f92672>=</span> config[<span style=color:#e6db74>&#34;batch_size&#34;</span>]
+</span></span><span style=display:flex><span>    <span style=color:#75715e># ... 训练 ...</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> {<span style=color:#e6db74>&#34;accuracy&#34;</span>: accuracy}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tune_config <span style=color:#f92672>=</span> TuneConfig(
+</span></span><span style=display:flex><span>    metric<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;accuracy&#34;</span>,
+</span></span><span style=display:flex><span>    mode<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;max&#34;</span>,
+</span></span><span style=display:flex><span>    num_samples<span style=color:#f92672>=</span><span style=color:#ae81ff>100</span>,  <span style=color:#75715e># 尝试 100 组配置</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 定义搜索空间</span>
+</span></span><span style=display:flex><span>param_space <span style=color:#f92672>=</span> {
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;lr&#34;</span>: tune<span style=color:#f92672>.</span>loguniform(<span style=color:#ae81ff>1e-4</span>, <span style=color:#ae81ff>1e-1</span>),
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;batch_size&#34;</span>: tune<span style=color:#f92672>.</span>choice([<span style=color:#ae81ff>32</span>, <span style=color:#ae81ff>64</span>, <span style=color:#ae81ff>128</span>, <span style=color:#ae81ff>256</span>]),
+</span></span><span style=display:flex><span>    <span style=color:#e6db74>&#34;num_layers&#34;</span>: tune<span style=color:#f92672>.</span>randint(<span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>6</span>),
+</span></span><span style=display:flex><span>}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 启动分布式搜索（自动使用所有可用 GPU）</span>
+</span></span><span style=display:flex><span>tuner <span style=color:#f92672>=</span> tune<span style=color:#f92672>.</span>Tuner(
+</span></span><span style=display:flex><span>    trainable,
+</span></span><span style=display:flex><span>    param_space<span style=color:#f92672>=</span>param_space,
+</span></span><span style=display:flex><span>    tune_config<span style=color:#f92672>=</span>tune_config,
+</span></span><span style=display:flex><span>    run_config<span style=color:#f92672>=</span>train<span style=color:#f92672>.</span>RunConfig(<span style=color:#f92672>...</span>)
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>results <span style=color:#f92672>=</span> tuner<span style=color:#f92672>.</span>fit()
+</span></span></code></pre></div><p><strong>早停机制（Early Stopping）</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> ray.tune.schedulers <span style=color:#f92672>import</span> ASHAScheduler
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>scheduler <span style=color:#f92672>=</span> ASHAScheduler(
+</span></span><span style=display:flex><span>    metric<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;accuracy&#34;</span>,
+</span></span><span style=display:flex><span>    mode<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;max&#34;</span>,
+</span></span><span style=display:flex><span>    max_t<span style=color:#f92672>=</span><span style=color:#ae81ff>100</span>,  <span style=color:#75715e># 最大训练 100 个 epoch</span>
+</span></span><span style=display:flex><span>    grace_period<span style=color:#f92672>=</span><span style=color:#ae81ff>10</span>,  <span style=color:#75715e># 至少训练 10 个 epoch</span>
+</span></span><span style=display:flex><span>    reduction_factor<span style=color:#f92672>=</span><span style=color:#ae81ff>3</span>,  <span style=color:#75715e># 淘汰率</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 效果：表现不好的配置会被提前终止，节省 60-80% 的算力</span>
+</span></span></code></pre></div><p><strong>与 Train 无缝集成</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.tune <span style=color:#f92672>import</span> Tuner, TuneConfig
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 每个试验都是分布式训练</span>
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> TorchTrainer(
+</span></span><span style=display:flex><span>    train_loop_per_worker<span style=color:#f92672>=</span>train_func,
+</span></span><span style=display:flex><span>    scaling_config<span style=color:#f92672>=</span>ScalingConfig(num_workers<span style=color:#f92672>=</span><span style=color:#ae81ff>4</span>, use_gpu<span style=color:#f92672>=</span><span style=color:#66d9ef>True</span>),
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>tuner <span style=color:#f92672>=</span> Tuner(
+</span></span><span style=display:flex><span>    trainer,
+</span></span><span style=display:flex><span>    param_space<span style=color:#f92672>=</span>{
+</span></span><span style=display:flex><span>        <span style=color:#e6db74>&#34;train_loop_config&#34;</span>: {
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;lr&#34;</span>: tune<span style=color:#f92672>.</span>loguniform(<span style=color:#ae81ff>1e-4</span>, <span style=color:#ae81ff>1e-1</span>),
+</span></span><span style=display:flex><span>            <span style=color:#e6db74>&#34;batch_size&#34;</span>: tune<span style=color:#f92672>.</span>choice([<span style=color:#ae81ff>32</span>, <span style=color:#ae81ff>64</span>, <span style=color:#ae81ff>128</span>]),
+</span></span><span style=display:flex><span>        }
+</span></span><span style=display:flex><span>    },
+</span></span><span style=display:flex><span>    tune_config<span style=color:#f92672>=</span>TuneConfig(num_samples<span style=color:#f92672>=</span><span style=color:#ae81ff>100</span>, scheduler<span style=color:#f92672>=</span>ASHAScheduler()),
+</span></span><span style=display:flex><span>)
+</span></span></code></pre></div><p>每个超参数试验都自动使用 4 个 GPU 进行分布式训练，最大化集群利用率。</p><h3 id=11-ray-data海量数据的预处理流水线>11. Ray Data：海量数据的预处理流水线</h3><p>数据预处理往往比训练本身更耗时。Ray Data 提供了分布式数据处理能力。</p><h4 id=核心特性-2>核心特性</h4><p><strong>标准数据格式支持</strong>：</p><ul><li>Parquet、CSV、JSON、TFRecord</li><li>HuggingFace Datasets</li><li>Databricks、Snowflake 集成</li></ul><p><strong>流式处理</strong>：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#f92672>import</span> ray
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 从 S3 流式读取 Parquet</span>
+</span></span><span style=display:flex><span>ds <span style=color:#f92672>=</span> ray<span style=color:#f92672>.</span>data<span style=color:#f92672>.</span>read_parquet(<span style=color:#e6db74>&#34;s3://bucket/dataset/&#34;</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 链式转换（惰性求值，自动优化）</span>
+</span></span><span style=display:flex><span>ds <span style=color:#f92672>=</span> ds<span style=color:#f92672>.</span>map(transform_fn)     <span style=color:#75715e># 数据转换</span>
+</span></span><span style=display:flex><span>ds <span style=color:#f92672>=</span> ds<span style=color:#f92672>.</span>filter(filter_fn)     <span style=color:#75715e># 数据过滤</span>
+</span></span><span style=display:flex><span>ds <span style=color:#f92672>=</span> ds<span style=color:#f92672>.</span>repartition(<span style=color:#ae81ff>100</span>)      <span style=color:#75715e># 重分区</span>
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 训练时流式消费（不占用大量内存）</span>
+</span></span><span style=display:flex><span><span style=color:#66d9ef>for</span> batch <span style=color:#f92672>in</span> ds<span style=color:#f92672>.</span>iter_torch_batches(batch_size<span style=color:#f92672>=</span><span style=color:#ae81ff>32</span>):
+</span></span><span style=display:flex><span>    <span style=color:#75715e># batch 直接从 S3 流式读取到 GPU</span>
+</span></span><span style=display:flex><span>    model(batch)
+</span></span></code></pre></div><p><strong>零拷贝数据传输</strong>：</p><ul><li>使用 Apache Arrow 格式</li><li>同节点进程间共享无需序列化</li><li>跨节点自动压缩传输</li></ul><h4 id=与-databrickssnowflake-的友好集成>与 Databricks、Snowflake 的友好集成</h4><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 从 Databricks 读取</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.data <span style=color:#f92672>import</span> read_databricks
+</span></span><span style=display:flex><span>ds <span style=color:#f92672>=</span> read_databricks(
+</span></span><span style=display:flex><span>    cluster_id<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;cluster-id&#34;</span>,
+</span></span><span style=display:flex><span>    table<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;catalog.schema.table&#34;</span>
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 从 Snowflake 读取</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.data <span style=color:#f92672>import</span> read_snowflake
+</span></span><span style=display:flex><span>ds <span style=color:#f92672>=</span> read_snowflake(
+</span></span><span style=display:flex><span>    query<span style=color:#f92672>=</span><span style=color:#e6db74>&#34;SELECT * FROM users WHERE created_at &gt; &#39;2024-01-01&#39;&#34;</span>,
+</span></span><span style=display:flex><span>    connection_parameters<span style=color:#f92672>=</span>{<span style=color:#f92672>...</span>}
+</span></span><span style=display:flex><span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 预处理后写回</span>
+</span></span><span style=display:flex><span>ds<span style=color:#f92672>.</span>write_parquet(<span style=color:#e6db74>&#34;s3://processed-data/output/&#34;</span>)
+</span></span></code></pre></div><h2 id=第四部分谁在用-ray真实企业案例>第四部分：谁在用 Ray——真实企业案例</h2><h3 id=12-openairay-如何支撑-chatgpt-的训练>12. OpenAI：Ray 如何支撑 ChatGPT 的训练</h3><p>OpenAI 是 Ray 最早的企业用户之一。</p><h4 id=从-mpi-迁移到-ray>从 MPI 迁移到 Ray</h4><p>在 Ray 之前，OpenAI 使用 MPI（Message Passing Interface）进行分布式训练。MPI 是高性能计算领域的标准，但有几个问题：</p><ol><li><strong>编程复杂</strong>：需要显式管理进程通信</li><li><strong>灵活性差</strong>：难以处理动态任务图</li><li><strong>容错性差</strong>：一个进程挂了，整个作业失败</li><li><strong>扩展困难</strong>：从单机到多机需要大量配置</li></ol><h4 id=为什么迁移到-ray>为什么迁移到 Ray？</h4><p>OpenAI 的工程师发现，AI 工作负载（特别是强化学习）与 MPI 假设的 &ldquo;SPMD（Single Program Multiple Data）&rdquo; 模式非常不同：</p><ul><li>RL 的任务图是动态的，取决于环境的反馈</li><li>需要同时运行大量仿真环境</li><li>需要频繁与环境交互</li></ul><p>Ray 的 Actor 模型完美契合这个需求：</p><ul><li>每个仿真环境是一个 Actor，维护自己的状态</li><li>训练进程与仿真环境通过消息传递通信</li><li>动态任务调度，无需预定义通信模式</li></ul><h4 id=chatgpt-的-rlhf-训练>ChatGPT 的 RLHF 训练</h4><p>ChatGPT 的 RLHF（基于人类反馈的强化学习）训练流程：</p><ol><li><strong>收集人类反馈</strong>：人工标注者对模型生成的多个回复进行排序</li><li><strong>训练奖励模型</strong>：用排序数据训练一个奖励模型，学习人类偏好</li><li><strong>强化学习优化</strong>：用 PPO 算法微调语言模型，最大化奖励模型打分</li></ol><p>第三步需要：</p><ul><li>大量并行环境生成回复</li><li>奖励模型并行打分</li><li>分布式策略更新</li></ul><p>OpenAI 使用 Ray RLlib 执行这个流程：</p><ul><li>数百个 worker 并行运行语言模型生成回复</li><li>奖励模型分布式打分</li><li>PPO 分布式更新策略</li></ul><p>据公开报道，使用 Ray 后，OpenAI 的训练基础设施复杂度降低了十倍以上，工程师可以更专注于算法而非分布式细节。</p><h3 id=13-uber打车定价背后的-ray-集群>13. Uber：打车定价背后的 Ray 集群</h3><p>Uber 是 Ray 的重度用户，官方博客有多篇文章介绍其应用。</p><h4 id=实时供需预测>实时供需预测</h4><p>Uber 的核心业务之一是<strong>动态定价</strong>：根据实时的供需关系调整价格。</p><p>这需要：</p><ul><li>处理数百万订单数据</li><li>实时预测供需趋势</li><li>毫秒级响应延迟</li></ul><p>Uber 使用 Ray 构建实时预测系统：</p><ul><li>Ray Serve 部署预测模型服务</li><li>Ray Data 处理实时数据流</li><li>Ray Train 训练预测模型</li></ul><h4 id=弹性训练高峰期自动扩容低谷期自动缩容>弹性训练：高峰期自动扩容，低谷期自动缩容</h4><p>Uber 的训练负载有明显的峰谷：</p><ul><li><strong>高峰期</strong>：晚上和周末，更多订单数据需要训练</li><li><strong>低谷期</strong>：白天工作时间，训练需求减少</li></ul><p>使用 Ray on Kubernetes，Uber 实现了：</p><ul><li><strong>自动扩缩容</strong>：根据队列长度自动增加/减少训练 worker</li><li><strong>资源隔离</strong>：不同类型的任务使用独立的资源池</li><li><strong>GPU 共享</strong>：多个小任务共享 GPU，提高利用率</li></ul><p>Uber 在 Ray Summit 2025 的演讲中分享了具体数据：</p><ul><li>训练成本降低 40%</li><li>资源利用率提升 60%</li><li>模型迭代速度提升 3 倍</li></ul><h4 id=从-madlj-到-ray-on-kubernetes>从 MADLJ 到 Ray on Kubernetes</h4><p>2023 年前，Uber 使用自研的 MADLJ（Michelangelo Deep Learning Jobs）系统管理 ML 训练。迁移到 Ray on Kubernetes 后：</p><ul><li><strong>开发效率</strong>：工程师可以在本地用同样的代码调试，直接提交到集群运行</li><li><strong>资源管理</strong>：Kubernetes 统一调度，避免资源碎片化</li><li><strong>生态丰富</strong>：使用 Ray 生态的各种库，无需重复造轮子</li></ul><h3 id=14-shopify电商平台的多模态-ai-基础设施>14. Shopify：电商平台的多模态 AI 基础设施</h3><p>Shopify 是全球领先的电商平台，服务数百万商家。</p><h4 id=merlin基于-ray-的统一-ml-平台>Merlin：基于 Ray 的统一 ML 平台</h4><p>Shopify 构建了名为 <strong>Merlin</strong> 的内部 ML 平台，完全基于 Ray：</p><p><strong>核心理念</strong>：让 ML 工程师从笔记本到生产的体验尽可能无缝。</p><p><strong>技术栈</strong>：</p><ul><li>Ray on Kubernetes</li><li>Ray Train：分布式训练</li><li>Ray Serve：模型服务</li><li>Ray Tune：超参数优化</li><li>Ray Data：数据预处理</li><li>Airflow：工作流编排</li></ul><h4 id=从-jupyter-笔记本到生产环境>从 Jupyter 笔记本到生产环境</h4><p>Shopify 的开发流程：</p><ol><li><strong>研究阶段</strong>：数据科学家在 Jupyter Notebook 上实验</li><li><strong>开发阶段</strong>：把 Notebook 代码整理成 Python 脚本</li><li><strong>测试阶段</strong>：在小数据集上用 Ray 本地模式测试</li><li><strong>生产阶段</strong>：直接提交到 Merlin 平台，自动分布式运行</li></ol><p>关键优势：<strong>代码无需重写</strong>。同一套代码，从笔记本到千卡集群无缝扩展。</p><h4 id=多模态-ai商品图片描述评论的统一处理>多模态 AI：商品图片、描述、评论的统一处理</h4><p>Shopify 的 AI 场景包括：</p><ul><li><strong>商品分类</strong>：根据图片和描述自动分类</li><li><strong>搜索推荐</strong>：理解用户查询意图</li><li><strong>评论分析</strong>：情感分析、关键词提取</li><li><strong>智能客服</strong>：大语言模型对话</li></ul><p>这些场景需要处理<strong>多模态数据</strong>：</p><ul><li>图片（CNN/ViT）</li><li>文本（BERT/GPT）</li><li>结构化数据（表格）</li></ul><p>Merlin 平台使用 Ray 统一处理：</p><ul><li>Ray Data 并行加载多模态数据</li><li>Ray Train 分布式训练多模态模型</li><li>Ray Serve 部署统一的服务接口</li></ul><p>Shopify 在 Ray Summit 2024 的演讲《Shopify&rsquo;s Ray-Powered Approach to Multimodal AI in E-commerce》中分享了具体架构。</p><h3 id=15-其他用户蚂蚁集团字节跳动百度>15. 其他用户：蚂蚁集团、字节跳动、百度</h3><h4 id=蚂蚁集团金融风控模型的分布式训练>蚂蚁集团：金融风控模型的分布式训练</h4><p>蚂蚁集团使用 Ray 训练大规模金融风控模型：</p><ul><li><strong>特征工程</strong>：数十亿特征，TB 级数据</li><li><strong>模型训练</strong>：XGBoost、深度神经网络</li><li><strong>实时推理</strong>：毫秒级风险评分</li></ul><p>挑战：</p><ul><li>数据隐私合规，需要在本地数据中心处理</li><li>高可用要求，系统不能宕机</li><li>模型需要频繁更新（应对新型欺诈）</li></ul><p>Ray 的解决方案：</p><ul><li>私有化部署 Ray 集群</li><li>弹性训练，快速迭代模型</li><li>Ray Serve 高可用服务部署</li></ul><h4 id=字节跳动推荐系统的超大规模特征工程>字节跳动：推荐系统的超大规模特征工程</h4><p>字节跳动的推荐系统（抖音、今日头条）需要处理：</p><ul><li>数十亿用户、数千亿内容</li><li>实时特征提取和更新</li><li>毫秒级推荐延迟</li></ul><p>使用场景：</p><ul><li>Ray Data：分布式特征工程</li><li>Ray Train：分布式模型训练</li><li>Ray Serve：A/B 测试和多模型实验</li></ul><p>具体实践可参考字节跳动在 Ray Summit 的演讲。</p><h4 id=百度自动驾驶仿真数据的并行生成>百度：自动驾驶仿真数据的并行生成</h4><p>百度 Apollo 自动驾驶平台使用 Ray：</p><ul><li><strong>仿真环境</strong>：并行车道级仿真</li><li><strong>数据生成</strong>：生成海量训练数据</li><li><strong>策略训练</strong>：强化学习训练驾驶策略</li></ul><p>挑战：</p><ul><li>仿真环境计算密集，需要大量 CPU</li><li>策略训练需要 GPU</li><li>异构计算资源调度</li></ul><p>Ray 的 Actor 模型完美解决：</p><ul><li>每个仿真环境是一个 Actor，并行运行</li><li>训练进程动态收集仿真数据</li><li>自动调度 CPU/GPU 资源</li></ul><h2 id=第五部分ray-vs-其他方案什么时候选-ray>第五部分：Ray vs 其他方案——什么时候选 Ray？</h2><h3 id=16-ray-vs-sparkai-时代的分工>16. Ray vs Spark：AI 时代的分工</h3><h4 id=spark-擅长什么>Spark 擅长什么？</h4><ul><li><strong>批处理</strong>：ETL、数据仓库、报表生成</li><li><strong>SQL 查询</strong>：DataFrame API 非常成熟</li><li><strong>数据规模</strong>：PB 级数据处理</li></ul><h4 id=spark-不擅长什么>Spark 不擅长什么？</h4><ul><li><strong>交互式计算</strong>：启动延迟高（秒级），不适合毫秒级任务</li><li><strong>异构计算</strong>：主要设计用于 CPU 批处理，GPU 支持较弱</li><li><strong>动态任务图</strong>：DAG 需要静态定义</li><li><strong>在线服务</strong>：Spark Streaming 延迟较高</li></ul><h4 id=ray-擅长什么>Ray 擅长什么？</h4><ul><li><strong>AI/ML 工作负载</strong>：原生支持 GPU，与 PyTorch/TensorFlow 无缝集成</li><li><strong>交互式计算</strong>：毫秒级任务启动延迟</li><li><strong>动态任务图</strong>：运行时决定任务依赖</li><li><strong>在线服务</strong>：Ray Serve 专为低延迟服务设计</li><li><strong>异构计算</strong>：CPU/GPU 混合调度</li></ul><h4 id=什么时候选-spark>什么时候选 Spark？</h4><ul><li>传统的 ETL 数据管道</li><li>SQL 分析查询</li><li>海量日志处理</li><li>数据仓库应用</li></ul><h4 id=什么时候选-ray>什么时候选 Ray？</h4><ul><li>机器学习训练和推理</li><li>强化学习</li><li>交互式/实时应用</li><li>需要 GPU 的计算任务</li></ul><h4 id=两者可以共存吗>两者可以共存吗？</h4><p>可以！很多公司同时使用两者：</p><ul><li>Spark 做数据预处理和 ETL</li><li>Ray 做模型训练和服务</li></ul><p>Ray 也可以读取 Spark 生成的数据（通过 Parquet、Delta Lake 等格式）。</p><h3 id=17-ray-vs-kubernetes互补而非竞争>17. Ray vs Kubernetes：互补而非竞争</h3><p>很多人问：Ray 和 Kubernetes 是什么关系？是竞争还是互补？</p><p><strong>答案是：互补。</strong></p><h4 id=kubernetes-擅长什么>Kubernetes 擅长什么？</h4><ul><li><strong>容器编排</strong>：管理容器的生命周期</li><li><strong>服务发现</strong>：DNS 和负载均衡</li><li><strong>资源管理</strong>：为容器分配 CPU/内存</li><li><strong>故障恢复</strong>：自动重启失败的容器</li></ul><h4 id=kubernetes-不擅长什么>Kubernetes 不擅长什么？</h4><ul><li><strong>分布式计算</strong>：需要额外框架（如 Spark、Flink）</li><li><strong>细粒度任务调度</strong>：Pod 启动需要秒级，不适合毫秒级任务</li><li><strong>AI 特定优化</strong>：如 GPU 共享、数据本地性</li></ul><h4 id=kuberay在-k8s-上运行-ray-的最佳实践>KubeRay：在 K8s 上运行 Ray 的最佳实践</h4><p>KubeRay 是 Ray 社区维护的 Kubernetes Operator，用于在 K8s 上部署 Ray 集群。</p><p><strong>架构</strong>：</p><pre tabindex=0><code>Kubernetes 层：
+├─ 管理 Ray Head Node Pod
+├─ 管理 Ray Worker Node Pods
+└─ 自动扩缩容 (Ray Autoscaler + K8s HPA)
+
+Ray 层：
+├─ 在 K8s Pod 内运行 Ray 进程
+├─ 使用 Ray 的调度器做细粒度任务调度
+└─ 使用 Ray 的对象存储做数据共享
+</code></pre><p><strong>工作流程</strong>：</p><ol><li>用户提交 Ray 应用到 K8s 集群</li><li>KubeRay 创建 Ray Head Node</li><li>Ray Autoscaler 根据任务需求，向 K8s 申请 Worker Node</li><li>K8s 创建新的 Pod 作为 Worker</li><li>Ray 在这些 Pod 上调度任务</li></ol><h4 id=ray-管计算k8s-管资源>Ray 管计算，K8s 管资源</h4><p>分工明确：</p><ul><li><strong>Kubernetes</strong>：资源管理、服务发现、故障恢复</li><li><strong>Ray</strong>：分布式计算、任务调度、数据管理</li></ul><p>这种架构的好处：</p><ul><li>利用 K8s 成熟的生态（监控、日志、安全）</li><li>保留 Ray 的高性能计算能力</li><li>统一资源池，提高利用率</li></ul><h3 id=18-ray-vs-deepspeedhorovod分布式训练的多种选择>18. Ray vs DeepSpeed/Horovod：分布式训练的多种选择</h3><h4 id=deepspeed专为大模型训练设计>DeepSpeed：专为大模型训练设计</h4><p>DeepSpeed 是 Microsoft 开源的深度学习优化库，专为训练超大模型（百亿到万亿参数）设计。</p><p><strong>核心特性</strong>：</p><ul><li><strong>ZeRO（Zero Redundancy Optimizer）</strong>：将优化器状态分片到多个 GPU，减少显存占用</li><li><strong>模型并行</strong>：层间并行，支持超大模型</li><li><strong>混合精度训练</strong>：FP16/BF16 加速</li></ul><p><strong>适用场景</strong>：</p><ul><li>训练 GPT-3/4 级别的超大语言模型</li><li>显存不足以容纳完整模型的场景</li><li>需要极致训练效率</li></ul><h4 id=horovoduber-开源的分布式训练框架>Horovod：Uber 开源的分布式训练框架</h4><p>Horovod 是 Uber 开源的分布式深度学习框架，基于 MPI 实现 all-reduce 通信。</p><p><strong>核心特性</strong>：</p><ul><li><strong>简洁的 API</strong>：只需几行代码改造现有训练脚本</li><li><strong>高性能</strong>：基于 NCCL 的 all-reduce</li><li><strong>框架支持</strong>：PyTorch、TensorFlow、Keras</li></ul><p><strong>适用场景</strong>：</p><ul><li>数据并行训练</li><li>对通信效率要求高</li><li>已有训练脚本，希望最小改动分布式化</li></ul><h4 id=ray-train-的定位>Ray Train 的定位</h4><p>Ray Train 与这些框架的关系：</p><pre tabindex=0><code>Ray Train 不是一个新的训练框架，而是分布式训练框架的&#34;统一接口&#34;。
+</code></pre><p>实际上，Ray Train 可以在内部使用 DeepSpeed、Horovod 或 PyTorch DDP：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-python data-lang=python><span style=display:flex><span><span style=color:#75715e># 使用 Horovod</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.horovod <span style=color:#f92672>import</span> HorovodTrainer
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> HorovodTrainer(<span style=color:#f92672>...</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 使用 DeepSpeed</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.deepspeed <span style=color:#f92672>import</span> DeepSpeedTrainer
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> DeepSpeedTrainer(<span style=color:#f92672>...</span>)
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span><span style=color:#75715e># 使用 PyTorch DDP</span>
+</span></span><span style=display:flex><span><span style=color:#f92672>from</span> ray.train.torch <span style=color:#f92672>import</span> TorchTrainer
+</span></span><span style=display:flex><span>trainer <span style=color:#f92672>=</span> TorchTrainer(<span style=color:#f92672>...</span>)
+</span></span></code></pre></div><p><strong>Ray Train 提供的额外价值</strong>：</p><ol><li><strong>统一 API</strong>：无论底层用什么，上层接口一致</li><li><strong>资源管理</strong>：自动分配 GPU，避免资源冲突</li><li><strong>弹性训练</strong>：失败自动重试，从检查点恢复</li><li><strong>与 Ray 生态集成</strong>：Tune、Serve、Data 无缝协作</li></ol><h4 id=选型建议>选型建议</h4><p><strong>直接用 PyTorch DDP</strong>：</p><ul><li>单机多卡，简单场景</li><li>不想引入额外依赖</li></ul><p><strong>用 Horovod</strong>：</p><ul><li>多机多卡，需要高性能通信</li><li>已有代码，希望最小改动</li></ul><p><strong>用 DeepSpeed</strong>：</p><ul><li>超大模型，显存不够</li><li>需要 ZeRO、模型并行等高级特性</li></ul><p><strong>用 Ray Train</strong>：</p><ul><li>需要与超参数搜索（Tune）、模型服务（Serve）集成</li><li>需要弹性训练和容错</li><li>希望统一的研究到生产流程</li><li>希望自动资源管理</li></ul><h2 id=结语分布式计算的未来是无感>结语：分布式计算的未来是"无感"</h2><h3 id=ray-的终极愿景>Ray 的终极愿景</h3><p>Ray 的创始团队有一个愿景：</p><blockquote><p><strong>让分布式计算对开发者透明。开发者应该专注于算法和业务逻辑，而不是分布式的复杂性。</strong></p></blockquote><p>这听起来很理想主义，但 Ray 正在一步步实现：</p><ul><li><strong>2016</strong>：提出 Actor + Task 的统一抽象</li><li><strong>2019</strong>：发布 Ray Train、Ray Tune、Ray RLlib</li><li><strong>2020</strong>：发布 Ray Serve</li><li><strong>2021</strong>：发布 Ray Data</li><li><strong>2023</strong>：加入 PyTorch 生态</li><li><strong>2024+</strong>：持续优化性能和易用性</li></ul><h3 id=给-python-工程师的建议什么时候该考虑引入-ray>给 Python 工程师的建议：什么时候该考虑引入 Ray？</h3><p><strong>如果符合以下任何一条，Ray 可能会给你带来很大价值：</strong></p><ol><li><strong>训练太慢</strong>：单机训练需要数小时甚至数天</li><li><strong>数据太大</strong>：内存装不下数据集</li><li><strong>服务需要扩展</strong>：流量增长，单实例无法承载</li><li><strong>资源利用率低</strong>：GPU 经常空闲等待</li><li><strong>研究到生产的鸿沟</strong>：研究代码和生产代码是两套</li><li><strong>多步骤 pipeline</strong>：数据预处理 → 训练 → 调参 → 服务，步骤复杂</li></ol><p><strong>从小处开始：</strong></p><p>不需要一开始就全面迁移到 Ray。可以：</p><ol><li>先用 Ray 实现简单的并行任务（如数据预处理）</li><li>用 Ray Train 改造训练代码</li><li>用 Ray Serve 部署模型服务</li><li>逐步扩展到完整 pipeline</li></ol><h2 id=参考资料>参考资料</h2><ol><li><a href=https://thenewstack.io/how-ray-a-distributed-ai-framework-helps-power-chatgpt/>How Ray, a Distributed AI Framework, Helps Power ChatGPT - The New Stack</a></li><li><a href=https://arxiv.org/abs/1712.05889>Ray: A Distributed Framework for Emerging AI Applications - arXiv</a></li><li><a href=https://www.uber.com/us/en/blog/how-uber-uses-ray-to-optimize-the-rides-business/>How Uber Uses Ray to Optimize the Rides Business - Uber Engineering</a></li><li><a href=https://www.uber.com/us/en/blog/ubers-journey-to-ray-on-kubernetes-ray-setup/>Uber&rsquo;s Journey to Ray on Kubernetes - Uber Engineering</a></li><li><a href=https://shopify.engineering/merlin-shopify-machine-learning-platform>The Magic of Merlin: Shopify&rsquo;s New Machine Learning Platform - Shopify Engineering</a></li><li><a href="https://www.youtube.com/watch?v=v-2qJEN_aow">Shopify&rsquo;s Ray-Powered Approach to Multimodal AI in E-commerce - Ray Summit 2024</a></li><li><a href=https://docs.ray.io/en/latest/ray-overview/use-cases.html>Ray Use Cases - Ray Documentation</a></li><li><a href=https://www.anyscale.com/>Anyscale Official Website</a></li><li><a href="https://www.youtube.com/watch?v=xhn6NVJZgp4">Ray Summit 2025 - Scaling Model Training with Ray at Uber</a></li><li><a href=https://www.uber.com/us/en/blog/elastic-xgboost-ray/>Elastic Distributed Training with XGBoost on Ray - Uber</a></li></ol></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/ai>ai</a></li></ul></nav></div><div class=related-posts><h3>Related Posts</h3><ul><li><a href=/posts/2026-05-07-coding-agent-era/>Coding Agent 崛起之后：软件研发哪些变了，哪些永远不会变？</a>
+<span class=meta>2026-05-07</span></li><li><a href=/posts/2026-04-29-rag-enterprise-guide/>企业级 RAG 实战指南：从理论到落地的完整避坑手册</a>
+<span class=meta>2026-04-29</span></li><li><a href=/posts/2026-04-27-software-engineer-in-ai-era/>当 AI 能写代码，我们还需要软件工程师吗？</a>
+<span class=meta>2026-04-27</span></li><li><a href=/posts/2026-04-26-how-claude-code-works/>Claude Code 是如何工作的？一个自主编程智能体的架构深度解析</a>
+<span class=meta>2026-04-26</span></li><li><a href=/posts/2026-04-22-agent-reasoning-framework/>Agent 真正的分水岭，不是“会回答”，而是“会稳定做事”：一文讲透推理框架与工程落地</a>
+<span class=meta>2026-04-22</span></li></ul></div></div><aside class=toc-sidebar><div class=toc-wrapper><div class=toc-header><svg class="toc-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+<span>目录</span></div><nav id=TableOfContents><ul><li><a href=#引言一个让-python-程序员无痛进入分布式计算的框架>引言：一个让 Python 程序员"无痛"进入分布式计算的框架</a></li><li><a href=#第一部分ray-是什么给-python-的分布式超能力>第一部分：Ray 是什么——给 Python 的分布式超能力</a></li><li><a href=#第二部分ray-核心解决什么问题ai-工程的三座大山>第二部分：Ray 核心解决什么问题——AI 工程的三座大山</a></li><li><a href=#第三部分ray-生态能做什么五大核心场景>第三部分：Ray 生态能做什么——五大核心场景</a></li><li><a href=#第四部分谁在用-ray真实企业案例>第四部分：谁在用 Ray——真实企业案例</a></li><li><a href=#第五部分ray-vs-其他方案什么时候选-ray>第五部分：Ray vs 其他方案——什么时候选 Ray？</a></li><li><a href=#结语分布式计算的未来是无感>结语：分布式计算的未来是"无感"</a></li><li><a href=#参考资料>参考资料</a></li></ul></nav></div></aside><button class=toc-toggle onclick=toggleToc() aria-label=切换目录>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg></button></div></article></main><style>.content{max-width:1100px}.post-content p,.body p,.post-content,.body{text-align:justify!important;text-align-last:left;text-justify:inter-ideograph;word-wrap:break-word}.post-content li,.body li{text-align:left}.post-content a,.body a,.post-content code,.body code{word-break:break-all;hyphens:none}.post-content ol,.body ol{padding-left:2em}.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}.post-container{display:flex;gap:40px;align-items:flex-start;justify-content:center}.post-content{flex:0 0 800px;max-width:800px;min-width:0}.toc-sidebar{flex:0 0 240px;min-width:200px;max-width:280px;align-self:stretch}.toc-wrapper{position:sticky;top:20px;background:#f8f8f8;border-radius:8px;padding:16px;max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}.toc-wrapper::-webkit-scrollbar{display:none}.toc-header{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e0e0e0}.toc-icon{flex-shrink:0}.toc-sidebar #TableOfContents{font-size:13px;line-height:1.6}.toc-sidebar #TableOfContents ul{list-style:none;padding-left:0;margin:0}.toc-sidebar #TableOfContents ul ul{padding-left:12px;margin-top:4px}.toc-sidebar #TableOfContents li{margin:4px 0;text-indent:0}.toc-sidebar #TableOfContents li::before{content:none}.toc-sidebar #TableOfContents a{display:block;padding:4px 8px;border-radius:4px;border-bottom:none;text-decoration:none;color:#555;transition:all .2s ease}.toc-sidebar #TableOfContents a:hover{background-color:rgba(0,0,0,5%);color:#333}.toc-sidebar #TableOfContents a.active{background-color:var(--maincolor,red);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{font-weight:500;color:#333}.toc-sidebar #TableOfContents ul ul li a{font-size:12px;color:#666}.toc-toggle{display:none;position:fixed;right:20px;bottom:100px;z-index:1000;width:48px;height:48px;border-radius:50%;background:var(--maincolor,red);color:#fff;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);align-items:center;justify-content:center;transition:transform .2s ease}.toc-toggle:hover{transform:scale(1.1)}.toc-toggle svg{max-height:none}@media screen and (max-width:900px){.content{max-width:100%}.post-container{flex-direction:column;gap:20px}.post-content{flex:1;max-width:100%;width:100%}.toc-sidebar{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;max-width:80vw;z-index:999;background:rgba(255,255,255,.98);flex:none;min-width:auto;padding:20px;box-shadow:-2px 0 10px rgba(0,0,0,.2);overflow-y:auto}.toc-sidebar.open{display:block}.toc-wrapper{position:static;max-height:none;background:0 0;overscroll-behavior:contain}.toc-toggle{display:flex}.toc-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:998}.toc-overlay.open{display:block}}@media(prefers-color-scheme:dark){.toc-wrapper{background:#2a2a2a}.toc-header{color:#e0e0e0;border-bottom-color:#444}.toc-sidebar #TableOfContents a{color:#bbb}.toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.toc-sidebar #TableOfContents ul ul li a{color:#aaa}@media screen and (max-width:900px){.toc-sidebar{background:rgba(30,30,30,.98)}}}.dark .toc-wrapper{background:#2a2a2a}.dark .toc-header{color:#e0e0e0;border-bottom-color:#444}.dark .toc-sidebar #TableOfContents a{color:#bbb}.dark .toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.dark .toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.dark .toc-sidebar #TableOfContents ul ul li a{color:#aaa}.dark .toc-sidebar #TableOfContents a.active{background-color:var(--darkMaincolor,#50fa7b);color:#232333}</style><script>(function(){window.toggleToc=function(){const t=document.querySelector(".toc-sidebar");let e=document.querySelector(".toc-overlay");e||(e=document.createElement("div"),e.className="toc-overlay",e.onclick=toggleToc,document.body.appendChild(e)),t.classList.toggle("open"),e.classList.toggle("open"),document.body.style.overflow=t.classList.contains("open")?"hidden":""};function e(){const e=document.querySelectorAll(".body h1[id], .body h2[id], .body h3[id], .body h4[id]"),t=document.querySelectorAll('.toc-sidebar a[href^="#"]'),a=document.querySelector(".toc-wrapper");if(e.length===0||t.length===0||!a)return;let n=null,s=!1;const r=100;function i(){if(s)return;const i=window.scrollY+r;let o=null;for(let t=e.length-1;t>=0;t--)if(e[t].offsetTop<=i){o=e[t];break}o&&n!==o&&(n=o,t.forEach(e=>{e.classList.remove("active"),e.getAttribute("href")==="#"+o.id&&(e.classList.add("active"),e.scrollIntoView({behavior:"smooth",block:"nearest"}))}))}let o=!1;window.addEventListener("scroll",function(){o||(window.requestAnimationFrame(function(){i(),o=!1}),o=!0)},{passive:!0}),i(),t.forEach(e=>{e.addEventListener("click",function(e){const o=this.getAttribute("href");if(o&&o.startsWith("#")){e.preventDefault();const a=o.slice(1),i=document.getElementById(a);if(i){s=!0,n=i;const e=i.getBoundingClientRect(),o=window.pageYOffset+e.top-80;t.forEach(e=>e.classList.remove("active")),this.classList.add("active"),this.scrollIntoView({behavior:"auto",block:"center"}),window.scrollTo({top:Math.max(0,o),behavior:"smooth"}),setTimeout(()=>{s=!1},600),window.innerWidth<=900&&toggleToc()}}})})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",e):e()})()</script><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://x.com/xautjzd/ rel=me title=X><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#x"/></svg></a><a class=border></a></div><div class=footer-info>2026 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>

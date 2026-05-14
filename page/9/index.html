@@ -3,7 +3,18 @@
 <a href=/tags>Tags</a>
 <a href=/about>About</a>
 | <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
-<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><div class=home-search><input type=text id=home-search-input placeholder=搜索文章... autocomplete=off><div id=home-search-results></div></div><main class=list><div class=site-description></div><section class=list-item><h1 class=title><a href=/posts/2013-07-30-create-my-first-rails-app/>创建我的第一个rails程序</a></h1><time>Jul 30, 2013</time><br><div class=description><p>##开启Mysql服务</p><p>我的一个rails程序是采用mysql数据库，不是默认的sqlite3.所以前提是已经安装了mysql。由于Mysql安装了好久，但是很少使用。所以服务没有启动，近来可能会频繁使用，便设置为开机自动启动了。设置方法为:<code>#systemctl enable mysqld.service</code>或者<code>service mysqld start</code>。</p><p>##安装mysql驱动</p><p>rails应用中使用msyql,需要Mysql对应的ruby驱动：msyql2。安装方式：</p><pre><code>$gem install mysql2
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><div class=home-search><input type=text id=home-search-input placeholder=搜索文章... autocomplete=off><div id=home-search-results></div></div><main class=list><div class=site-description></div><section class=list-item><h1 class=title><a href=/posts/2013-07-30-add-comments-to-sidebar/>Octopress添加disqus评论到侧边栏</a></h1><time>Jul 30, 2013</time><br><div class=description><p>##新建comments.html文件</p><p>添加评论到侧边栏与添加关于、文章分类和友情链接相似，需要在source/_includes/custom/asides/目录下添加comments.html模块，名字根据自己的喜好可以换成其他的，如xxx.html，然后在comments.html里添加如下内容：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-html data-lang=html><span style=display:flex><span>&lt;<span style=color:#f92672>section</span> <span style=color:#a6e22e>id</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;comment_sidebar&#34;</span>&gt;
+</span></span><span style=display:flex><span>	&lt;<span style=color:#f92672>h1</span>&gt;近期评论&lt;/<span style=color:#f92672>h1</span>&gt;
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>	&lt;<span style=color:#f92672>script</span> <span style=color:#a6e22e>type</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;text/javascript&#34;</span> <span style=color:#a6e22e>src</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;http://zhengdongjiang.disqus.com/recent_comments_widget.js?num_items=5&amp;hide_avatars=0&amp;avatar_size=32&amp;excerpt_length=20&#34;</span>&gt;&lt;/<span style=color:#f92672>script</span>&gt;&lt;<span style=color:#f92672>a</span> <span style=color:#a6e22e>href</span><span style=color:#f92672>=</span><span style=color:#e6db74>&#34;http://disqus.com/&#34;</span>&gt;Powered by Disqus&lt;/<span style=color:#f92672>a</span>&gt;
+</span></span><span style=display:flex><span>&lt;/<span style=color:#f92672>section</span>&gt;
+</span></span></code></pre></div><p>其中zhengdongjiang为我disqus对应此网站的shortname，这就不要照搬了，换成你对应的名字即可。</p><p>##修改_config.yml文件</p><pre tabindex=0><code>	default_asides: [custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+
+	# Each layout uses the default asides, but they can have their own asides instead. Simply uncomment the lines below
+	# and add an array with the asides you want to use.
+	blog_index_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+	post_asides: [custom/asides/about.html, custom/asides/category_list.html, asides/recent_posts.html, custom/asides/comments.html, custom/asides/friend_sites.html, asides/pinboard.html]
+</code></pre>&mldr;</div><a class=readmore href=/posts/2013-07-30-add-comments-to-sidebar/>Read more ⟶</a></section><section class=list-item><h1 class=title><a href=/posts/2013-07-30-create-my-first-rails-app/>创建我的第一个rails程序</a></h1><time>Jul 30, 2013</time><br><div class=description><p>##开启Mysql服务</p><p>我的一个rails程序是采用mysql数据库，不是默认的sqlite3.所以前提是已经安装了mysql。由于Mysql安装了好久，但是很少使用。所以服务没有启动，近来可能会频繁使用，便设置为开机自动启动了。设置方法为:<code>#systemctl enable mysqld.service</code>或者<code>service mysqld start</code>。</p><p>##安装mysql驱动</p><p>rails应用中使用msyql,需要Mysql对应的ruby驱动：msyql2。安装方式：</p><pre><code>$gem install mysql2
 </code></pre><p>安装完成后可通过<code>$rails console</code>进行测试。测试方法为：</p><pre><code>&gt;require 'mysql2'
 &gt;client=Mysql2::Client.new(:host =&gt; &quot;localhost&quot;, :username=&gt;&quot;root&quot;, :password=&gt;&quot;your_password&quot;, :database=&gt;&quot;your_db&quot;)
 =&gt; #&lt;Mysql2::Client:0xa058aac&gt;
@@ -38,36 +49,7 @@ a[1][1]</p><p>###数组初始化陷阱</p><p>初始化数组时，若要使用�
 </code></pre>&mldr;</div><a class=readmore href=/posts/2013-07-21-array/>Read more ⟶</a></section><section class=list-item><h1 class=title><a href=/posts/2013-07-19-ruby-variable/>Ruby基础</a></h1><time>Jul 19, 2013</time><br><div class=description><p>##变量分类</p><ul><li><strong>局部变量</strong></li></ul><p>一般以小写字母或下划线开头，当多个单词组成一个变量时，单词间用_分隔。局部变量一般用在代码快里面</p><ul><li><strong>全局变量</strong></li></ul><p>全局变量在整个ruby程序中都可以访问，无论他们在哪被定义。全局变量以$开头。eg:</p><p>$global_variable = 10</p><ul><li><strong>实例变量</strong></li></ul><p>实例变量的范围则是类的实例，属于某个类的实例所有，实例间相互独立。实例变量以@开头。eg:</p><p>@instance_variable = 10</p>&mldr;</div><a class=readmore href=/posts/2013-07-19-ruby-variable/>Read more ⟶</a></section><section class=list-item><h1 class=title><a href=/posts/2013-07-18-add-navigator/>Octopress 修改导航栏(Navigator)</a></h1><time>Jul 18, 2013</time><br><div class=description><p>搭建好的Octopress导航栏默认只有Blog和Archives，远远不能满足要求，于是便想着在导航栏上添加几个菜单。方法如下：</p><pre><code>$rake new_page[About]
 </code></pre><p>默认会在source目录中生成about/index.markdown文件，不过感觉这样影响视觉，便想着将生成的页面和其他页面放在一起，便可进行如下操作：</p><pre><code>$rake new_page[/blog/About]
 </code></pre><p>这样便在source/blog目录中生成页面，方面管理。生成的页面目前还不能显示，还需编辑source/_includes/custom/navigation.html文件：</p><pre><code>$vim source/_includes/custom/navigation.html
-</code></pre><p>在其中加入<li><a href="{{ root_url }}/blog/about">关于我</a></li></p><p>编辑完成后进行rake generate生成静态的html文件，然后rake preview便可以通过localhost:4000在本地预览。</p>&mldr;</div><a class=readmore href=/posts/2013-07-18-add-navigator/>Read more ⟶</a></section><section class=list-item><h1 class=title><a href=/posts/2013-07-18-structure-of-octopress/>Octopress目录结构</a></h1><time>Jul 18, 2013</time><br><div class=description><p>###Octopress博客目录结构</p><p>octopress博客的source目录结构大致如下:</p><pre><code>source/
-├── _attachments
-├── _includes
-│   ├── asides
-│   ├── custom
-│   │   └── asides
-│   └── post
-├── _layouts
-├── _nav_menu_items
-├── _pages
-├── _posts
-├── blog
-│   └── archives
-├── font
-├── images
-│   ├── 2012
-│   │   ├── 01
-│   │   ├── 02
-│   ├── 2013
-│   │   └── 01
-│   ├── fancybox
-│   └── social
-├── javascripts
-│   ├── asides
-│   └── libs
-├── jsccp
-└── stylesheets
-    ├── bootstrap
-        └── syntax
-</code></pre><p>当使用<code>rake generate</code>时，source的_post目录中的markdown文件会被编译成html文件，并拷贝到public目录下，public目录结构与source目录结构一致，里面的内容为最终的静态页面。一般都是先<code>rake generate</code>生成静态页面，然后通过<code>rake preview</code>进行本地预览，如果显示正常，则<code>rake deploy</code>部署到github上。如果特别熟练，也可以直接生成静态页面并部署，不需要本地预览。可以采用<code>rake gen_deploy</code>一步进行。</p>&mldr;</div><a class=readmore href=/posts/2013-07-18-structure-of-octopress/>Read more ⟶</a></section><ul class=pagination><span class="page-item page-prev"><a href=/page/8/ class=page-link aria-label=Previous><span aria-hidden=true>← Prev</span></a>
+</code></pre><p>在其中加入<li><a href="{{ root_url }}/blog/about">关于我</a></li></p><p>编辑完成后进行rake generate生成静态的html文件，然后rake preview便可以通过localhost:4000在本地预览。</p>&mldr;</div><a class=readmore href=/posts/2013-07-18-add-navigator/>Read more ⟶</a></section><ul class=pagination><span class="page-item page-prev"><a href=/page/8/ class=page-link aria-label=Previous><span aria-hidden=true>← Prev</span></a>
 </span><span class="page-item page-next"><a href=/page/10/ class=page-link aria-label=Next><span aria-hidden=true>Next →</span></a></span></ul></main><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://x.com/xautjzd/ rel=me title=X><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#x"/></svg></a><a class=border></a></div><div class=footer-info>2026 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div><script src=https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js></script><script>(function(){let n,r=[],s=!1;const t=document.getElementById("home-search-input"),e=document.getElementById("home-search-results");function i(){return s?Promise.resolve():fetch("/index.json").then(e=>e.json()).then(e=>{r=e,n=new Fuse(e,{keys:["title","content","tags"],threshold:.3,includeScore:!0,includeMatches:!0}),s=!0}).catch(e=>console.error("Error loading search index:",e))}function a(t,n){if(t.length===0){e.innerHTML='<div class="home-search-no-results">没有找到相关文章</div>';return}let s=`<div class="home-search-count">找到 ${t.length} 个结果</div>`;s+='<ul class="home-search-list">',t.slice(0,5).forEach(e=>{const t=e.item,n=new Date(t.date).toLocaleDateString("zh-CN");s+=`
 						<li class="home-search-item">
 							<a href="${t.permalink}" class="home-search-title">${o(t.title)}</a>
