@@ -42,35 +42,35 @@
 
 分布式不是单一的架构，而是一类架构的统称。在不同场景下，它有不同的形态：
 
-  
-      
-          形态
-          典型代表
-          核心目标
-      
-  
-  
-      
-          微服务架构
-          Spring Cloud、Kubernetes
-          业务解耦、独立部署
-      
-      
-          分布式存储
-          HDFS、Ceph、S3
-          海量数据存储与访问
-      
-      
-          分布式计算
-          Spark、Flink
-          大规模数据处理
-      
-      
-          分布式数据库
-          TiDB、CockroachDB、Cassandra
-          数据水平扩展
-      
-  
+	
+			
+					形态
+					典型代表
+					核心目标
+			
+	
+	
+			
+					微服务架构
+					Spring Cloud、Kubernetes
+					业务解耦、独立部署
+			
+			
+					分布式存储
+					HDFS、Ceph、S3
+					海量数据存储与访问
+			
+			
+					分布式计算
+					Spark、Flink
+					大规模数据处理
+			
+			
+					分布式数据库
+					TiDB、CockroachDB、Cassandra
+					数据水平扩展
+			
+	
 
 三、分布式的代价：你得为可扩展性付出什么？
 这是很多团队低估的部分。分布式系统带来了可扩展性和高可用，但也引入了单体中根本不存在的问题。'><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-04-20-distributed-systems/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="为什么你的系统撑不住了？——从单体到分布式的演进之路"><meta property="og:description" content='双十一零点，某电商系统每秒涌入数十万笔订单。数据库连接池耗尽，接口响应时间从毫秒级飙升到数十秒，告警短信一条接一条涌来。工程师们盯着监控大屏，手忙脚乱地重启服务——然而每一次重启，都只是在用创可贴掩盖骨折。

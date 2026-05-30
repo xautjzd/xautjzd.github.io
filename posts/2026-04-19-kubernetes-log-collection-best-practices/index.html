@@ -25,30 +25,30 @@ Pod 是 Kubernetes 中最小的调度单元，其生命周期具有高度不确�
 
 1.4 传统方案的局限
 
-  
-      
-          传统方案
-          核心问题
-          K8s 场景下的不足
-      
-  
-  
-      
-          SSH 登录节点查看
-          无法集中检索，效率低
-          Pod 频繁漂移，难以定位日志位置
-      
-      
-          写入共享存储（NFS/EBS）
-          需要应用改造，引入依赖
-          增加应用复杂度，不适合无状态服务
-      
-      
-          应用直推日志中心
-          与业务代码耦合
-          多语言/框架依赖重，难以统一运维
-      
-  
+	
+			
+					传统方案
+					核心问题
+					K8s 场景下的不足
+			
+	
+	
+			
+					SSH 登录节点查看
+					无法集中检索，效率低
+					Pod 频繁漂移，难以定位日志位置
+			
+			
+					写入共享存储（NFS/EBS）
+					需要应用改造，引入依赖
+					增加应用复杂度，不适合无状态服务
+			
+			
+					应用直推日志中心
+					与业务代码耦合
+					多语言/框架依赖重，难以统一运维
+			
+	
 
 因此，需要一种与业务解耦、集中化、可扩展的日志采集方案。"><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-04-19-kubernetes-log-collection-best-practices/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="Kubernetes 集群应用日志采集最佳实践"><meta property="og:description" content="1. Kubernetes 集群下应用日志采集面临的挑战 在传统的虚拟机或物理机环境中，应用日志通常以文件形式持久化在固定路径，日志采集 Agent 只需读取这些文件即可。但在 Kubernetes 环境下，日志管理面临一系列独特挑战。
 1.1 容器的临时性 Pod 是 Kubernetes 中最小的调度单元，其生命周期具有高度不确定性：
