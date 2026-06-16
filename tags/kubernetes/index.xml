@@ -1,4 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kubernetes on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/kubernetes/</link><description>Recent content in Kubernetes on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Sun, 19 Apr 2026 20:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml"/><item><title>Kubernetes 集群应用日志采集最佳实践</title><link>https://xautjzd.github.io/posts/2026-04-19-kubernetes-log-collection-best-practices/</link><pubDate>Sun, 19 Apr 2026 20:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-19-kubernetes-log-collection-best-practices/</guid><description>&lt;h2 id="1-kubernetes-集群下应用日志采集面临的挑战"&gt;1. Kubernetes 集群下应用日志采集面临的挑战&lt;/h2&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kubernetes on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/kubernetes/</link><description>Recent content in Kubernetes on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 16 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/kubernetes/index.xml" rel="self" type="application/rss+xml"/><item><title>RabbitMQ 深度实践：在 Kubernetes 上构建生产级消息队列</title><link>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</link><pubDate>Tue, 16 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</guid><description>&lt;p&gt;服务已经全面上了 Kubernetes，但消息队列还孤零零地跑在一台虚机上——这是很多团队在云原生迁移中都会遇到的阶段性尴尬。消息队列的 K8s 化比无状态服务复杂得多：数据持久化、集群选主、滚动升级期间的消息可靠性，每一项都需要在部署前想清楚。&lt;/p&gt;
+&lt;p&gt;本文面向&lt;strong&gt;已在 K8s 上运维过服务、正在考虑引入或迁移消息队列&lt;/strong&gt;的工程师。内容沿&amp;quot;选型 → 核心概念 → 生产部署 → 高可用 → 可观测性 → 业务落地 → 故障排查&amp;quot;这条工程路径展开，读完后你能独立完成 RabbitMQ 在 K8s 上的全链路落地。&lt;/p&gt;
+&lt;h2 id="一先做选型rabbitmqkafkarocketmq-如何抉择"&gt;一、先做选型：RabbitMQ、Kafka、RocketMQ 如何抉择&lt;/h2&gt;
+&lt;p&gt;在深入 RabbitMQ 之前，先用 3 个问题确认它是否适合你的场景——如果答案都是&amp;quot;否&amp;quot;，后续内容可能不适合你现在的需求。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;决策树：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;Q1. 你的消息需要&amp;#34;消费后保留并支持历史回放&amp;#34;吗？
+ ├── 是 → 考虑 Kafka（事件日志语义）
+ └── 否 → 继续 Q2
+
+Q2. 单队列 TPS 是否超过 10 万/s？
+ ├── 是 → 考虑 Kafka 或 RocketMQ（吞吐优先场景）
+ └── 否 → 继续 Q3
+
+Q3. 是否需要分布式事务消息或精确到秒的延迟消息？
+ ├── 是 → 考虑 RocketMQ（电商事务场景原生支持）
+ └── 否 → RabbitMQ 是你的首选
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果你走到了最后一个&amp;quot;否&amp;quot;，那么 RabbitMQ 的低延迟（&amp;lt;1ms）、灵活路由（多种 Exchange 类型）和成熟的 K8s Operator 是难以替代的优势。&lt;/p&gt;</description></item><item><title>Kubernetes 集群应用日志采集最佳实践</title><link>https://xautjzd.github.io/posts/2026-04-19-kubernetes-log-collection-best-practices/</link><pubDate>Sun, 19 Apr 2026 20:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-04-19-kubernetes-log-collection-best-practices/</guid><description>&lt;h2 id="1-kubernetes-集群下应用日志采集面临的挑战"&gt;1. Kubernetes 集群下应用日志采集面临的挑战&lt;/h2&gt;
 &lt;p&gt;在传统的虚拟机或物理机环境中，应用日志通常以文件形式持久化在固定路径，日志采集 Agent 只需读取这些文件即可。但在 Kubernetes 环境下，日志管理面临一系列独特挑战。&lt;/p&gt;
 &lt;h3 id="11-容器的临时性"&gt;1.1 容器的临时性&lt;/h3&gt;
 &lt;p&gt;Pod 是 Kubernetes 中最小的调度单元，其生命周期具有高度不确定性：&lt;/p&gt;

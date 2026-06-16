@@ -1,4 +1,20 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/posts/</link><description>Recent content in Posts on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Mon, 01 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>GPU 芯片全景：国内外厂商对比、市场格局与异构部署实践</title><link>https://xautjzd.github.io/posts/2026-06-01-gpu-chips-overview/</link><pubDate>Mon, 01 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-01-gpu-chips-overview/</guid><description>&lt;p&gt;随着大模型训练与推理需求的爆发，GPU 芯片从图形处理器演变为 AI 时代最核心的算力基础设施。本文系统梳理国内外主要 GPU 厂商的芯片系列、性能横向对比、市场格局，以及软件生态与异构混合部署的架构实践，供技术选型参考。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/posts/</link><description>Recent content in Posts on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 16 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>RabbitMQ 深度实践：在 Kubernetes 上构建生产级消息队列</title><link>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</link><pubDate>Tue, 16 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</guid><description>&lt;p&gt;服务已经全面上了 Kubernetes，但消息队列还孤零零地跑在一台虚机上——这是很多团队在云原生迁移中都会遇到的阶段性尴尬。消息队列的 K8s 化比无状态服务复杂得多：数据持久化、集群选主、滚动升级期间的消息可靠性，每一项都需要在部署前想清楚。&lt;/p&gt;
+&lt;p&gt;本文面向&lt;strong&gt;已在 K8s 上运维过服务、正在考虑引入或迁移消息队列&lt;/strong&gt;的工程师。内容沿&amp;quot;选型 → 核心概念 → 生产部署 → 高可用 → 可观测性 → 业务落地 → 故障排查&amp;quot;这条工程路径展开，读完后你能独立完成 RabbitMQ 在 K8s 上的全链路落地。&lt;/p&gt;
+&lt;h2 id="一先做选型rabbitmqkafkarocketmq-如何抉择"&gt;一、先做选型：RabbitMQ、Kafka、RocketMQ 如何抉择&lt;/h2&gt;
+&lt;p&gt;在深入 RabbitMQ 之前，先用 3 个问题确认它是否适合你的场景——如果答案都是&amp;quot;否&amp;quot;，后续内容可能不适合你现在的需求。&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;决策树：&lt;/strong&gt;&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;Q1. 你的消息需要&amp;#34;消费后保留并支持历史回放&amp;#34;吗？
+ ├── 是 → 考虑 Kafka（事件日志语义）
+ └── 否 → 继续 Q2
+
+Q2. 单队列 TPS 是否超过 10 万/s？
+ ├── 是 → 考虑 Kafka 或 RocketMQ（吞吐优先场景）
+ └── 否 → 继续 Q3
+
+Q3. 是否需要分布式事务消息或精确到秒的延迟消息？
+ ├── 是 → 考虑 RocketMQ（电商事务场景原生支持）
+ └── 否 → RabbitMQ 是你的首选
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果你走到了最后一个&amp;quot;否&amp;quot;，那么 RabbitMQ 的低延迟（&amp;lt;1ms）、灵活路由（多种 Exchange 类型）和成熟的 K8s Operator 是难以替代的优势。&lt;/p&gt;</description></item><item><title>GPU 芯片全景：国内外厂商对比、市场格局与异构部署实践</title><link>https://xautjzd.github.io/posts/2026-06-01-gpu-chips-overview/</link><pubDate>Mon, 01 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-01-gpu-chips-overview/</guid><description>&lt;p&gt;随着大模型训练与推理需求的爆发，GPU 芯片从图形处理器演变为 AI 时代最核心的算力基础设施。本文系统梳理国内外主要 GPU 厂商的芯片系列、性能横向对比、市场格局，以及软件生态与异构混合部署的架构实践，供技术选型参考。&lt;/p&gt;
 &lt;h2 id="1-为什么-gpu-在-ai-时代如此关键"&gt;1. 为什么 GPU 在 AI 时代如此关键&lt;/h2&gt;
 &lt;h3 id="11-从图形渲染到通用并行计算"&gt;1.1 从图形渲染到通用并行计算&lt;/h3&gt;
 &lt;p&gt;GPU（Graphics Processing Unit）最初的设计目标是加速图形渲染，其核心特点是大量小型计算核心（相对 CPU 的少量大核）并行执行相同指令。这一特性与深度学习中大规模矩阵乘法的计算模式高度契合。&lt;/p&gt;
