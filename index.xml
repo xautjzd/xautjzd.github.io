@@ -1,4 +1,46 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/</link><description>Recent content on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Tue, 16 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>RabbitMQ 深度实践：在 Kubernetes 上构建生产级消息队列</title><link>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</link><pubDate>Tue, 16 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</guid><description>&lt;p&gt;服务已经全面上了 Kubernetes，但消息队列还孤零零地跑在一台虚机上——这是很多团队在云原生迁移中都会遇到的阶段性尴尬。消息队列的 K8s 化比无状态服务复杂得多：数据持久化、集群选主、滚动升级期间的消息可靠性，每一项都需要在部署前想清楚。&lt;/p&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/</link><description>Recent content on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Mon, 22 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>工程化记忆：大模型短期记忆与长期记忆的驾驭之道</title><link>https://xautjzd.github.io/posts/2026-06-22-harness-engineering-memory/</link><pubDate>Mon, 22 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-22-harness-engineering-memory/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;记忆不是存储问题，而是时机问题。&lt;/strong&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id="引言ai-的金鱼困境"&gt;引言：AI 的&amp;quot;金鱼困境&amp;quot;&lt;/h2&gt;
+&lt;p&gt;你把一个需求拆成五步告诉 AI。第一步它理解得很好，第二步它开始调用工具，第三步它停下来问你要一个——&lt;strong&gt;已经在第一轮对话里告诉过它的信息&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;这不是模型不够聪明。GPT-4o、Claude 4.6、Gemini 3.1 Pro，任何一个前沿模型在单轮推理能力上都已经足够出色。问题是：&lt;strong&gt;它们记不住&lt;/strong&gt;。或者说，它们记不住&amp;quot;该记住的东西&amp;quot;。&lt;/p&gt;
+&lt;p&gt;这个困境有一个形象的类比——&lt;strong&gt;金鱼困境&lt;/strong&gt;。金鱼的记忆只有七秒，而大模型的&amp;quot;记忆&amp;quot;取决于上下文窗口能塞进多少 Token。但 Token 有成本，窗口有上限，信息会稀释。即便上下文窗口从 4K 扩展到 128K 再到 1M Token，&amp;ldquo;记住&amp;quot;这件事远没有变得简单。&lt;/p&gt;
+&lt;p&gt;为什么？因为&lt;strong&gt;记忆不是存储问题，而是时机问题&lt;/strong&gt;。&lt;/p&gt;
+&lt;p&gt;一个 AI 系统需要知道：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;什么时候该把信息写进记忆？&lt;/li&gt;
+&lt;li&gt;该写什么？该忘什么？&lt;/li&gt;
+&lt;li&gt;什么时候该从记忆中召回信息？&lt;/li&gt;
+&lt;li&gt;召回后怎么注入当前对话而不破坏上下文？&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这些问题没有标准答案。不同场景有不同的选择，不同选择构成不同的架构。本文的目标是把这个决策空间清晰地画出来，让你在设计自己的 AI 系统时，能像工程师一样思考&amp;quot;记忆&amp;quot;这件事。&lt;/p&gt;
+&lt;h2 id="一记忆系统的分层架构"&gt;一、记忆系统的分层架构&lt;/h2&gt;
+&lt;h3 id="11-双存储模型的工程启示"&gt;1.1 双存储模型的工程启示&lt;/h3&gt;
+&lt;p&gt;在认知科学中，有一个经典的双存储模型（Dual-Store Model）：信息先进入短期记忆（工作台），经过编码和巩固后转入长期记忆（仓库）。工程化 AI 记忆的架构，几乎就是对这个模型的直接映射。&lt;/p&gt;
+&lt;p&gt;把这张图画出来可能更直观：&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt; ┌──────────────────────┐
+ │ 外部输入 │
+ └──────────┬───────────┘
+ ▼
+┌─────────────────────────────────────────────────┐
+│ 短期记忆（上下文窗 │
+│ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│ │ System │ │ Message │ │ Agent State │ │
+│ │ Prompt │ │ History │ │ (Tool Calls) │ │
+│ └──────────┘ └──────────┘ └──────────────┘ │
+└──────────────────────┬──────────────────────────┘
+ │ 写入编码（Write）
+ ▼
+┌─────────────────────────────────────────────────┐
+│ 长期记忆（跨会话存储） │
+│ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │
+│ │ 向量记忆 │ │ 结构化记忆 │ │ 图记忆 / 关系 │ │
+│ │ (RAG) │ │ │ │(Graph Memory)│ │
+│ └──────────┘ └──────────┘ └──────────────┘ │
+│ ↑ 召回检索（Read） │
+└─────────────────────────────────────────────────┘
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id="12-短期记忆stm上下文窗口内的工作台"&gt;1.2 短期记忆（STM）：上下文窗口内的&amp;quot;工作台&amp;rdquo;&lt;/h3&gt;
+&lt;p&gt;短期记忆是 AI 当前正在&amp;quot;思考&amp;quot;的内容。在技术层面，它就是 LLM 的上下文窗口（Context Window）——输入给模型的所有 token 总和。&lt;/p&gt;</description></item><item><title>RabbitMQ 深度实践：在 Kubernetes 上构建生产级消息队列</title><link>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</link><pubDate>Tue, 16 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-16-rabbitmq-production-on-kubernetes/</guid><description>&lt;p&gt;服务已经全面上了 Kubernetes，但消息队列还孤零零地跑在一台虚机上——这是很多团队在云原生迁移中都会遇到的阶段性尴尬。消息队列的 K8s 化比无状态服务复杂得多：数据持久化、集群选主、滚动升级期间的消息可靠性，每一项都需要在部署前想清楚。&lt;/p&gt;
 &lt;p&gt;本文面向&lt;strong&gt;已在 K8s 上运维过服务、正在考虑引入或迁移消息队列&lt;/strong&gt;的工程师。内容沿&amp;quot;选型 → 核心概念 → 生产部署 → 高可用 → 可观测性 → 业务落地 → 故障排查&amp;quot;这条工程路径展开，读完后你能独立完成 RabbitMQ 在 K8s 上的全链路落地。&lt;/p&gt;
 &lt;h2 id="一先做选型rabbitmqkafkarocketmq-如何抉择"&gt;一、先做选型：RabbitMQ、Kafka、RocketMQ 如何抉择&lt;/h2&gt;
 &lt;p&gt;在深入 RabbitMQ 之前，先用 3 个问题确认它是否适合你的场景——如果答案都是&amp;quot;否&amp;quot;，后续内容可能不适合你现在的需求。&lt;/p&gt;

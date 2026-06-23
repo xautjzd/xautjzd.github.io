@@ -1,0 +1,305 @@
+<!doctype html><html><head lang=en><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><title>工程化记忆：大模型短期记忆与长期记忆的驾驭之道 - Zhengdong.jzd 个人博客</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='
+记忆不是存储问题，而是时机问题。
+
+引言：AI 的"金鱼困境"
+你把一个需求拆成五步告诉 AI。第一步它理解得很好，第二步它开始调用工具，第三步它停下来问你要一个——已经在第一轮对话里告诉过它的信息。
+这不是模型不够聪明。GPT-4o、Claude 4.6、Gemini 3.1 Pro，任何一个前沿模型在单轮推理能力上都已经足够出色。问题是：它们记不住。或者说，它们记不住"该记住的东西"。
+这个困境有一个形象的类比——金鱼困境。金鱼的记忆只有七秒，而大模型的"记忆"取决于上下文窗口能塞进多少 Token。但 Token 有成本，窗口有上限，信息会稀释。即便上下文窗口从 4K 扩展到 128K 再到 1M Token，&ldquo;记住"这件事远没有变得简单。
+为什么？因为记忆不是存储问题，而是时机问题。
+一个 AI 系统需要知道：
+
+什么时候该把信息写进记忆？
+该写什么？该忘什么？
+什么时候该从记忆中召回信息？
+召回后怎么注入当前对话而不破坏上下文？
+
+这些问题没有标准答案。不同场景有不同的选择，不同选择构成不同的架构。本文的目标是把这个决策空间清晰地画出来，让你在设计自己的 AI 系统时，能像工程师一样思考"记忆"这件事。
+一、记忆系统的分层架构
+1.1 双存储模型的工程启示
+在认知科学中，有一个经典的双存储模型（Dual-Store Model）：信息先进入短期记忆（工作台），经过编码和巩固后转入长期记忆（仓库）。工程化 AI 记忆的架构，几乎就是对这个模型的直接映射。
+把这张图画出来可能更直观：
+                  ┌──────────────────────┐
+                  │       外部输入        │
+                  └──────────┬───────────┘
+                             ▼
+┌─────────────────────────────────────────────────┐
+│              短期记忆（上下文窗                    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
+│  │ System   │  │ Message  │  │ Agent State  │   │
+│  │ Prompt   │  │ History  │  │ (Tool Calls) │   │
+│  └──────────┘  └──────────┘  └──────────────┘   │
+└──────────────────────┬──────────────────────────┘
+                       │ 写入编码（Write）
+                       ▼
+┌─────────────────────────────────────────────────┐
+│              长期记忆（跨会话存储）                 │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
+│  │ 向量记忆  │  │ 结构化记忆 │  │ 图记忆 / 关系  │   │
+│  │   (RAG)  │  │          │  │(Graph Memory)│   │
+│  └──────────┘  └──────────┘  └──────────────┘   │
+│              ↑ 召回检索（Read）                   │
+└─────────────────────────────────────────────────┘
+1.2 短期记忆（STM）：上下文窗口内的"工作台&rdquo;
+短期记忆是 AI 当前正在"思考"的内容。在技术层面，它就是 LLM 的上下文窗口（Context Window）——输入给模型的所有 token 总和。'><meta property="og:image" content><meta property="og:url" content="https://xautjzd.github.io/posts/2026-06-22-harness-engineering-memory/"><meta property="og:site_name" content="Zhengdong.jzd 个人博客"><meta property="og:title" content="工程化记忆：大模型短期记忆与长期记忆的驾驭之道"><meta property="og:description" content='记忆不是存储问题，而是时机问题。
+引言：AI 的"金鱼困境" 你把一个需求拆成五步告诉 AI。第一步它理解得很好，第二步它开始调用工具，第三步它停下来问你要一个——已经在第一轮对话里告诉过它的信息。
+这不是模型不够聪明。GPT-4o、Claude 4.6、Gemini 3.1 Pro，任何一个前沿模型在单轮推理能力上都已经足够出色。问题是：它们记不住。或者说，它们记不住"该记住的东西"。
+这个困境有一个形象的类比——金鱼困境。金鱼的记忆只有七秒，而大模型的"记忆"取决于上下文窗口能塞进多少 Token。但 Token 有成本，窗口有上限，信息会稀释。即便上下文窗口从 4K 扩展到 128K 再到 1M Token，“记住"这件事远没有变得简单。
+为什么？因为记忆不是存储问题，而是时机问题。
+一个 AI 系统需要知道：
+什么时候该把信息写进记忆？ 该写什么？该忘什么？ 什么时候该从记忆中召回信息？ 召回后怎么注入当前对话而不破坏上下文？ 这些问题没有标准答案。不同场景有不同的选择，不同选择构成不同的架构。本文的目标是把这个决策空间清晰地画出来，让你在设计自己的 AI 系统时，能像工程师一样思考"记忆"这件事。
+一、记忆系统的分层架构 1.1 双存储模型的工程启示 在认知科学中，有一个经典的双存储模型（Dual-Store Model）：信息先进入短期记忆（工作台），经过编码和巩固后转入长期记忆（仓库）。工程化 AI 记忆的架构，几乎就是对这个模型的直接映射。
+把这张图画出来可能更直观：
+┌──────────────────────┐ │ 外部输入 │ └──────────┬───────────┘ ▼ ┌─────────────────────────────────────────────────┐ │ 短期记忆（上下文窗 │ │ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │ │ │ System │ │ Message │ │ Agent State │ │ │ │ Prompt │ │ History │ │ (Tool Calls) │ │ │ └──────────┘ └──────────┘ └──────────────┘ │ └──────────────────────┬──────────────────────────┘ │ 写入编码（Write） ▼ ┌─────────────────────────────────────────────────┐ │ 长期记忆（跨会话存储） │ │ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │ │ │ 向量记忆 │ │ 结构化记忆 │ │ 图记忆 / 关系 │ │ │ │ (RAG) │ │ │ │(Graph Memory)│ │ │ └──────────┘ └──────────┘ └──────────────┘ │ │ ↑ 召回检索（Read） │ └─────────────────────────────────────────────────┘ 1.2 短期记忆（STM）：上下文窗口内的"工作台” 短期记忆是 AI 当前正在"思考"的内容。在技术层面，它就是 LLM 的上下文窗口（Context Window）——输入给模型的所有 token 总和。'><meta property="og:locale" content="zh_cn"><meta property="og:type" content="article"><meta property="article:section" content="posts"><meta property="article:published_time" content="2026-06-22T10:00:00+08:00"><meta property="article:modified_time" content="2026-06-22T10:00:00+08:00"><meta property="article:tag" content="Ai"><meta name=twitter:card content="summary"><meta name=twitter:title content="工程化记忆：大模型短期记忆与长期记忆的驾驭之道"><meta name=twitter:description content='记忆不是存储问题，而是时机问题。
+引言：AI 的"金鱼困境" 你把一个需求拆成五步告诉 AI。第一步它理解得很好，第二步它开始调用工具，第三步它停下来问你要一个——已经在第一轮对话里告诉过它的信息。
+这不是模型不够聪明。GPT-4o、Claude 4.6、Gemini 3.1 Pro，任何一个前沿模型在单轮推理能力上都已经足够出色。问题是：它们记不住。或者说，它们记不住"该记住的东西"。
+这个困境有一个形象的类比——金鱼困境。金鱼的记忆只有七秒，而大模型的"记忆"取决于上下文窗口能塞进多少 Token。但 Token 有成本，窗口有上限，信息会稀释。即便上下文窗口从 4K 扩展到 128K 再到 1M Token，“记住"这件事远没有变得简单。
+为什么？因为记忆不是存储问题，而是时机问题。
+一个 AI 系统需要知道：
+什么时候该把信息写进记忆？ 该写什么？该忘什么？ 什么时候该从记忆中召回信息？ 召回后怎么注入当前对话而不破坏上下文？ 这些问题没有标准答案。不同场景有不同的选择，不同选择构成不同的架构。本文的目标是把这个决策空间清晰地画出来，让你在设计自己的 AI 系统时，能像工程师一样思考"记忆"这件事。
+一、记忆系统的分层架构 1.1 双存储模型的工程启示 在认知科学中，有一个经典的双存储模型（Dual-Store Model）：信息先进入短期记忆（工作台），经过编码和巩固后转入长期记忆（仓库）。工程化 AI 记忆的架构，几乎就是对这个模型的直接映射。
+把这张图画出来可能更直观：
+┌──────────────────────┐ │ 外部输入 │ └──────────┬───────────┘ ▼ ┌─────────────────────────────────────────────────┐ │ 短期记忆（上下文窗 │ │ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │ │ │ System │ │ Message │ │ Agent State │ │ │ │ Prompt │ │ History │ │ (Tool Calls) │ │ │ └──────────┘ └──────────┘ └──────────────┘ │ └──────────────────────┬──────────────────────────┘ │ 写入编码（Write） ▼ ┌─────────────────────────────────────────────────┐ │ 长期记忆（跨会话存储） │ │ ┌──────────┐ ┌──────────┐ ┌──────────────┐ │ │ │ 向量记忆 │ │ 结构化记忆 │ │ 图记忆 / 关系 │ │ │ │ (RAG) │ │ │ │(Graph Memory)│ │ │ └──────────┘ └──────────┘ └──────────────┘ │ │ ↑ 召回检索（Read） │ └─────────────────────────────────────────────────┘ 1.2 短期记忆（STM）：上下文窗口内的"工作台” 短期记忆是 AI 当前正在"思考"的内容。在技术层面，它就是 LLM 的上下文窗口（Context Window）——输入给模型的所有 token 总和。'><link href=https://xautjzd.github.io/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css rel=stylesheet><link rel=stylesheet type=text/css media=screen href=https://xautjzd.github.io/css/main.6a0f23ea50fd34b46fee262a5a68e17d458c51a2bc99ba1ba018065de6b180c3.css><link id=darkModeStyle rel=stylesheet type=text/css href=https://xautjzd.github.io/css/dark.50b57e12d401420df23965fed157368aba37b76df0ecefd0b1ecd4da664f01a0.css disabled></head><body><div class=content><header><div class=main><a href=https://xautjzd.github.io/>Zhengdong.jzd 个人博客</a></div><nav><a href=/>Home</a>
+<a href=/posts>All posts</a>
+<a href=/tags>Tags</a>
+<a href=/about>About</a>
+| <span id=dark-mode-toggle onclick=toggleTheme()><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#sun"/></svg></span>
+<script src=https://xautjzd.github.io/js/themetoggle.js></script></nav></header><main><nav class=breadcrumbs><a href=https://xautjzd.github.io/>Home</a>
+<span class=separator>/</span>
+<a href=https://xautjzd.github.io/posts>Posts</a>
+<span class=separator>/</span>
+<span class=current>工程化记忆：大模型短期记忆与长期记忆的驾驭之道</span></nav><article><div class=post-container><div class=post-content><div class=title><h1 class=title>工程化记忆：大模型短期记忆与长期记忆的驾驭之道</h1><div class=meta>Posted on Jun 22, 2026
+<span class=reading-time>· 9 min read</span></div></div><section class=body><blockquote><p><strong>记忆不是存储问题，而是时机问题。</strong></p></blockquote><h2 id=引言ai-的金鱼困境>引言：AI 的"金鱼困境"</h2><p>你把一个需求拆成五步告诉 AI。第一步它理解得很好，第二步它开始调用工具，第三步它停下来问你要一个——<strong>已经在第一轮对话里告诉过它的信息</strong>。</p><p>这不是模型不够聪明。GPT-4o、Claude 4.6、Gemini 3.1 Pro，任何一个前沿模型在单轮推理能力上都已经足够出色。问题是：<strong>它们记不住</strong>。或者说，它们记不住"该记住的东西"。</p><p>这个困境有一个形象的类比——<strong>金鱼困境</strong>。金鱼的记忆只有七秒，而大模型的"记忆"取决于上下文窗口能塞进多少 Token。但 Token 有成本，窗口有上限，信息会稀释。即便上下文窗口从 4K 扩展到 128K 再到 1M Token，&ldquo;记住"这件事远没有变得简单。</p><p>为什么？因为<strong>记忆不是存储问题，而是时机问题</strong>。</p><p>一个 AI 系统需要知道：</p><ul><li>什么时候该把信息写进记忆？</li><li>该写什么？该忘什么？</li><li>什么时候该从记忆中召回信息？</li><li>召回后怎么注入当前对话而不破坏上下文？</li></ul><p>这些问题没有标准答案。不同场景有不同的选择，不同选择构成不同的架构。本文的目标是把这个决策空间清晰地画出来，让你在设计自己的 AI 系统时，能像工程师一样思考"记忆"这件事。</p><h2 id=一记忆系统的分层架构>一、记忆系统的分层架构</h2><h3 id=11-双存储模型的工程启示>1.1 双存储模型的工程启示</h3><p>在认知科学中，有一个经典的双存储模型（Dual-Store Model）：信息先进入短期记忆（工作台），经过编码和巩固后转入长期记忆（仓库）。工程化 AI 记忆的架构，几乎就是对这个模型的直接映射。</p><p>把这张图画出来可能更直观：</p><pre tabindex=0><code>                  ┌──────────────────────┐
+                  │       外部输入        │
+                  └──────────┬───────────┘
+                             ▼
+┌─────────────────────────────────────────────────┐
+│              短期记忆（上下文窗                    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
+│  │ System   │  │ Message  │  │ Agent State  │   │
+│  │ Prompt   │  │ History  │  │ (Tool Calls) │   │
+│  └──────────┘  └──────────┘  └──────────────┘   │
+└──────────────────────┬──────────────────────────┘
+                       │ 写入编码（Write）
+                       ▼
+┌─────────────────────────────────────────────────┐
+│              长期记忆（跨会话存储）                 │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────┐   │
+│  │ 向量记忆  │  │ 结构化记忆 │  │ 图记忆 / 关系  │   │
+│  │   (RAG)  │  │          │  │(Graph Memory)│   │
+│  └──────────┘  └──────────┘  └──────────────┘   │
+│              ↑ 召回检索（Read）                   │
+└─────────────────────────────────────────────────┘
+</code></pre><h3 id=12-短期记忆stm上下文窗口内的工作台>1.2 短期记忆（STM）：上下文窗口内的"工作台&rdquo;</h3><p>短期记忆是 AI 当前正在"思考"的内容。在技术层面，它就是 LLM 的上下文窗口（Context Window）——输入给模型的所有 token 总和。</p><p>它的特性：</p><ul><li><strong>高带宽</strong>：一次推理可以"看到"窗口内的全部信息</li><li><strong>低延迟</strong>：不需要外部检索，模型直接在上下文中操作</li><li><strong>易挥发</strong>：会话结束后即丢失，除非显式写入长期记忆</li><li><strong>容量受限</strong>：即便 1M token 也有上限，且成本随长度线性增长</li></ul><h3 id=13-长期记忆ltm跨越会话的数据库>1.3 长期记忆（LTM）：跨越会话的"数据库"</h3><p>长期记忆是 AI 在多轮会话之间、甚至在多次任务之间持续保留的信息。它不是存储在模型参数中的（那是训练阶段学到的知识），而是存储在外部系统中的结构化数据。</p><p>它的特性：</p><ul><li><strong>大容量</strong>：理论上只受存储系统限制（向量数据库、图数据库、KV 存储）</li><li><strong>持久化</strong>：跨会话、跨任务、跨重启</li><li><strong>检索延迟</strong>：每次访问都需要经过检索流程</li><li><strong>精度折损</strong>：检索质量取决于 embedding 质量和召回策略</li></ul><h3 id=14-层级划分的本质时效--容量--召回的三角权衡>1.4 层级划分的本质：时效 × 容量 × 召回的三角权衡</h3><p>选择短期记忆还是长期记忆，本质是在三个维度上做权衡：</p><table><thead><tr><th>维度</th><th>短期记忆</th><th>长期记忆</th></tr></thead><tbody><tr><td>时效性</td><td>即时（毫秒级）</td><td>需要检索（10-500ms）</td></tr><tr><td>容量</td><td>受限（4K-1M token）</td><td>近乎无限</td></tr><tr><td>精度</td><td>100%（直接可见）</td><td>取决于检索质量</td></tr><tr><td>成本</td><td>O(n) 随长度增长</td><td>存储 + 检索固定成本</td></tr></tbody></table><p>这个权衡决定了架构选择：<strong>高频、短期、对延迟敏感的信息留在上下文窗口；低频、持久、对容量敏感的信息放入长期存储</strong>。</p><h2 id=二短期记忆窗口内的精耕细作>二、短期记忆：窗口内的精耕细作</h2><h3 id=21-应用场景>2.1 应用场景</h3><p>短期记忆不是"不需要设计"的东西——恰恰相反，它是最容易被忽视、但影响最大的工程环节。</p><h4 id=多步推理链的状态维持>多步推理链的状态维持</h4><p>当一个 Agent 需要完成一个复杂的多步骤任务（比如"研究一个开源项目，写一份评估报告，然后根据反馈修改"），每一步的中间状态都需要在上下文中维持。如果上下文被截断或污染，推理链就会断裂。</p><p>实践中，这要求系统设计清晰的<strong>上下文状态机</strong>：</p><pre tabindex=0><code>Step 1: 加载任务描述 → 设置上下文
+Step 2: 执行研究 → 追加研究发现到上下文
+Step 3: 生成初稿 → 保留研究结果 + 初稿在上下文
+Step 4: 接收反馈 → 保留初稿 + 追加反馈
+Step 5: 修改迭代 → 保留所有历史上下文
+</code></pre><p>每一步都依赖于上一步的输出仍在上下文中。一旦上下文超过窗口限制，系统需要决定：是丢弃最早的历史，还是用摘要压缩历史。</p><h4 id=多轮交互中的指令跟随与上下文粘性>多轮交互中的指令跟随与上下文粘性</h4><p>用户在对话中可能不断调整需求：&ldquo;不对，上一步的方案用图数据库而不是关系数据库。&rdquo; AI 需要理解"上一步"指的是什么——这依赖短期记忆维持对话历史。</p><p>一个常见的工程失误是：提前将对话历史移出上下文（为了节省 token），导致 AI 丢失上下文粘性。<strong>好的短期记忆管理不是尽量省 token，而是在有限的窗口内尽量保留高价值信息。</strong></p><h4 id=agent-任务编排中的临时变量与中间结果>Agent 任务编排中的临时变量与中间结果</h4><p>在 Function Calling / Tool Use 的架构中，工具调用的中间结果——API 返回的数据、文件读取的内容、代码执行的结果——都存储在短期记忆中。这些数据通常不需要持久化到长期记忆（用完即弃），但必须在下一次推理时可访问。</p><p>这引出一个设计原则：<strong>只将"未来可能再次需要"的信息写入长期记忆；&ldquo;用完即弃"的信息只保留在当前上下文</strong>。</p><h3 id=22-工程挑战>2.2 工程挑战</h3><h4 id=窗口预算管理token-即成本>窗口预算管理：Token 即成本</h4><p>上下文窗口里的每个 token 都有成本，一个实用的窗口预算模型：</p><pre tabindex=0><code>总窗口大小 = System Prompt + 对话历史 + 检索结果 + 当前输入 + 预留输出
+</code></pre><p>预算分配策略示例：</p><pre tabindex=0><code>128K 窗口的预算分配（总：128K token）
+├── System Prompt: 2K  （1.6%）
+├── 对话历史: 40K      （31%）
+│   ├── 最近的 10 轮: 20K
+│   └── 早期的摘要: 20K
+├── 检索结果: 50K      （39%）
+│   ├── Top-3 RAG chunks: 30K
+│   └── 工具调用结果: 20K
+├── 当前输入: 6K       （4.7%）
+└── 预留输出: 30K      （23%）
+</code></pre><p>这个分配不是固定的——检索结果多时压缩对话历史，需要长输出时压缩检索结果。关键在于：<strong>有意识地管理预算，而不是任由上下文自然膨胀</strong>。</p><h4 id=注意力稀释长上下文中的迷失在中间>注意力稀释：长上下文中的"迷失在中间&rdquo;</h4><p>2023 年 Liu et al. 的经典实验已经证明：<strong>LLM 对上下文中间部分的注意力显著低于开头和结尾</strong>。这种现象称为"迷失在中间"（Lost in the Middle）。</p><p>这意味着，即使你把 100K token 的历史全部塞进上下文，模型可能根本不看中间部分。工程应对策略：</p><ol><li><strong>关键信息前置或后置</strong>：用户偏好、核心指令放在 System Prompt 末尾（靠近开头）或用户消息末尾（靠近结尾）</li><li><strong>结构化标记</strong>：使用 XML 标签或 Markdown 标题标记不同信息区域，让模型更容易定位</li><li><strong>分层摘要</strong>：对中间的历史做分层摘要，而不是直接堆砌原始对话</li></ol><h4 id=滑动窗口-vs-压缩-vs-摘要回溯>滑动窗口 vs 压缩 vs 摘要回溯</h4><p>当对话超过窗口限制时，有三种常见的处理策略：</p><table><thead><tr><th>策略</th><th>原理</th><th>特点</th><th>适用场景</th></tr></thead><tbody><tr><td><strong>滑动窗口</strong></td><td>丢弃最早的消息，保留最近的 N 轮</td><td>简单，但丢失早期信息</td><td>闲聊、短期任务</td></tr><tr><td><strong>压缩</strong></td><td>用更少的 token 表示信息（如提取关键点）</td><td>信息密度高，但可能失真</td><td>技术细节密集的对话</td></tr><tr><td><strong>摘要回溯</strong></td><td>定期对历史做摘要，将摘要保留在窗口中</td><td>保留全景，但摘要成本高</td><td>长周期项目、研究任务</td></tr></tbody></table><p>实践中，大多数成熟的系统采用<strong>混合策略</strong>：最近的对话用滑动窗口保留完整内容，早期的用摘要回溯压缩。</p><h3 id=23-实践经验>2.3 实践经验</h3><h4 id=prompt-结构设计>Prompt 结构设计</h4><p>一种经过验证的短期记忆上下文结构：</p><pre tabindex=0><code>System:
+[你是谁，你的能力边界，你的行为约束]
+[用户的核心偏好 / 个性画像]  ← 关键信息放在这里
+
+User:
+[当前的任务 / 问题]
+
+Assistant:
+[回复]
+
+
+History Summary:  ← 历史摘要，定期更新
+[过去 50 轮对话的核心事实和结论]
+
+Recent Messages:  ← 最近 3-5 轮完整保留
+[User: ...]
+[Assistant: ...]
+</code></pre><p>这个结构的好处是：<strong>关键信息（System + History Summary + Recent Messages）分布在窗口的开头和结尾</strong>，避免了"迷失在中间"的问题。</p><h4 id=结构化上下文>结构化上下文</h4><p>用结构化的方式组织上下文，而不是用自然语言堆砌：</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none><code class=language-json data-lang=json><span style=display:flex><span>{
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;user_profile&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;name&#34;</span>: <span style=color:#e6db74>&#34;张三&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;role&#34;</span>: <span style=color:#e6db74>&#34;后端工程师&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;preferences&#34;</span>: {
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;language&#34;</span>: <span style=color:#e6db74>&#34;Go&#34;</span>,
+</span></span><span style=display:flex><span>      <span style=color:#f92672>&#34;db&#34;</span>: <span style=color:#e6db74>&#34;PostgreSQL&#34;</span>
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>  },
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;session_context&#34;</span>: {
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;started_at&#34;</span>: <span style=color:#e6db74>&#34;2026-06-22T10:00:00Z&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;current_project&#34;</span>: <span style=color:#e6db74>&#34;api-gateway&#34;</span>,
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;completed_tasks&#34;</span>: [<span style=color:#e6db74>&#34;设计数据库 schema&#34;</span>, <span style=color:#e6db74>&#34;编写接口文档&#34;</span>],
+</span></span><span style=display:flex><span>    <span style=color:#f92672>&#34;pending_tasks&#34;</span>: [<span style=color:#e6db74>&#34;实现认证中间件&#34;</span>]
+</span></span><span style=display:flex><span>  },
+</span></span><span style=display:flex><span>  <span style=color:#f92672>&#34;history&#34;</span>: [
+</span></span><span style=display:flex><span>    {<span style=color:#f92672>&#34;role&#34;</span>: <span style=color:#e6db74>&#34;user&#34;</span>, <span style=color:#f92672>&#34;content&#34;</span>: <span style=color:#e6db74>&#34;...&#34;</span>},
+</span></span><span style=display:flex><span>    {<span style=color:#f92672>&#34;role&#34;</span>: <span style=color:#e6db74>&#34;assistant&#34;</span>, <span style=color:#f92672>&#34;content&#34;</span>: <span style=color:#e6db74>&#34;...&#34;</span>}
+</span></span><span style=display:flex><span>  ]
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><p>结构化上下文的好处：</p><ol><li><strong>模型可以精确定位信息</strong>（从 JSON 路径中按需读取）</li><li><strong>易于程序化处理</strong>（裁剪、压缩、提取都更方便）</li><li><strong>减少歧义</strong>（JSON 结构比自然语言段落更明确）</li></ol><h2 id=三长期记忆跨越会话的第二大脑>三、长期记忆：跨越会话的"第二大脑"</h2><h3 id=31-应用场景>3.1 应用场景</h3><p>长期记忆解决的是短期记忆无法覆盖的问题：<strong>跨会话的知识留存</strong>。</p><h4 id=用户画像与个性化记忆>用户画像与个性化记忆</h4><p>一个 AI 助手如果每次对话都是一张白纸，用户每次都要重新告诉它自己的偏好、背景、历史——这种体验是断裂的。</p><p>个性化记忆需要存储：</p><ul><li><strong>事实信息</strong>：用户的名字、职位、公司、技术栈偏好</li><li><strong>行为模式</strong>：用户通常怎么提问？喜欢详细回答还是简短回答？</li><li><strong>历史决策</strong>：用户过去做了哪些选择？为什么？</li><li><strong>关系图谱</strong>：用户和他人的关系、用户和项目的关系</li></ul><h4 id=知识库与-rag-的向量化存储>知识库与 RAG 的向量化存储</h4><p>RAG（Retrieval-Augmented Generation）是目前最成熟的长期记忆方案。它将外部知识文档向量化存储，在需要时检索相关片段注入上下文。</p><p>RAG 的核心流程：</p><pre tabindex=0><code>文档 → 切分 → Embedding → 向量数据库
+                                ↓
+用户提问 → Query Embedding → 相似度检索 → Top-K chunks
+                                                  ↓
+                                           + 原始上下文 → LLM → 回复
+</code></pre><p>RAG 的成熟度使其成为企业知识库场景的首选。但它的局限性也很明显：<strong>向量相似度不等于语义相关性</strong>。两个语义截然相反的句子，在向量空间中的距离可能很近。</p><h4 id=agent-技能图谱的持续积累>Agent 技能图谱的持续积累</h4><p>当一个 Agent 反复完成同类任务时，它会积累"经验"。比如一个代码审查 Agent，每次审查后都可以把"常见错误模式"存入长期记忆中。下次遇到类似代码时，它能更快地发现问题。</p><p>这种技能图谱的积累是 Agent 从"新手"成长为"专家"的关键机制。</p><h4 id=多-agent-协作中的共享记忆池>多 Agent 协作中的共享记忆池</h4><p>在多 Agent 系统中，不同的 Agent 可能需要共享信息。一个 Agent 发现的安全漏洞，另一个 Agent 在编写代码时应该能感知到。</p><p>共享记忆池的设计要点：</p><ul><li><strong>写权限控制</strong>：谁可以写入？写入后如何通知其他 Agent？</li><li><strong>读权限控制</strong>：哪些 Agent 能读取哪些记忆？</li><li><strong>一致性保证</strong>：多个 Agent 同时写入时如何避免冲突？</li><li><strong>过期机制</strong>：过时的共享信息如何标记或删除？</li></ul><h3 id=32-工程实现流派>3.2 工程实现流派</h3><p>长期记忆的工程实现在过去两年里快速发展，形成了几个主要流派：</p><h4 id=rag检索增强生成经典范式>RAG（检索增强生成）——经典范式</h4><p>RAG 是最早也是最成熟的方案。它的核心思路是：<strong>不修改模型，而是通过外挂知识库来扩展模型的知识边界</strong>。</p><p><strong>优点</strong>：</p><ul><li>技术成熟，生态完善（LangChain、LlamaIndex、Chroma、Pinecone、Weaviate&mldr;）</li><li>无需训练，即插即用</li><li>知识可更新（换文档即换知识）</li></ul><p><strong>局限</strong>：</p><ul><li>检索质量是关键瓶颈</li><li>依赖 embedding 模型的质量</li><li>难以处理复杂关系推理（GraphRAG 是对此的补充）</li></ul><h4 id=memgpt--letta--虚拟上下文管理>MemGPT / Letta —— 虚拟上下文管理</h4><p>MemGPT（现在改名为 Letta）提出了一个重要的概念：<strong>让 LLM 自己管理自己的记忆</strong>。它给模型提供了"管理记忆的工具"——<code>core_memory_insert</code>、<code>core_memory_replace</code>、<code>archival_memory_search</code> 等函数，让模型在推理时自主决定何时写入、何时检索。</p><p>这个思路的突破性在于：<strong>将记忆管理从系统层面的被动策略，变成了 Agent 层面的主动能力</strong>。</p><p>Letta 的架构：</p><pre tabindex=0><code>┌──────────────┐      ┌──────────────────┐
+│ LLM 推理循环  │ &lt;──&gt; │ 记忆工具（Tools）  │
+│              │      │• core_memory_*   │
+│ System Prompt│      │                  │
+│WorkingContext│      └────────┬─────────┘
+└──────────────┘               │
+                               ▼
+                    ┌──────────────────┐
+                    │    核心记忆       │
+                    │                  │
+                    ├──────────────────┤
+                    │    归档记忆       │
+                    │ （需要检索访问）    │
+                    └──────────────────┘
+</code></pre><p><strong>优点</strong>：</p><ul><li>模型自主管理记忆，适应性强</li><li>核心记忆始终在上下文中，减少检索延迟</li><li>适合需要长期自主运行的 Agent</li></ul><p><strong>局限</strong>：</p><ul><li>模型需要具备"管理记忆的能力"（不一定所有模型都适合）</li><li>记忆工具的调用会增加 token 消耗</li><li>自主决策可能导致记忆策略的不可预测性</li></ul><h4 id=graph-memory--知识图谱--记忆网络>Graph Memory —— 知识图谱 + 记忆网络</h4><p>Graph Memory 用图结构来存储记忆。节点代表实体（人、事、物、概念），边代表关系（属于、参与、导致、引用）。</p><p><strong>为什么用图？</strong></p><ul><li>关系的距离和类型本身携带信息（&ldquo;张三的同事的上级"比"张三的同事"更远）</li><li>多跳推理更自然（图遍历 vs 多次向量检索）</li><li>长尾关系的表达力更强</li></ul><p>代表项目：Microsoft 的 <strong>GraphRAG</strong>、<strong>Memgraph</strong>、<strong>Neo4j + LLM 集成</strong>。</p><p><strong>优点</strong>：</p><ul><li>关系推理能力强</li><li>适合复杂的实体关联场景（企业知识图谱、社交网络分析）</li><li>可解释性好（图路径可追溯）</li></ul><p><strong>局限</strong>：</p><ul><li>构建和维护图的成本高</li><li>非结构化文本到结构化图的转化有精度损失</li><li>大规模图的检索延迟较高</li></ul><h4 id=agentic-memory--记忆即决策>Agentic Memory —— 记忆即决策</h4><p>Agentic Memory 是目前最前沿的方向。它的核心观点是：<strong>记忆管理本身就是一个决策问题，应当由专门的"记忆 Agent"来处理</strong>。</p><p>在这种架构下，记忆不再是存储在某个数据库中的静态数据，而是一个动态的、自管理的系统：记忆 Agent 负责判断写入时机、选择存储格式、优化检索策略、甚至主动发起记忆巩固（如定期总结、去重、关联）。</p><p><strong>优点</strong>：</p><ul><li>极高的灵活性，能适应复杂场景</li><li>可以集成多种存储后端（向量 + 图 + KV）</li><li>记忆质量可以通过反馈持续优化</li></ul><p><strong>局限</strong>：</p><ul><li>系统复杂度高</li><li>多个 Agent 之间的协调成本</li><li>调试和可观测性困难</li></ul><h3 id=33-关键设计决策>3.3 关键设计决策</h3><p>无论选择哪个流派，有几个设计决策是共通的：</p><h4 id=结构化-vs-非结构化存储>结构化 vs 非结构化存储</h4><table><thead><tr><th>存储类型</th><th>示例</th><th>适合场景</th></tr></thead><tbody><tr><td>纯文本/向量</td><td>Embedding + Chunks</td><td>通用知识、文档库</td></tr><tr><td>KV 对</td><td>{key: user_name, value: 张三}</td><td>用户偏好、配置信息</td></tr><tr><td>结构化记录</td><td>JSON / Table</td><td>交易记录、事件日志</td></tr><tr><td>图结构</td><td>Node + Edge</td><td>关系推理、知识图谱</td></tr></tbody></table><p>实践中，<strong>混合存储是最常见的</strong>：向量用于语义检索，KV 用于精确值查询，图用于关系推理。</p><h4 id=嵌入模型的选择与更新策略>嵌入模型的选择与更新策略</h4><p>Embedding 模型的质量直接决定检索质量。关键选择点：</p><ol><li><strong>模型规模</strong>：小模型（text-embedding-3-small）速度快但精度低，大模型（text-embedding-3-large）精度高但成本高</li><li><strong>领域适配</strong>：通用 embedding vs 领域特定 embedding（如 code-embedding）</li><li><strong>更新策略</strong>：增量更新（新文档直接 embedding 后插入）vs 批量重算（所有文档重新 embedding）</li></ol><p>实践中推荐的做法：<strong>用通用 embedding 做初筛，用重排序模型（Cross-encoder / Reranker）做精排</strong>。</p><h4 id=存储规模-vs-检索延迟的权衡>存储规模 vs 检索延迟的权衡</h4><table><thead><tr><th>存储规模</th><th>典型检索延迟</th><th>优化策略</th></tr></thead><tbody><tr><td>&lt; 10K chunks</td><td>&lt; 10ms</td><td>简单向量检索即可</td></tr><tr><td>10K - 100K</td><td>10-50ms</td><td>IVF / HNSW 索引</td></tr><tr><td>100K - 1M</td><td>50-200ms</td><td>分片 + 预过滤</td></tr><tr><td>> 1M</td><td>200ms+</td><td>层级检索 + 粗排 + 精排</td></tr></tbody></table><h2 id=四记忆的写入什么时候该记下来>四、记忆的写入：什么时候该"记下来&rdquo;？</h2><p>如果说记忆架构是骨架，写入策略就是肌肉——它决定了记忆系统能否真正动起来。</p><h3 id=41-写入时机的四种模式>4.1 写入时机的四种模式</h3><h4 id=按需写入on-demand>按需写入（On-Demand）</h4><p>用户显式要求 AI 记住某些东西。</p><pre tabindex=0><code>用户：&#34;记住，我更喜欢用 PostgreSQL 而不是 MySQL。&#34;
+
+AI：&#34;好的，我已记住：你更偏好 PostgreSQL。&#34;
+</code></pre><p><strong>特点</strong>：</p><ul><li>精准：用户明确知道什么值得记</li><li>低误报：不会写入不相关信息</li><li>但依赖用户主动性——用户不记得说"记住"，信息就丢了</li></ul><p><strong>适用场景</strong>：用户偏好配置、关键信息标记</p><h4 id=事件驱动写入event-driven>事件驱动写入（Event-Driven）</h4><p>系统预定义了一系列"关键事件"，当事件发生时自动触发写入。</p><pre tabindex=0><code>事件定义：
+├── 用户提供了个人信息（姓名、邮箱、公司）→ 写入个人档案
+├── 用户做了一个技术决策（&#34;我们用 Go 重构&#34;）→ 写入项目决策记录
+├── 用户表达了强烈的偏好或反对 → 写入偏好记录
+└── 任务完成 → 写入任务结果摘要
+</code></pre><p><strong>特点</strong>：</p><ul><li>自动化程度高</li><li>依赖事件识别规则的完备性</li><li>规则太宽则写入过多噪音，太窄则遗漏有价值信息</li></ul><p><strong>适用场景</strong>：客服系统（自动记录客户信息）、项目管理（自动记录决策）</p><h4 id=周期性写入periodic>周期性写入（Periodic）</h4><p>每隔一定时间或在会话结束时，系统批量总结并写入记忆。</p><pre tabindex=0><code>会话结束时的自动总结：
+&#34;本次会话覆盖了 3 个主题：
+1. API 网关的选型讨论 → 结论：使用 Kong
+2. 数据库迁移策略 → 待定，需要下周二的架构会议决定
+3. 团队人员变动 → 小张加入后端团队&#34;
+
+→ 将总结写入长期记忆
+</code></pre><p><strong>特点</strong>：</p><ul><li>覆盖全面，不会遗漏</li><li>写入内容经过汇总提炼，质量较高</li><li>时效性差（只能在周期结束后写入）</li></ul><p><strong>适用场景</strong>：研究助手、长周期项目、咨询对话</p><h4 id=反思性写入reflective>反思性写入（Reflective）</h4><p>AI 在完成任务后，对自身的表现进行"反思"，将学到的经验存入长期记忆。这是最接近人类学习方式的写入模式。</p><pre tabindex=0><code>任务：编写一个 Python 脚本处理 CSV 文件
+反思输出：
+&#34;我在处理 CSV 时，用户期望我使用 pandas 而不是 csv 模块。
+下次遇到类似任务时，我应当优先考虑使用 pandas。&#34;
+
+→ 写入长期记忆作为&#34;经验教训&#34;
+</code></pre><p><strong>特点</strong>：</p><ul><li>能发现规则无法覆盖的隐性模式</li><li>自我迭代能力，Agent 越用越好</li><li>依赖模型的元认知能力（不是所有模型都擅长反思）</li></ul><p><strong>适用场景</strong>：个人 AI 助手、代码 Agent、学习型系统</p><h3 id=42-写入什么>4.2 写入什么？</h3><p>识别了"何时写"，接下来是"写什么"。这是记忆质量的分水岭。</p><h4 id=事实抽取-vs-印象提炼-vs-关系关联>事实抽取 vs 印象提炼 vs 关系关联</h4><p>记忆内容可以分为三个层级：</p><table><thead><tr><th>层级</th><th>定义</th><th>示例</th><th>用途</th></tr></thead><tbody><tr><td><strong>事实抽取</strong></td><td>精确的、可验证的信息</td><td>&ldquo;用户叫张三，在 ABC 公司工作&rdquo;</td><td>精准查询</td></tr><tr><td><strong>印象提炼</strong></td><td>模糊的、但有用的判断</td><td>&ldquo;用户对安全话题特别敏感&rdquo;</td><td>行为适配</td></tr><tr><td><strong>关系关联</strong></td><td>连接不同实体的关系</td><td>&ldquo;张三参与了 API 网关项目，该项目使用 Kong&rdquo;</td><td>知识图谱</td></tr></tbody></table><p>一个好的记忆系统应当<strong>同时包含这三个层级</strong>。只有事实没有印象，AI 会显得机械；只有印象没有事实，AI 会显得不确定。</p><h4 id=去重与冲突消解>去重与冲突消解</h4><p>同一个信息可能在多个会话中被多次写入。如果没有去重机制，长期记忆会充满冗余甚至矛盾的内容。</p><p>常见的冲突场景及其消解策略：</p><table><thead><tr><th>冲突类型</th><th>示例</th><th>消解策略</th></tr></thead><tbody><tr><td><strong>直接矛盾</strong></td><td>Session A: &ldquo;用 Go&rdquo;，Session B: &ldquo;改用 Rust&rdquo;</td><td>以最新为准 + 保留变更记录</td></tr><tr><td><strong>精度差异</strong></td><td>Session A: &ldquo;30 岁&rdquo;，Session B: &ldquo;31 岁&rdquo;</td><td>以最具体的为准</td></tr><tr><td><strong>表述差异</strong></td><td>&ldquo;PostgreSQL 偏好&rdquo; vs &ldquo;喜欢 PG&rdquo;</td><td>标准化后再比较</td></tr><tr><td><strong>上下文矛盾</strong></td><td>工作场景 vs 个人场景偏好不同</td><td>增加上下文标签，场景化存储</td></tr></tbody></table><p>推荐做法：<strong>不直接覆盖，而是建立版本化的记忆记录</strong>，保留每次写入的时间戳和来源。AI 在召回时可以看到完整的时间线。</p><h4 id=隐私边界的工程实现>隐私边界的工程实现</h4><p>当 AI 系统存储用户信息时，隐私是不可回避的问题。</p><p>工程层面的实践建议：</p><ol><li><strong>最小化原则</strong>：只存储任务所需的必要信息</li><li><strong>分级存储</strong>：敏感信息（如姓名、邮箱）加密存储，非敏感信息（技术偏好）明文存储</li><li><strong>遗忘机制</strong>：支持用户要求删除特定记忆</li><li><strong>隔离机制</strong>：不同用户的记忆严格隔离（逻辑隔离或物理隔离）</li><li><strong>审计日志</strong>：记录每次记忆写入和读取的操作，用于合规审计</li></ol><h3 id=43-质量控制>4.3 质量控制</h3><p>记忆不是越多越好。<strong>低质量的记忆比没有记忆更糟糕</strong>——它会污染检索结果，降低 AI 的回复质量。</p><h4 id=重要性评分机制>重要性评分机制</h4><p>每条写入的记忆应当附带一个重要性分数（0-1），用于后续的检索排序和遗忘决策。</p><p>评分因素：</p><ul><li><strong>来源权威性</strong>：用户直接说的 > AI 推断的 > 默认值</li><li><strong>确认次数</strong>：反复被确认的信息 > 一次性提及</li><li><strong>时效性</strong>：最近的信息 > 过时的信息</li><li><strong>上下文相关性</strong>：在当前任务中提及的信息 > 无关信息</li></ul><h4 id=记忆压缩--遗忘策略>记忆压缩 / 遗忘策略</h4><p>Ebbinghaus 遗忘曲线揭示了一个规律：<strong>信息在习得后迅速衰减，但在关键复习点后进入长期保持</strong>。</p><p>在工程侧，这个规律可以转化为遗忘策略：</p><pre tabindex=0><code>初始化：每段记忆获得一个&#34;活性分值&#34;（activity score）
+每次成功召回：活性分值增加
+每次未被召回的检索：活性分值衰减
+当活性分值低于阈值：标记为&#34;可遗忘&#34;（cold storage）
+定期清理：归档或删除 cold storage 中的记忆
+</code></pre><p>这确保：<strong>频繁使用的记忆保持活跃，长期不用的记忆自然淡出</strong>，不需要人工干预。</p><h2 id=五记忆的召回什么时候该想起来>五、记忆的召回：什么时候该"想起来"？</h2><p>写入再完善，如果召不回，等于没有写。</p><h3 id=51-召回的触发条件>5.1 召回的触发条件</h3><h4 id=显式召回>显式召回</h4><p>用户主动查询的记忆：</p><pre tabindex=0><code>用户：&#34;我之前说过的关于数据库选择的结论是什么？&#34;
+→ 触发显式检索 → 返回&#34;使用 PostgreSQL + TimescaleDB&#34;
+</code></pre><p>这是最精准的召回方式——但也是最依赖用户记忆力的。</p><h4 id=隐式召回语义触发>隐式召回（语义触发）</h4><p>系统根据当前对话的语义，自动判断是否需要检索相关历史记忆。</p><pre tabindex=0><code>用户：&#34;我想开始一个新项目，做一个微服务架构的电商后台。&#34;
+→ 自动检索：
+  • 用户的技术栈偏好（Go + PostgreSQL）
+  • 用户过去关于微服务的讨论
+  • 用户过去相关的项目经验
+→ 这些信息在 AI 生成回复时自动注入上下文
+</code></pre><p>隐式召回是记忆系统的"核心技术亮点"——用户不需要记得自己说过什么，系统自动把相关信息带到对话中。</p><p><strong>工程实现</strong>：将当前对话的最后 N 条消息拼接成查询向量，在记忆库中搜索 Top-K 相关内容。</p><h4 id=任务上下文关联召回>任务上下文关联召回</h4><p>当 AI Agent 在执行一个具体任务时，根据任务的上下文（项目名称、仓库地址、任务类型等）召回相关记忆。</p><pre tabindex=0><code>任务：review PR #1234（go-api-gateway 仓库）
+→ 自动召回：
+  • 该项目的技术决策记录
+  • 该用户之前的代码审查偏好
+  • 该模块的历史问题和修复方案
+</code></pre><p>这种召回方式适合工作场景中的 AI 助手、代码 Agent 等。</p><h3 id=52-召回质量的关键因子>5.2 召回质量的关键因子</h3><h4 id=检索策略>检索策略</h4><table><thead><tr><th>策略</th><th>原理</th><th>适合场景</th></tr></thead><tbody><tr><td><strong>Top-K</strong></td><td>取相似度最高的 K 条</td><td>通用场景，简单有效</td></tr><tr><td><strong>MMR（最大边际相关性）</strong></td><td>同时考虑相关性和多样性</td><td>需要覆盖多个角度的场景</td></tr><tr><td><strong>HyDE（假设性文档嵌入）</strong></td><td>先生成假设答案，再用假设答案检索</td><td>查询与文档表述风格差异大</td></tr><tr><td><strong>重排序（Reranking）</strong></td><td>先用轻量级检索取 Top-100，再用重排序模型精排 Top-K</td><td>精度优先的场景</td></tr></tbody></table><p>实践中，<strong>Top-K + 重排序</strong>的组合是最推荐的工程方案：阶段一快速筛选，阶段二精确定位。</p><h4 id=时效性与排序衰减>时效性与排序衰减</h4><p>同样的知识，六个月前的和昨天的，价值不同。</p><p>一个简单的时效性加权公式：</p><pre tabindex=0><code>最终分数 = 语义相似度 × 时效性权重
+
+时效性权重 = 1 / (1 + α × 天数)
+
+其中 α 是衰减系数，可配置：
+- α = 0: 无衰减（所有记忆同等重要）
+- α = 0.01: 缓慢衰减（一年衰减约 78%）
+- α = 0.1: 快速衰减（一个月衰减约 95%）
+</code></pre><h4 id=多模态混合检索>多模态混合检索</h4><p>当记忆包含多种类型的数据（文本、代码、结构化 JSON、甚至图片描述），单一检索方式不够用。</p><p>混合检索的思路：</p><pre tabindex=0><code>查询 → 并行检索
+  ├── 向量检索（文本/代码相似度）
+  ├── KV 查询（精确匹配：用户名、项目名）
+  └── 图遍历（关系路径：A 的同事的上级）
+
+→ 融合排序 → Top-K 结果
+</code></pre><h3 id=53-召回后的注入策略>5.3 召回后的注入策略</h3><p>召回只是手段，注入上下文、影响生成才是目的。但注入方式直接影响生成质量。</p><h4 id=直接注入-vs-精炼后注入>直接注入 vs 精炼后注入</h4><table><thead><tr><th>方案</th><th>做法</th><th>特点</th></tr></thead><tbody><tr><td><strong>直接注入</strong></td><td>将原始记忆片段追加到上下文</td><td>信息无损失，但可能包含噪音</td></tr><tr><td><strong>精炼后注入</strong></td><td>用 LLM 将记忆提炼为一句话摘要后再注入</td><td>token 节省，但信息可能失真</td></tr></tbody></table><p><strong>推荐</strong>：如果记忆本身质量高（结构清晰、内容准确），直接注入；如果记忆质量参差不齐，精炼后注入。</p><h4 id=动态优先级排序>动态优先级排序</h4><p>当召回结果超过上下文预算时，需要决定哪些记忆优先注入。</p><p>优先级计算：</p><pre tabindex=0><code>Priority = Relevance × Recency × Importance × Confidence
+
+其中：
+- Relevance: 与当前查询的语义相似度（0-1）
+- Recency: 时效性分数（0-1）
+- Importance: 写入时的重要性评分（0-1）
+- Confidence: 来源可信度（用户直接说的 = 1.0，AI 推断 = 0.7）
+</code></pre><p>取 Top-N 条注入，直到达到上下文预算上限。</p><h4 id=适时沉默不相关即不召回>&ldquo;适时沉默&rdquo;：不相关即不召回</h4><p>这是最容易忽视、但最重要的一条原则：<strong>如果检索结果与当前上下文不相关，就不要注入</strong>。</p><p>不相关记忆的注入会：</p><ol><li>浪费 token 预算</li><li>引入噪音，干扰模型理解</li><li>可能导致"幻觉式关联"——模型强行将不相关的记忆融入回答</li></ol><p>工程实现上，可以为召回结果设置<strong>相关度阈值</strong>（如 cosine similarity > 0.8 才注入），低于阈值的直接丢弃。</p><h2 id=六写与召的协同记忆闭环的工程实现>六、写与召的协同：&ldquo;记忆闭环"的工程实现</h2><p>写和召不是两个孤立的动作。它们构成一个闭环：<strong>写好才能召好，召好才能写好</strong>。</p><h3 id=61-记忆生命周期管理>6.1 记忆生命周期管理</h3><p>一段记忆从诞生到消亡，经历完整的生命周期：</p><pre tabindex=0><code>┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐
+│  创建     │ → │  活跃期   │ → │  巩固期   │ → │  归档期   │ → │  删除    │
+│  (写入)   │   │(高频召回) │   │(中频召回) │    │(低频召回) │   │ (遗忘)   │
+└──────────┘   └──────────┘   └──────────┘   └──────────┘   └──────────┘
+</code></pre><ul><li><strong>创建</strong>：首次写入，附带重要性评分和时效标签</li><li><strong>活跃期</strong>：频繁被召回，活性分值高，存储在快速访问层</li><li><strong>巩固期</strong>：召回频率下降，活性分值中等，可迁移到冷存储层</li><li><strong>归档期</strong>：召回频率极低，活性分值低，支持手动唤醒</li><li><strong>删除</strong>：超过遗忘阈值或用户要求删除</li></ul><h3 id=62-反馈驱动的记忆质量评估>6.2 反馈驱动的记忆质量评估</h3><p>记忆系统需要知道自己的表现好不好。反馈信号来源：</p><table><thead><tr><th>信号类型</th><th>获取方式</th><th>用途</th></tr></thead><tbody><tr><td><strong>用户反馈</strong></td><td>用户点赞/点踩、删除记忆</td><td>直接评估</td></tr><tr><td><strong>行为信号</strong></td><td>用户是否引用了召回的信息、是否纠正了 AI 的回答</td><td>间接评估</td></tr><tr><td><strong>任务成功率</strong></td><td>有记忆辅助时 vs 没有时，任务成功率是否有提升</td><td>量化评估</td></tr><tr><td><strong>召回准确率</strong></td><td>召回的 Top-K 中有多少是真正相关的</td><td>系统评估</td></tr></tbody></table><p>反馈信号不仅用于评估，还应当<strong>反向影响记忆系统</strong>：被点赞的记忆活性分值增加，被点踩的记忆重要性下降或标记为低质量。</p><h3 id=63-典型架构示例记忆管道memory-pipeline>6.3 典型架构示例：记忆管道（Memory Pipeline）</h3><p>综合以上所有设计原则，一个完整的记忆系统架构如下：</p><pre tabindex=0><code>                    ┌──────────────────────────┐
+                    │       用户 / 环境输入      │
+                    └────────────┬─────────────┘
+                                 ▼
+┌──────────────────────────────────────────────────┐
+│        记忆写入管道（Memory Write Pipeline）        │
+│                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌─────────────────┐ │
+│  │事件识别   │→ │重要性评分  │→ │ 格式转换 &amp; 去重   │ │
+│  │(何时写)   │  │(是否值写) │  │(写什么)          │ │
+│  └──────────┘  └──────────┘  └────────┬────────┘ │
+│                                       ▼          │
+│  ┌──────────────────────────────────────────────┐│
+│  │              存储后端（Storage Backend         ││
+│  │  ┌──────────┐  ┌──────────┐  ┌────────────┐  ││
+│  │  │向量数据库  │  │ KV 存储  │   │ 图数据库    │  ││
+│  │  │(语义检索)  │  │(精确查询) │  │(关系检索)   │  ││
+│  │  └──────────┘  └──────────┘  └────────────┘  ││
+│  └──────────────────────────────────────────────┘│
+│                                                  │
+│        记忆召回管道（Memory Read Pipeline）        │
+│                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌─────────────────┐ │
+│  │ 触发检测  │→ │ 多路检索   │→ │融合排序 &amp; 重排序  │ │
+│  │(何时召)   │  │(怎么召)   │  │(召哪些)          │ │
+│  └──────────┘  └──────────┘  └────────┬────────┘ │
+│                                       ▼          │
+│  ┌──────────┐  ┌──────────┐  ┌─────────────────┐ │
+│  │ 注入决策  │→ │上下文注入  │→ │ LLM 推理 &amp; 回复  │ │
+│  │(是否注入) │  │(怎么注入)  │  │                 │ │
+│  └──────────┘  └──────────┘  └─────────────────┘ │
+│                                                  │
+│               反馈循环（Feedback Loop）            │
+│  ┌──────────┐  ┌──────────┐  ┌─────────────────┐ │
+│  │ 质量评估  │→ │ 活性更新   │→ │ 遗忘 / 巩固决策   │ │
+│  │(好不好)   │  │(调整权重)  │  │(删或留)         │ │
+│  └──────────┘  └──────────┘  └─────────────────┘ │
+└──────────────────────────────────────────────────┘
+</code></pre><p>这个架构的核心思想是：<strong>记忆不是一个静态的数据库，而是一个动态的、自适应的系统</strong>。它不断从用户交互中学习，调整自己的写和召策略，并在反馈循环中持续优化。</p><h2 id=七主流记忆方案横向对比>七、主流记忆方案横向对比</h2><h3 id=71-方案全景图从-rag-到-agentic-memory>7.1 方案全景图：从 RAG 到 Agentic Memory</h3><p>过去两年，AI 记忆方案的演进大致遵循了这条路径：</p><pre tabindex=0><code>RAG (2023)          → 简单文档检索
+    ↓
+GraphRAG (2024)     → 引入图结构增强关系推理
+    ↓
+MemGPT / Letta (2024) → 模型自主管理记忆
+    ↓
+Memory Bank (2024)  → Code Agent 场景的会话记忆
+    ↓
+Mem0 (2025)         → 个性化记忆即服务
+    ↓
+Supermemory (2025)  → 轻量级长期记忆存储与检索
+    ↓
+Agentic Memory (2025+) → 记忆即决策，记忆 Agent 自治管理
+</code></pre><h3 id=72-主流方案逐一拆解>7.2 主流方案逐一拆解</h3><h4 id=memgpt--letta虚拟上下文管理--分层存储>MemGPT / Letta：虚拟上下文管理 + 分层存储</h4><ul><li><strong>定位</strong>：让 LLM 自己管理自己的记忆</li><li><strong>核心能力</strong>：记忆工具函数（core_memory / archival_memory），分层存储</li><li><strong>写策略</strong>：模型自主驱动 + 系统定期总结</li><li><strong>召策略</strong>：核心记忆始终在上下文（低延迟），归档记忆按需检索</li><li><strong>适合场景</strong>：需要长期自主运行的 Agent（研究助手、个人助理）</li><li><strong>部署成本</strong>：中等，需要维护一个后台服务管理记忆状态</li><li><strong>GitHub</strong>：github.com/letta-ai/letta</li></ul><h4 id=rag-范式族naive--graphrag--corrective-rag>RAG 范式族（Naive / GraphRAG / Corrective RAG）</h4><ul><li><strong>定位</strong>：外挂知识库扩展模型知识边界</li><li><strong>核心能力</strong>：文档向量化存储 + 语义检索</li><li><strong>写策略</strong>：文档入库时批量 Embedding</li><li><strong>召策略</strong>：Query → Embedding → 向量检索 → Top-K</li><li><strong>适合场景</strong>：企业知识库、文档问答、客服系统</li><li><strong>部署成本</strong>：低到中，取决于文档规模</li><li><strong>代表项目</strong>：LlamaIndex、LangChain + Chroma/Pinecone、Microsoft GraphRAG</li></ul><h4 id=memory-bankcode-agent-的会话记忆池>Memory Bank：Code Agent 的会话记忆池</h4><ul><li><strong>定位</strong>：专为代码 Agent 设计的会话间记忆系统</li><li><strong>核心能力</strong>：结构化记录 Agent 的认知状态、环境配置、任务上下文</li><li><strong>写策略</strong>：Agent 显式写入 + 工具调用自动记录</li><li><strong>召策略</strong>：任务启动时自动加载</li><li><strong>适合场景</strong>：代码编写 Agent、IDE 插件</li><li><strong>部署成本</strong>：低，轻量级文件或内存存储</li></ul><h4 id=mem0个性化记忆即服务>Mem0：个性化记忆即服务</h4><ul><li><strong>定位</strong>：面向 AI 应用的个性化记忆中间件</li><li><strong>核心能力</strong>：自动抽取用户偏好、事实、印象</li><li><strong>写策略</strong>：事件驱动（用户交互中自动提取）</li><li><strong>召策略</strong>：语义检索 + 上下文注入</li><li><strong>适合场景</strong>：聊天机器人、个性化推荐、用户画像</li><li><strong>部署成本</strong>：中，需要接入 Mem0 云端或自托管服务</li><li><strong>GitHub</strong>：github.com/mem0ai/mem0</li></ul><h4 id=supermemory轻量级长期记忆存储与检索>Supermemory：轻量级长期记忆存储与检索</h4><ul><li><strong>定位</strong>：开发者友好的轻量级长期记忆方案</li><li><strong>核心能力</strong>：简洁的 API 接口，支持文本记忆的存储和语义检索</li><li><strong>写策略</strong>：按需写入 + 自动摘要</li><li><strong>召策略</strong>：语义相似度检索 + 关键词匹配</li><li><strong>适合场景</strong>：中小型 AI 应用、个人项目、快速原型</li><li><strong>部署成本</strong>：低，轻量部署，API 简洁</li><li><strong>GitHub</strong>：github.com/supermemory-ai/supermemory</li></ul><h4 id=langmem--crewai-memory框架内置记忆模块>LangMem / CrewAI Memory：框架内置记忆模块</h4><ul><li><strong>定位</strong>：嵌入 AI 框架（LangChain、CrewAI）的记忆模块</li><li><strong>核心能力</strong>：与框架的 Agent、Tool、Chain 深度集成</li><li><strong>写策略</strong>：框架事件钩子自动触发</li><li><strong>召策略</strong>：框架运行时自动检索</li><li><strong>适合场景</strong>：使用 LangChain / CrewAI 搭建的 AI 应用</li><li><strong>部署成本</strong>：低（框架已有），无需额外服务</li><li><strong>代表项目</strong>：LangChain LangMem、CrewAI Memory</li></ul><h3 id=73-对比维度>7.3 对比维度</h3><table><thead><tr><th>方案</th><th>存储方式</th><th>写策略</th><th>召策略</th><th>适用场景</th><th>部署成本</th></tr></thead><tbody><tr><td><strong>RAG</strong></td><td>向量数据库</td><td>批量 Embedding</td><td>语义检索</td><td>企业知识库、文档问答</td><td>低-中</td></tr><tr><td><strong>GraphRAG</strong></td><td>图 + 向量</td><td>实体关系提取</td><td>图遍历 + 语义检索</td><td>复杂关系推理</td><td>中-高</td></tr><tr><td><strong>MemGPT/Letta</strong></td><td>分层（核心+归档）</td><td>模型自驱 + 系统总结</td><td>核心常驻 + 归档检索</td><td>长期 Agent</td><td>中</td></tr><tr><td><strong>Memory Bank</strong></td><td>结构化文件</td><td>Agent 显式写入</td><td>任务启动加载</td><td>代码 Agent</td><td>低</td></tr><tr><td><strong>Mem0</strong></td><td>云端/自托管向量</td><td>事件驱动自动提取</td><td>语义检索</td><td>个性化对话</td><td>中</td></tr><tr><td><strong>Supermemory</strong></td><td>轻量向量存储</td><td>按需写入 + 自动摘要</td><td>语义 + 关键词</td><td>中小型应用、原型</td><td>低</td></tr><tr><td><strong>LangMem</strong></td><td>与 LangChain 集成</td><td>框架事件钩子</td><td>框架自动检索</td><td>LangChain 应用</td><td>低</td></tr><tr><td><strong>CrewAI Memory</strong></td><td>与 CrewAI 集成</td><td>Agent 生命周期钩子</td><td>实体记忆 + 短期记忆</td><td>多 Agent 系统</td><td>低</td></tr></tbody></table><h3 id=74-选型建议不同场景下该选谁>7.4 选型建议：不同场景下该选谁？</h3><pre tabindex=0><code>你正在构建什么？
+
+├── 企业知识库 / 文档问答系统
+│   └── → RAG（简单场景）或 GraphRAG（复杂关系）
+│
+├── 需要长期自主运行的 Agent（个人助理、研究助手）
+│   └── → MemGPT / Letta
+│
+├── 代码 Agent（IDE 插件、自动化编程）
+│   └── → Memory Bank + 用 RAG 外挂知识库
+│
+├── 个性化聊天 / 用户画像系统
+│   └── → Mem0 或 Supermemory（轻量级）
+│
+├── 已经在用 LangChain / CrewAI 框架
+│   └── → 优先使用框架内置的 LangMem / CrewAI Memory
+│
+└── 原型 / 个人项目 / MVP
+    └── → Supermemory（最快速上手）
+</code></pre><h2 id=八前沿趋势与挑战>八、前沿趋势与挑战</h2><h3 id=81-记忆即服务--记忆中间件层的兴起>8.1 记忆即服务 / 记忆中间件层的兴起</h3><p>记忆正在从"每个应用自己实现的功能"变成"一个独立的基础设施层&rdquo;。就像十年前数据库从嵌入式走向托管服务一样，记忆系统也在经历同样的变化。</p><p>趋势信号：</p><ul><li>Mem0 提供云端记忆托管</li><li>向量数据库（Pinecone、Weaviate、Qdrant）推出记忆管理功能</li><li>创业公司开始专注于"AI 记忆"这个垂直赛道</li></ul><p><strong>这意味着什么？</strong> 未来构建 AI 应用时，记忆模块可能像 PostgreSQL 一样是一个标准组件——你不需要从头实现，只需要配置好接入。</p><h3 id=82-混合记忆神经--符号>8.2 混合记忆：神经 + 符号</h3><p>纯向量的记忆系统在关系推理上有天然短板。纯符号（规则/图）的系统在灵活性上不足。混合记忆试图结合两者的优势：</p><ul><li><strong>神经部分</strong>：处理非结构化信息、模糊匹配、语义理解</li><li><strong>符号部分</strong>：处理精确规则、关系推导、逻辑约束</li></ul><p>示例：一个混合记忆系统可能用向量存储"用户说了什么"，用图数据库存储"用户和项目、同事之间的关系"，用规则引擎处理"谁的权限可以访问什么信息"。</p><h3 id=83-记忆的个性化与联邦学习>8.3 记忆的个性化与联邦学习</h3><p>当记忆系统为每个用户维护独立的记忆空间时，一个自然的扩展是：<strong>在不同用户之间安全地共享"模式"而非"数据"</strong>。</p><p>联邦学习框架下的记忆系统：</p><ul><li>每个用户的记忆存储在本地</li><li>模型定期学习"什么样的记忆策略最有效"（而非学习用户的私有数据）</li><li>全局优化记忆的写入和召回策略</li></ul><p>这意味着：<strong>AI 助手可以越来越懂"人"（通用模式），同时不需要看到任何人的隐私数据</strong>。</p><h3 id=84-长期记忆的灾难性遗忘在工程侧的解>8.4 长期记忆的"灾难性遗忘"在工程侧的解</h3><p>在神经网络训练中，&ldquo;灾难性遗忘"指模型学习新知识时遗忘旧知识。在工程化的记忆系统中，类似的问题表现为：</p><ul><li><strong>存储侧</strong>：新的记忆覆盖或扭曲旧的记忆结构</li><li><strong>检索侧</strong>：新的高频记忆"压倒"旧的但仍有价值的记忆</li><li><strong>注入侧</strong>：模型被近期记忆主导，忽略远期但更相关的记忆</li></ul><p>工程层面的缓解策略：</p><ol><li><strong>分层存储</strong>：热数据（近期高频）和冷数据（远期低频）分开索引</li><li><strong>多维度排序</strong>：不是单纯按相似度排序，而是按 &ldquo;相似度 × 时效性 × 重要性&rdquo; 的复合分数排序</li><li><strong>定期审计</strong>：系统定期检查"有多少记忆从未被召回&rdquo;，主动调整失效策略</li></ol><h2 id=九总结>九、总结</h2><h3 id=记忆工程的核心三问>记忆工程的核心三问</h3><p>贯穿全文，我们一直在回答三个问题：</p><table><thead><tr><th>问题</th><th>工程实质</th><th>关键决策</th></tr></thead><tbody><tr><td><strong>记什么？</strong></td><td>记忆内容的质量控制</td><td>事实 vs 印象 vs 关系；去重与冲突消解</td></tr><tr><td><strong>何时记？</strong></td><td>写入时机的策略选择</td><td>按需 vs 事件驱动 vs 周期性 vs 反思性</td></tr><tr><td><strong>如何召？</strong></td><td>召回质量和注入策略</td><td>检索策略；时效性加权；不相关即不召回</td></tr></tbody></table><p>这三个问题没有标准答案——<strong>场景决定策略</strong>。一个客服系统和一个代码 Agent，对这三个问题的回答完全不同。</p><h3 id=从能记住到该记住>从"能记住"到"该记住"</h3><p>最初的 AI 系统面临的问题是"怎么让模型记住更多东西"。RAG、长上下文窗口、MemGPT——都在回答这个问题。</p><p>但下一代系统的挑战已经变成了：<strong>怎么让 AI 记住"该记住"的东西？</strong></p><p>&ldquo;该记住"意味着：</p><ul><li><strong>选择性</strong>：不是所有信息都值得写，也不是写了的都值得召</li><li><strong>时机性</strong>：在正确的时间写，在正确的时间召</li><li><strong>动态性</strong>：记忆不是固定的，它随着时间衰减、随着反馈调整</li><li><strong>元认知</strong>：AI 需要知道自己知道什么、不知道什么——这就是"元记忆&rdquo;</li></ul><p>记忆的下一站，是从存储工程走向认知工程。就像今天的推荐系统不再是简单的"找相似"，而是理解了用户意图的深层模式——明天的记忆系统也不会再是简单的"存和取"，而是理解对话、任务和关系的智能中间件。</p><p>这也是 <strong>Harness Engineering</strong> 的核心命题：<strong>模型是那匹马，记忆就是它的缰绳。缰绳掌握得越好，马就越知道该往哪儿跑。</strong></p></section><div class=post-tags><nav class="nav tags"><ul class=tags><li><a href=/tags/ai>ai</a></li></ul></nav></div><div class=related-posts><h3>Related Posts</h3><ul><li><a href=/posts/2026-06-01-gpu-chips-overview/>GPU 芯片全景：国内外厂商对比、市场格局与异构部署实践</a>
+<span class=meta>2026-06-01</span></li><li><a href=/posts/2026-05-30-harness-engineering/>Harness Engineering：当模型趋同，胜负在模型之外</a>
+<span class=meta>2026-05-30</span></li><li><a href=/posts/2026-05-13-ray-distributed-ai-framework/>从单机到千卡集群：Ray 如何让 Python 代码拥有超能力？</a>
+<span class=meta>2026-05-13</span></li><li><a href=/posts/2026-05-07-coding-agent-era/>Coding Agent 崛起之后：软件研发哪些变了，哪些永远不会变？</a>
+<span class=meta>2026-05-07</span></li><li><a href=/posts/2026-04-29-rag-enterprise-guide/>企业级 RAG 实战指南：从理论到落地的完整避坑手册</a>
+<span class=meta>2026-04-29</span></li></ul></div></div><aside class=toc-sidebar><div class=toc-wrapper><div class=toc-header><svg class="toc-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg>
+<span>目录</span></div><nav id=TableOfContents><ul><li><a href=#引言ai-的金鱼困境>引言：AI 的"金鱼困境"</a></li><li><a href=#一记忆系统的分层架构>一、记忆系统的分层架构</a></li><li><a href=#二短期记忆窗口内的精耕细作>二、短期记忆：窗口内的精耕细作</a></li><li><a href=#三长期记忆跨越会话的第二大脑>三、长期记忆：跨越会话的"第二大脑"</a></li><li><a href=#四记忆的写入什么时候该记下来>四、记忆的写入：什么时候该"记下来&rdquo;？</a></li><li><a href=#五记忆的召回什么时候该想起来>五、记忆的召回：什么时候该"想起来"？</a></li><li><a href=#六写与召的协同记忆闭环的工程实现>六、写与召的协同：&ldquo;记忆闭环"的工程实现</a></li><li><a href=#七主流记忆方案横向对比>七、主流记忆方案横向对比</a></li><li><a href=#八前沿趋势与挑战>八、前沿趋势与挑战</a></li><li><a href=#九总结>九、总结</a></li></ul></nav></div></aside><button class=toc-toggle onclick=toggleToc() aria-label=切换目录>
+<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h7"/></svg></button></div></article></main><style>.content{max-width:1100px}.post-content p,.body p,.post-content,.body{text-align:justify!important;text-align-last:left;text-justify:inter-ideograph;word-wrap:break-word}.post-content li,.body li{text-align:left}.post-content a,.body a,.post-content code,.body code{word-break:break-all;hyphens:none}.post-content ol,.body ol{padding-left:2em}.post-content a:hover,.post-tags .tags a:hover,.related-posts a:hover,.breadcrumbs a:hover{background-color:var(--hovercolor,navy);color:#fff}.post-container{display:flex;gap:40px;align-items:flex-start;justify-content:center}.post-content{flex:0 0 800px;max-width:800px;min-width:0}.toc-sidebar{flex:0 0 240px;min-width:200px;max-width:280px;align-self:stretch}.toc-wrapper{position:sticky;top:20px;background:#f8f8f8;border-radius:8px;padding:16px;max-height:calc(100vh - 40px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;-ms-overflow-style:none}.toc-wrapper::-webkit-scrollbar{display:none}.toc-header{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:#333;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #e0e0e0}.toc-icon{flex-shrink:0}.toc-sidebar #TableOfContents{font-size:13px;line-height:1.6}.toc-sidebar #TableOfContents ul{list-style:none;padding-left:0;margin:0}.toc-sidebar #TableOfContents ul ul{padding-left:12px;margin-top:4px}.toc-sidebar #TableOfContents li{margin:4px 0;text-indent:0}.toc-sidebar #TableOfContents li::before{content:none}.toc-sidebar #TableOfContents a{display:block;padding:4px 8px;border-radius:4px;border-bottom:none;text-decoration:none;color:#555;transition:all .2s ease}.toc-sidebar #TableOfContents a:hover{background-color:rgba(0,0,0,5%);color:#333}.toc-sidebar #TableOfContents a.active{background-color:var(--maincolor,red);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{font-weight:500;color:#333}.toc-sidebar #TableOfContents ul ul li a{font-size:12px;color:#666}.toc-toggle{display:none;position:fixed;right:20px;bottom:100px;z-index:1000;width:48px;height:48px;border-radius:50%;background:var(--maincolor,red);color:#fff;border:none;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3);align-items:center;justify-content:center;transition:transform .2s ease}.toc-toggle:hover{transform:scale(1.1)}.toc-toggle svg{max-height:none}@media screen and (max-width:900px){.content{max-width:100%}.post-container{flex-direction:column;gap:20px}.post-content{flex:1;max-width:100%;width:100%}.toc-sidebar{display:none;position:fixed;top:0;right:0;bottom:0;width:280px;max-width:80vw;z-index:999;background:rgba(255,255,255,.98);flex:none;min-width:auto;padding:20px;box-shadow:-2px 0 10px rgba(0,0,0,.2);overflow-y:auto}.toc-sidebar.open{display:block}.toc-wrapper{position:static;max-height:none;background:0 0;overscroll-behavior:contain}.toc-toggle{display:flex}.toc-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:998}.toc-overlay.open{display:block}}@media(prefers-color-scheme:dark){.toc-wrapper{background:#2a2a2a}.toc-header{color:#e0e0e0;border-bottom-color:#444}.toc-sidebar #TableOfContents a{color:#bbb}.toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.toc-sidebar #TableOfContents ul ul li a{color:#aaa}@media screen and (max-width:900px){.toc-sidebar{background:rgba(30,30,30,.98)}}}.dark .toc-wrapper{background:#2a2a2a}.dark .toc-header{color:#e0e0e0;border-bottom-color:#444}.dark .toc-sidebar #TableOfContents a{color:#bbb}.dark .toc-sidebar #TableOfContents a:hover{background-color:rgba(255,255,255,.1);color:#fff}.dark .toc-sidebar #TableOfContents>ul>li>a{color:#e0e0e0}.dark .toc-sidebar #TableOfContents ul ul li a{color:#aaa}.dark .toc-sidebar #TableOfContents a.active{background-color:var(--darkMaincolor,#50fa7b);color:#232333}</style><script>(function(){window.toggleToc=function(){const t=document.querySelector(".toc-sidebar");let e=document.querySelector(".toc-overlay");e||(e=document.createElement("div"),e.className="toc-overlay",e.onclick=toggleToc,document.body.appendChild(e)),t.classList.toggle("open"),e.classList.toggle("open"),document.body.style.overflow=t.classList.contains("open")?"hidden":""};function e(){const e=document.querySelectorAll(".body h1[id], .body h2[id], .body h3[id], .body h4[id]"),t=document.querySelectorAll('.toc-sidebar a[href^="#"]'),a=document.querySelector(".toc-wrapper");if(e.length===0||t.length===0||!a)return;let n=null,s=!1;const r=100;function i(){if(s)return;const i=window.scrollY+r;let o=null;for(let t=e.length-1;t>=0;t--)if(e[t].offsetTop<=i){o=e[t];break}o&&n!==o&&(n=o,t.forEach(e=>{e.classList.remove("active"),e.getAttribute("href")==="#"+o.id&&(e.classList.add("active"),e.scrollIntoView({behavior:"smooth",block:"nearest"}))}))}let o=!1;window.addEventListener("scroll",function(){o||(window.requestAnimationFrame(function(){i(),o=!1}),o=!0)},{passive:!0}),i(),t.forEach(e=>{e.addEventListener("click",function(e){const o=this.getAttribute("href");if(o&&o.startsWith("#")){e.preventDefault();const a=o.slice(1),i=document.getElementById(a);if(i){s=!0,n=i;const e=i.getBoundingClientRect(),o=window.pageYOffset+e.top-80;t.forEach(e=>e.classList.remove("active")),this.classList.add("active"),this.scrollIntoView({behavior:"auto",block:"center"}),window.scrollTo({top:Math.max(0,o),behavior:"smooth"}),setTimeout(()=>{s=!1},600),window.innerWidth<=900&&toggleToc()}}})})}document.readyState==="loading"?document.addEventListener("DOMContentLoaded",e):e()})()</script><footer><div style=display:flex><a class=soc href=https://github.com/xautjzd rel=me title=GitHub><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#github"/></svg></a><a class=border></a><a class=soc href=https://x.com/xautjzd/ rel=me title=X><svg class="feather"><use href="/svg/feather-sprite.51cf5647cb1987f769b616558f2620fd9423d72058490231b391bf6aa3744b55.svg#x"/></svg></a><a class=border></a></div><div class=footer-info>2026 © jzd | <a href=https://github.com/athul/archie>Archie Theme</a> | Built with <a href=https://gohugo.io>Hugo</a></div></footer><script async src="https://www.googletagmanager.com/gtag/js?id=G-MD311WEJXY"></script><script>var doNotTrack=!1,dnt=navigator.doNotTrack||window.doNotTrack||navigator.msDoNotTrack,doNotTrack=dnt=="1"||dnt=="yes";if(!doNotTrack){window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","G-MD311WEJXY")}</script></div></body></html>
