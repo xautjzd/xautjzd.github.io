@@ -1,4 +1,17 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ai on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/ai/</link><description>Recent content in Ai on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Mon, 22 Jun 2026 10:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>工程化记忆：大模型短期记忆与长期记忆的驾驭之道</title><link>https://xautjzd.github.io/posts/2026-06-22-harness-engineering-memory/</link><pubDate>Mon, 22 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-22-harness-engineering-memory/</guid><description>&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Ai on Zhengdong.jzd 个人博客</title><link>https://xautjzd.github.io/tags/ai/</link><description>Recent content in Ai on Zhengdong.jzd 个人博客</description><generator>Hugo</generator><language>zh-cn</language><copyright>© jzd</copyright><lastBuildDate>Wed, 29 Jul 2026 22:00:00 +0800</lastBuildDate><atom:link href="https://xautjzd.github.io/tags/ai/index.xml" rel="self" type="application/rss+xml"/><item><title>从 Volta 到 Rubin：NVIDIA 数据中心 GPU 如何重塑 AI 基础设施</title><link>https://xautjzd.github.io/posts/2026-07-29-nvidia-data-center-gpu-volta-to-rubin/</link><pubDate>Wed, 29 Jul 2026 22:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-07-29-nvidia-data-center-gpu-volta-to-rubin/</guid><description>&lt;blockquote&gt;
+&lt;p&gt;从 Tensor Core、HBM 和 NVLink，到机柜级 AI Factory：GPU 的代际升级，表面是算力与显存升级，本质是对 AI 工作负载、集群通信和数据中心运营成本的持续重构。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;如果让你为一家 AI 公司采购 1,000 张 GPU，你真正要买的是什么？&lt;/p&gt;
+&lt;p&gt;答案不是 1,000 块插进服务器就能工作的加速卡，而是一套彼此咬合的系统：服务器要装得下，网络要跑得满，存储要供得上，供电要扛得住，冷却要压得住热量，软件平台还要让训练任务稳定地跨越数百乃至数千块 GPU。&lt;/p&gt;
+&lt;p&gt;少了其中任何一环，昂贵的 GPU 都可能变成机房里“最贵的等待队列”。&lt;/p&gt;
+&lt;p&gt;这正是理解 NVIDIA 数据中心 GPU 演进的关键。大模型的瓶颈早已不只是芯片能做多少次浮点运算，还包括模型是否装得下、数据是否送得进、GPU 之间是否跟得上，以及每生成一个 Token 究竟要花多少钱。NVIDIA 的竞争对象也不只是 AMD 等芯片厂商，还包括云厂商的自研加速器、各种专用 AI 芯片，以及客户有限的基础设施预算。&lt;/p&gt;
+&lt;p&gt;从 Volta 到 Rubin，NVIDIA 的产品重心因此不断上移：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;从一张更快的卡，到一台更强的服务器，再到一个能够持续生产 Token 的机柜和 AI Factory。&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;这篇文章不会把 GPU 写成一串令人眼花缭乱的 FLOPS 参数，而是回答一个更重要的问题：&lt;strong&gt;为什么它们必须这样演进？&lt;/strong&gt;&lt;/p&gt;
+&lt;h2 id="一先建立共同语言看懂-gpu-的五个关键维度"&gt;一、先建立共同语言：看懂 GPU 的五个关键维度&lt;/h2&gt;
+&lt;p&gt;比较 GPU，最容易掉进“峰值算力越高，实际性能越好”的陷阱。真实 AI 系统的速度，通常由计算、显存、通信、软件和数据中心运营五个维度共同决定。&lt;/p&gt;
+&lt;h3 id="1-计算tensor-core-为什么是分水岭"&gt;1. 计算：Tensor Core 为什么是分水岭&lt;/h3&gt;
+&lt;p&gt;CUDA Core 是通用并行计算单元，适合向量、标量和控制逻辑等多类运算；Tensor Core 则专门加速矩阵乘加。Transformer 中的注意力与前馈网络，本质上包含大量矩阵乘法，因此 Tensor Core 与现代 AI 工作负载天然契合。&lt;/p&gt;</description></item><item><title>工程化记忆：大模型短期记忆与长期记忆的驾驭之道</title><link>https://xautjzd.github.io/posts/2026-06-22-harness-engineering-memory/</link><pubDate>Mon, 22 Jun 2026 10:00:00 +0800</pubDate><guid>https://xautjzd.github.io/posts/2026-06-22-harness-engineering-memory/</guid><description>&lt;blockquote&gt;
 &lt;p&gt;&lt;strong&gt;记忆不是存储问题，而是时机问题。&lt;/strong&gt;&lt;/p&gt;
 &lt;/blockquote&gt;
 &lt;h2 id="引言ai-的金鱼困境"&gt;引言：AI 的&amp;quot;金鱼困境&amp;quot;&lt;/h2&gt;
